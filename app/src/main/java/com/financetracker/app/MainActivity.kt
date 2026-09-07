@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.financetracker.app.ui.dashboard.DashboardScreen
 import com.financetracker.app.ui.entry.AddEditTransactionRoute
 import com.financetracker.app.ui.history.HistoryScreen
 import com.financetracker.app.ui.theme.FinanceTrackerTheme
@@ -30,8 +31,15 @@ class MainActivity : ComponentActivity() {
           val navController = rememberNavController()
           NavHost(
             navController = navController,
-            startDestination = "history"
+            startDestination = "dashboard"
           ) {
+            composable("dashboard") {
+              DashboardScreen(
+                onAddTransaction = { navController.navigate("add_transaction") },
+                onHistory = { navController.navigate("history") },
+                onEditTransaction = { id -> navController.navigate("add_transaction/$id") }
+              )
+            }
             composable("history") {
               HistoryScreen(
                 onAddTransaction = { navController.navigate("add_transaction") },

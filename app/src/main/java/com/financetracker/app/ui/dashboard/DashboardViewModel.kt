@@ -1,0 +1,153 @@
+package com.financetracker.app.ui.dashboard
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.financetracker.app.data.dao.CategoryDao
+import com.financetracker.app.data.dao.TransactionDao
+import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.epochDayToMonthLabel
+import com.financetracker.app.ui.components.todayEpochDay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import kotlin.math.abs
+
+private val MONTH_LABEL = DateTimeFormatter.ofPattern("MMM")
+
+data class CashflowPoint(
+  val label: String,
+  val incomeCents: Long,
+  val expenseCents: Long
+)
+
+data class CategorySlice(
+  val name: String,
+  val color: Long,
+  val cents: Long,
+  val fraction: Float
+)
+
+data class TrendPoint(
+  val label: String,
+  val cents: Long
+)
+
+data class RecentRow(
+  val id: Long,
+  val note: String,
+  val dateEpochDay: Long,
+  val amountCents: Long,
+  val type: TransactionType,
+  val categoryName: String,
+  val categoryColor: Long
+)
+
+data class DashboardUiState(
+  val monthLabel: String = "",
+  val balanceCents: Long = 0,
+  val monthIncomeCents: Long = 0,
+  val monthExpenseCents: Long = 0,
+  val monthNetCents: Long = 0,
+  val netDeltaPercent: Float? = null,
+  val cashflow: List<CashflowPoint> = emptyList(),
+  val categories: List<CategorySlice> = emptyList(),
+  val trend: List<TrendPoint> = emptyList(),
+  val recent: List<RecentRow> = emptyList()
+)
+
+class DashboardViewModel(
+  transactionDao: TransactionDao,
+  categoryDao: CategoryDao
+) : ViewModel() {
+
+  val uiState: StateFlow<DashboardUiState> =
+    combine(transactionDao.getAll(), categoryDao.getAll()) { transactions, categories ->
+      val byId = categories.associateBy { it.id }
+      val today = LocalDate.ofEpochDay(todayEpochDay())
+      val thisMonth = YearMonth.from(today)
+      val months = (4 downTo 0).map { thisMonth.minusMonths(it.toLong()) }
+      val lastMonth = thisMonth.minusMonths(1)
+
+      val balanceCents =
+        transactions.sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
+
+      fun sumIn(month: YearMonth, type: TransactionType): Long =
+        transactions
+          .filter { YearMonth.from(LocalDate.ofEpochDay(it.date)) == month }
+          .filter { it.type == type }
+          .sumOf { it.amount }
+
+      val monthIncome = sumIn(thisMonth, TransactionType.INCOME)
+      val monthExpense = sumIn(thisMonth, TransactionType.EXPENSE)
+      val prevNet = sumIn(lastMonth, TransactionType.INCOME) - sumIn(lastMonth, TransactionType.EXPENSE)
+      val monthNet = monthIncome - monthExpense
+
+      val delta = if (prevNet != 0L) {
+        ((monthNet - prevNet).toFloat() / abs(prevNet).toFloat()) * 100f
+      } else null
+
+      val cashflow = months.map { m ->
+        CashflowPoint(
+          label = m.atDay(1).format(MONTH_LABEL),
+          incomeCents = sumIn(m, TransactionType.INCOME),
+          expenseCents = sumIn(m, TransactionType.EXPENSE)
+        )
+      }
+
+      val trend = months.map { m ->
+        TrendPoint(
+          label = m.atDay(1).format(MONTH_LABEL),
+          cents = sumIn(m, TransactionType.EXPENSE)
+        )
+      }
+
+      val monthExpenses = transactions
+        .filter { YearMonth.from(LocalDate.ofEpochDay(it.date)) == thisMonth }
+        .filter { it.type == TransactionType.EXPENSE }
+        .groupBy { it.categoryId }
+        .mapValues { (id, list) -> Pair(byId[id], list.sumOf { it.amount }) }
+        .values
+        .filter { it.first != null && it.second > 0 }
+        .sortedByDescending { it.second }
+
+      val totalExpense = monthExpenses.sumOf { it.second }.coerceAtLeast(1)
+      val categories = monthExpenses.map { (cat, cents) ->
+        CategorySlice(
+          name = cat!!.name,
+          color = cat.color,
+          cents = cents,
+          fraction = cents.toFloat() / totalExpense
+        )
+      }
+
+      val recent = transactions.take(5).map { tx ->
+        val cat = byId[tx.categoryId]
+        RecentRow(
+          id = tx.id,
+          note = tx.note,
+          dateEpochDay = tx.date,
+          amountCents = tx.amount,
+          type = tx.type,
+          categoryName = cat?.name ?: "Deleted",
+          categoryColor = cat?.color ?: 0xFF8A8A8A
+        )
+      }
+
+      DashboardUiState(
+        monthLabel = epochDayToMonthLabel(today.toEpochDay()),
+        balanceCents = balanceCents,
+        monthIncomeCents = monthIncome,
+        monthExpenseCents = monthExpense,
+        monthNetCents = monthNet,
+        netDeltaPercent = delta,
+        cashflow = cashflow,
+        categories = categories,
+        trend = trend,
+        recent = recent
+      )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DashboardUiState())
+}
