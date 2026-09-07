@@ -183,7 +183,10 @@ private fun AddEditTransactionScreen(
           TransactionType.EXPENSE to "Expense" to SignalNegative,
           TransactionType.INCOME to "Income" to SignalPositive
         )
-        options.forEach { ((type, label), color) ->
+        options.forEach { option ->
+          val type = option.first.first
+          val label = option.first.second
+          val color = option.second
           val selected = state.transactionType == type
           Surface(
             modifier = Modifier
