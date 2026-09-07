@@ -7,8 +7,8 @@ import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
-import com.financetracker.app.ui.components.centsToInputText
-import com.financetracker.app.ui.components.parseAmountToCents
+import com.financetracker.app.ui.components.amountToInputText
+import com.financetracker.app.ui.components.parseAmount
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,7 +65,7 @@ class AddEditTransactionViewModel(
           _uiState.update {
             it.copy(
               transactionType = tx.type,
-              amountText = centsToInputText(tx.amount),
+              amountText = amountToInputText(tx.amount),
               note = tx.note,
               selectedCategoryId = tx.categoryId,
               dateEpochDay = tx.date,
@@ -90,7 +90,7 @@ class AddEditTransactionViewModel(
   }
 
   fun onAmountChange(text: String) {
-    if (text.matches(Regex("""\d*\.?\d{0,2}"""))) {
+    if (text.matches(Regex("""\d{0,12}"""))) {
       _uiState.update { it.copy(amountText = text, error = null) }
     }
   }
@@ -109,14 +109,14 @@ class AddEditTransactionViewModel(
 
   fun save() {
     val state = _uiState.value
-    val cents = parseAmountToCents(state.amountText)
+    val amount = parseAmount(state.amountText)
     when {
-      cents == null || cents <= 0 -> _uiState.update { it.copy(error = "Enter an amount greater than zero") }
+      amount == null || amount <= 0 -> _uiState.update { it.copy(error = "Enter an amount greater than zero") }
       state.selectedCategoryId == null -> _uiState.update { it.copy(error = "Select a category") }
       else -> {
         val transaction = Transaction(
           id = transactionId ?: 0,
-          amount = cents,
+          amount = amount,
           type = state.transactionType,
           categoryId = state.selectedCategoryId,
           date = state.dateEpochDay,

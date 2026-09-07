@@ -21,22 +21,20 @@ fun epochDayToUtcMillis(epochDay: Long): Long =
 fun utcMillisToEpochDay(millis: Long): Long =
   java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneOffset.UTC).toLocalDate().toEpochDay()
 
-fun centsToInputText(cents: Long): String =
-  "${cents / 100}.${(cents % 100).toString().padStart(2, '0')}"
+fun amountToInputText(amount: Long): String = amount.toString()
 
-fun parseAmountToCents(text: String): Long? {
+fun parseAmount(text: String): Long? {
   val t = text.trim()
-  if (t.isEmpty() || !t.matches(Regex("""\d*\.?\d{0,2}"""))) return null
-  val parts = t.split(".")
-  val whole = parts[0].ifEmpty { "0" }.toLongOrNull() ?: return null
-  val frac = parts.getOrNull(1).orEmpty().padEnd(2, '0').ifEmpty { "0" }
-  return whole * 100 + frac.toLong()
+  if (t.isEmpty() || !t.matches(Regex("""\d{1,12}"""))) return null
+  return t.toLongOrNull()
 }
 
-fun formatCents(cents: Long): String {
-  val sign = if (cents < 0) "-" else ""
-  val absCents = abs(cents)
-  val whole = absCents / 100
-  val frac = (absCents % 100).toString().padStart(2, '0')
-  return "$sign$whole.$frac"
+fun formatRupiah(amount: Long): String {
+  val sign = if (amount < 0) "-" else ""
+  val grouped = abs(amount).toString()
+    .reversed()
+    .chunked(3)
+    .joinToString(".")
+    .reversed()
+  return "${sign}Rp$grouped"
 }

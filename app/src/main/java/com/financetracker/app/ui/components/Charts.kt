@@ -102,8 +102,8 @@ fun CashflowChart(
   LaunchedEffect(data) {
     modelProducer.runTransaction {
       columnModel {
-        series(x = List(data.size) { it }, y = data.map { it.incomeCents.toFloat() }, key = "income")
-        series(x = List(data.size) { it }, y = data.map { it.expenseCents.toFloat() }, key = "expense")
+        series(x = List(data.size) { it }, y = data.map { it.income.toFloat() }, key = "income")
+        series(x = List(data.size) { it }, y = data.map { it.expense.toFloat() }, key = "expense")
       }
       extras { it[monthLabelsKey] = months }
     }
@@ -150,7 +150,7 @@ fun TrendLineChart(
   LaunchedEffect(data) {
     modelProducer.runTransaction {
       lineModel {
-        series(x = List(data.size) { it }, y = data.map { it.cents.toFloat() }, key = "expense")
+        series(x = List(data.size) { it }, y = data.map { it.amount.toFloat() }, key = "expense")
       }
       extras { it[monthLabelsKey] = months }
     }

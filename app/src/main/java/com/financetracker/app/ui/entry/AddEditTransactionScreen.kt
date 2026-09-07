@@ -225,7 +225,7 @@ private fun AddEditTransactionScreen(
           Spacer(modifier = Modifier.height(6.dp))
           Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-              text = "$",
+              text = "Rp",
               style = MaterialTheme.typography.headlineLarge,
               fontWeight = FontWeight.Bold,
               color = accent
@@ -241,7 +241,7 @@ private fun AddEditTransactionScreen(
                 color = TermText
               ),
               cursorBrush = SolidColor(SignalPositive),
-              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
               singleLine = true,
               modifier = Modifier.fillMaxWidth()
             )

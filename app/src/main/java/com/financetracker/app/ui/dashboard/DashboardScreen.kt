@@ -48,7 +48,7 @@ import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CashflowChart
 import com.financetracker.app.ui.components.TrendLineChart
 import com.financetracker.app.ui.components.epochDayToDisplay
-import com.financetracker.app.ui.components.formatCents
+import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBg
@@ -117,7 +117,7 @@ fun DashboardScreen(
       )
     }
 
-    if (state.cashflow.any { it.incomeCents > 0 || it.expenseCents > 0 }) {
+    if (state.cashflow.any { it.income > 0 || it.expense > 0 }) {
       item {
         CashflowChart(data = state.cashflow)
       }
@@ -129,7 +129,7 @@ fun DashboardScreen(
       }
     }
 
-    if (state.trend.any { it.cents > 0 }) {
+    if (state.trend.any { it.amount > 0 }) {
       item {
         TrendLineChart(data = state.trend)
       }
@@ -222,7 +222,7 @@ private fun RunningBalanceCard(
       Spacer(modifier = Modifier.height(8.dp))
 
       Text(
-        text = if (balanceVisible) formatCurrency(state.balanceCents) else "$" + "•".repeat(6),
+        text = if (balanceVisible) formatRupiah(state.balance) else "Rp" + "•".repeat(6),
         style = MaterialTheme.typography.displayLarge,
         fontWeight = FontWeight.Bold,
         color = TermText
@@ -262,9 +262,9 @@ private fun RunningBalanceCard(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
       ) {
-        Metric(label = "Income", amount = state.monthIncomeCents, isExpense = false)
-        Metric(label = "Expenses", amount = state.monthExpenseCents, isExpense = true)
-        Metric(label = "Net", amount = state.monthNetCents, isExpense = state.monthNetCents < 0)
+        Metric(label = "Income", amount = state.monthIncome, isExpense = false)
+        Metric(label = "Expenses", amount = state.monthExpense, isExpense = true)
+        Metric(label = "Net", amount = state.monthNet, isExpense = state.monthNet < 0)
       }
 
       Spacer(modifier = Modifier.height(16.dp))
@@ -343,7 +343,7 @@ private fun Metric(label: String, amount: Long, isExpense: Boolean) {
     )
     Spacer(modifier = Modifier.height(2.dp))
     Text(
-      text = "$sign$${formatCents(kotlin.math.abs(amount))}",
+      text = "$sign${formatRupiah(kotlin.math.abs(amount))}",
       style = MaterialTheme.typography.bodyMedium,
       fontWeight = FontWeight.Bold,
       color = color
@@ -372,7 +372,7 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
           fontWeight = FontWeight.Medium
         )
         Text(
-          text = "Total: ${formatCurrency(categories.sumOf { it.cents })}",
+          text = "Total: ${formatRupiah(categories.sumOf { it.amount })}",
           style = MaterialTheme.typography.bodySmall,
           color = TermText
         )
@@ -416,7 +416,7 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
           }
           Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-              text = formatCurrency(cat.cents),
+              text = formatRupiah(cat.amount),
               style = MaterialTheme.typography.bodySmall,
               color = TermText
             )
@@ -478,7 +478,7 @@ private fun RecentRowItem(
         }
       }
       Text(
-        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + formatCurrency(row.amountCents),
+        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + formatRupiah(row.amount),
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = FontWeight.Bold,
         color = if (row.type == TransactionType.EXPENSE) SignalNegative else SignalPositive
@@ -487,7 +487,3 @@ private fun RecentRowItem(
   }
 }
 
-private fun formatCurrency(cents: Long): String {
-  val absCents = kotlin.math.abs(cents)
-  return (if (cents < 0) "-" else "") + "\$" + formatCents(absCents)
-}

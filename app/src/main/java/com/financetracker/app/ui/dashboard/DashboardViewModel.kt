@@ -20,27 +20,27 @@ private val MONTH_LABEL = DateTimeFormatter.ofPattern("MMM")
 
 data class CashflowPoint(
   val label: String,
-  val incomeCents: Long,
-  val expenseCents: Long
+  val income: Long,
+  val expense: Long
 )
 
 data class CategorySlice(
   val name: String,
   val color: Long,
-  val cents: Long,
+  val amount: Long,
   val fraction: Float
 )
 
 data class TrendPoint(
   val label: String,
-  val cents: Long
+  val amount: Long
 )
 
 data class RecentRow(
   val id: Long,
   val note: String,
   val dateEpochDay: Long,
-  val amountCents: Long,
+  val amount: Long,
   val type: TransactionType,
   val categoryName: String,
   val categoryColor: Long
@@ -48,10 +48,10 @@ data class RecentRow(
 
 data class DashboardUiState(
   val monthLabel: String = "",
-  val balanceCents: Long = 0,
-  val monthIncomeCents: Long = 0,
-  val monthExpenseCents: Long = 0,
-  val monthNetCents: Long = 0,
+  val balance: Long = 0,
+  val monthIncome: Long = 0,
+  val monthExpense: Long = 0,
+  val monthNet: Long = 0,
   val netDeltaPercent: Float? = null,
   val cashflow: List<CashflowPoint> = emptyList(),
   val categories: List<CategorySlice> = emptyList(),
@@ -72,7 +72,7 @@ class DashboardViewModel(
       val months = (4 downTo 0).map { thisMonth.minusMonths(it.toLong()) }
       val lastMonth = thisMonth.minusMonths(1)
 
-      val balanceCents =
+      val balance =
         transactions.sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
 
       fun sumIn(month: YearMonth, type: TransactionType): Long =
@@ -93,15 +93,15 @@ class DashboardViewModel(
       val cashflow = months.map { m ->
         CashflowPoint(
           label = m.atDay(1).format(MONTH_LABEL),
-          incomeCents = sumIn(m, TransactionType.INCOME),
-          expenseCents = sumIn(m, TransactionType.EXPENSE)
+          income = sumIn(m, TransactionType.INCOME),
+          expense = sumIn(m, TransactionType.EXPENSE)
         )
       }
 
       val trend = months.map { m ->
         TrendPoint(
           label = m.atDay(1).format(MONTH_LABEL),
-          cents = sumIn(m, TransactionType.EXPENSE)
+          amount = sumIn(m, TransactionType.EXPENSE)
         )
       }
 
@@ -115,12 +115,12 @@ class DashboardViewModel(
         .sortedByDescending { it.second }
 
       val totalExpense = monthExpenses.sumOf { it.second }.coerceAtLeast(1)
-      val categories = monthExpenses.map { (cat, cents) ->
+      val categories = monthExpenses.map { (cat, amount) ->
         CategorySlice(
           name = cat!!.name,
           color = cat.color,
-          cents = cents,
-          fraction = cents.toFloat() / totalExpense
+          amount = amount,
+          fraction = amount.toFloat() / totalExpense
         )
       }
 
@@ -130,7 +130,7 @@ class DashboardViewModel(
           id = tx.id,
           note = tx.note,
           dateEpochDay = tx.date,
-          amountCents = tx.amount,
+          amount = tx.amount,
           type = tx.type,
           categoryName = cat?.name ?: "Deleted",
           categoryColor = cat?.color ?: 0xFF8A8A8A
@@ -139,10 +139,10 @@ class DashboardViewModel(
 
       DashboardUiState(
         monthLabel = epochDayToMonthLabel(today.toEpochDay()),
-        balanceCents = balanceCents,
-        monthIncomeCents = monthIncome,
-        monthExpenseCents = monthExpense,
-        monthNetCents = monthNet,
+        balance = balance,
+        monthIncome = monthIncome,
+        monthExpense = monthExpense,
+        monthNet = monthNet,
         netDeltaPercent = delta,
         cashflow = cashflow,
         categories = categories,

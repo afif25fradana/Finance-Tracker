@@ -47,7 +47,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.epochDayToDisplay
-import com.financetracker.app.ui.components.formatCents
+import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBg
@@ -237,16 +237,16 @@ fun HistoryScreen(
                 color = TermMuted
               )
               Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (month.incomeCents > 0) {
+                if (month.income > 0) {
                   Text(
-                    text = "+$${formatCents(month.incomeCents)}",
+                    text = "+${formatRupiah(month.income)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = SignalPositive
                   )
                 }
-                if (month.expenseCents > 0) {
+                if (month.expense > 0) {
                   Text(
-                    text = "-$${formatCents(month.expenseCents)}",
+                    text = "-${formatRupiah(month.expense)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = SignalNegative
                   )
@@ -309,7 +309,7 @@ private fun HistoryRowItem(
         }
       }
       Text(
-        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + "$" + formatCents(row.amountCents),
+        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + formatRupiah(row.amount),
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = FontWeight.Bold,
         color = if (row.type == TransactionType.EXPENSE) SignalNegative else SignalPositive

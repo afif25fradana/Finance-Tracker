@@ -18,7 +18,7 @@ data class HistoryRow(
   val id: Long,
   val note: String,
   val dateEpochDay: Long,
-  val amountCents: Long,
+  val amount: Long,
   val type: TransactionType,
   val categoryName: String,
   val categoryColor: Long
@@ -26,8 +26,8 @@ data class HistoryRow(
 
 data class HistoryMonth(
   val label: String,
-  val incomeCents: Long,
-  val expenseCents: Long,
+  val income: Long,
+  val expense: Long,
   val rows: List<HistoryRow>
 )
 
@@ -62,7 +62,7 @@ class HistoryViewModel(
           id = tx.id,
           note = tx.note,
           dateEpochDay = tx.date,
-          amountCents = tx.amount,
+          amount = tx.amount,
           type = tx.type,
           categoryName = category?.name ?: "Deleted",
           categoryColor = category?.color ?: 0xFF8A8A8A
@@ -84,8 +84,8 @@ class HistoryViewModel(
         .map { (yearMonth, rows) ->
           HistoryMonth(
             label = epochDayToMonthLabel(yearMonth.atDay(1).toEpochDay()),
-            incomeCents = rows.filter { it.type == TransactionType.INCOME }.sumOf { it.amountCents },
-            expenseCents = rows.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amountCents },
+            income = rows.filter { it.type == TransactionType.INCOME }.sumOf { it.amount },
+            expense = rows.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount },
             rows = rows
           )
         }
