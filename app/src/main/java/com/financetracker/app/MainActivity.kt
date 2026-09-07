@@ -8,6 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.financetracker.app.ui.entry.AddEditTransactionRoute
+import com.financetracker.app.ui.history.TemporaryHomeScreen
 import com.financetracker.app.ui.theme.FinanceTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +27,38 @@ class MainActivity : ComponentActivity() {
           modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background
         ) {
-          // Phase 0: Blank screen confirming scaffold, dependencies, and theme
+          val navController = rememberNavController()
+          NavHost(
+            navController = navController,
+            startDestination = "home"
+          ) {
+            composable("home") {
+              TemporaryHomeScreen(
+                onAddTransaction = { navController.navigate("add_transaction") },
+                onEditTransaction = { id -> navController.navigate("add_transaction/$id") }
+              )
+            }
+            composable(
+              route = "add_transaction/{transactionId}",
+              arguments = listOf(
+                navArgument("transactionId") { type = NavType.LongType }
+              )
+            ) { backStackEntry ->
+              val transactionId = backStackEntry.arguments?.getLong("transactionId")
+              AddEditTransactionRoute(
+                transactionId = transactionId,
+                onBack = { navController.popBackStack() }
+              )
+            }
+            composable("add_transaction") {
+              AddEditTransactionRoute(
+                transactionId = null,
+                onBack = { navController.popBackStack() }
+              )
+            }
+          }
         }
       }
     }
   }
 }
-
