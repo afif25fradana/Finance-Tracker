@@ -14,7 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.financetracker.app.ui.entry.AddEditTransactionRoute
-import com.financetracker.app.ui.history.TemporaryHomeScreen
+import com.financetracker.app.ui.history.HistoryScreen
 import com.financetracker.app.ui.theme.FinanceTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,10 +30,10 @@ class MainActivity : ComponentActivity() {
           val navController = rememberNavController()
           NavHost(
             navController = navController,
-            startDestination = "home"
+            startDestination = "history"
           ) {
-            composable("home") {
-              TemporaryHomeScreen(
+            composable("history") {
+              HistoryScreen(
                 onAddTransaction = { navController.navigate("add_transaction") },
                 onEditTransaction = { id -> navController.navigate("add_transaction/$id") }
               )

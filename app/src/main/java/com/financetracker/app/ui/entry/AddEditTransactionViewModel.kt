@@ -39,6 +39,9 @@ class AddEditTransactionViewModel(
   private val _saved = MutableStateFlow(false)
   val saved: StateFlow<Boolean> = _saved.asStateFlow()
 
+  private val _deleted = MutableStateFlow(false)
+  val deleted: StateFlow<Boolean> = _deleted.asStateFlow()
+
   init {
     if (transactionId != null) loadForEdit()
     viewModelScope.launch {
@@ -125,6 +128,14 @@ class AddEditTransactionViewModel(
           _saved.value = true
         }
       }
+    }
+  }
+
+  fun delete() {
+    val id = transactionId ?: return
+    viewModelScope.launch {
+      transactionDao.deleteById(id)
+      _deleted.value = true
     }
   }
 }

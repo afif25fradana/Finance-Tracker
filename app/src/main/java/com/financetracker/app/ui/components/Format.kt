@@ -5,9 +5,13 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 private val DAY_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy")
+private val MONTH_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
 
 fun epochDayToDisplay(epochDay: Long): String =
   LocalDate.ofEpochDay(epochDay).format(DAY_FORMATTER)
+
+fun epochDayToMonthLabel(epochDay: Long): String =
+  LocalDate.ofEpochDay(epochDay).format(MONTH_FORMATTER)
 
 fun todayEpochDay(): Long = LocalDate.now().toEpochDay()
 

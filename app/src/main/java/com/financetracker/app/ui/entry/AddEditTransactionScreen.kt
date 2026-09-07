@@ -22,6 +22,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,9 +90,14 @@ fun AddEditTransactionRoute(
 
   val state by viewModel.uiState.collectAsStateWithLifecycle()
   val saved by viewModel.saved.collectAsStateWithLifecycle()
+  val deleted by viewModel.deleted.collectAsStateWithLifecycle()
 
   LaunchedEffect(saved) {
     if (saved) onBack()
+  }
+
+  LaunchedEffect(deleted) {
+    if (deleted) onBack()
   }
 
   AddEditTransactionScreen(
@@ -101,7 +108,8 @@ fun AddEditTransactionRoute(
     onNoteChange = viewModel::onNoteChange,
     onCategorySelected = viewModel::onCategorySelected,
     onDateSelected = viewModel::onDateSelected,
-    onSave = viewModel::save
+    onSave = viewModel::save,
+    onDelete = viewModel::delete
   )
 }
 
@@ -115,9 +123,11 @@ private fun AddEditTransactionScreen(
   onNoteChange: (String) -> Unit,
   onCategorySelected: (Long) -> Unit,
   onDateSelected: (Long) -> Unit,
-  onSave: () -> Unit
+  onSave: () -> Unit,
+  onDelete: () -> Unit
 ) {
   var showDatePicker by remember { mutableStateOf(false) }
+  var showDeleteConfirm by remember { mutableStateOf(false) }
   val accent = if (state.transactionType == TransactionType.EXPENSE) SignalNegative else SignalPositive
 
   LazyColumn(
@@ -128,12 +138,40 @@ private fun AddEditTransactionScreen(
     verticalArrangement = Arrangement.spacedBy(12.dp)
   ) {
     item {
-      Text(
-        text = if (state.isEditing) "Edit Transaction" else "New Transaction",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        color = TermText
-      )
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Text(
+          text = if (state.isEditing) "Edit Transaction" else "New Transaction",
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          color = TermText
+        )
+        if (state.isEditing) {
+          Surface(
+            shape = RoundedCornerShape(2.dp),
+            color = TermPanel,
+            border = BorderStroke(1.dp, SignalNegative),
+            modifier = Modifier.clickable { showDeleteConfirm = true }
+          ) {
+            Row(
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = null,
+                tint = SignalNegative,
+                modifier = Modifier.size(12.dp)
+              )
+              Spacer(modifier = Modifier.width(4.dp))
+              Text("Delete", style = MaterialTheme.typography.labelSmall, color = SignalNegative)
+            }
+          }
+        }
+      }
     }
 
     item {
@@ -400,5 +438,29 @@ private fun AddEditTransactionScreen(
         DatePicker(state = datePickerState)
       }
     }
+  }
+
+  if (showDeleteConfirm) {
+    AlertDialog(
+      onDismissRequest = { showDeleteConfirm = false },
+      containerColor = TermPanel,
+      titleContentColor = TermText,
+      textContentColor = TermMuted,
+      confirmButton = {
+        TextButton(onClick = {
+          showDeleteConfirm = false
+          onDelete()
+        }) {
+          Text("Delete", color = SignalNegative)
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { showDeleteConfirm = false }) {
+          Text("Cancel", color = TermMuted)
+        }
+      },
+      title = { Text("Delete transaction?") },
+      text = { Text("This cannot be undone.") }
+    )
   }
 }
