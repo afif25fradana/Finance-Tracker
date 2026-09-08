@@ -65,7 +65,6 @@ fun DashboardScreen(
   onHistory: () -> Unit,
   onEditTransaction: (Long) -> Unit,
   onManageReminders: () -> Unit,
-  onManageCategories: () -> Unit,
   onExport: () -> Unit
 ) {
   val context = LocalContext.current
@@ -116,7 +115,6 @@ fun DashboardScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           HeaderChip(text = "Reminders", onClick = onManageReminders)
-          HeaderChip(text = "Categories", onClick = onManageCategories)
           HeaderChip(text = "Export", onClick = onExport)
         }
       }

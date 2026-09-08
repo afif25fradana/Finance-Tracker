@@ -59,7 +59,6 @@ import com.financetracker.app.ui.theme.TermText
 
 @Composable
 fun HistoryScreen(
-  onAddTransaction: () -> Unit,
   onEditTransaction: (Long) -> Unit
 ) {
   val context = LocalContext.current
@@ -93,20 +92,6 @@ fun HistoryScreen(
         fontWeight = FontWeight.Bold,
         color = TermText
       )
-      Surface(
-        shape = RoundedCornerShape(2.dp),
-        color = SignalPositive,
-        modifier = Modifier.clickable(onClick = onAddTransaction)
-      ) {
-        Text(
-          text = "+ New",
-          style = MaterialTheme.typography.labelSmall,
-          fontWeight = FontWeight.Bold,
-          color = TermBg,
-          textAlign = TextAlign.Center,
-          modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-        )
-      }
     }
 
     Spacer(modifier = Modifier.height(10.dp))

@@ -76,7 +76,7 @@ private val CATEGORY_PALETTE = listOf(
 )
 
 @Composable
-fun CategoriesRoute(onBack: () -> Unit) {
+fun CategoriesRoute() {
   val context = LocalContext.current
   val viewModel: CategoriesViewModel = viewModel(
     factory = viewModelFactory {
@@ -90,7 +90,6 @@ fun CategoriesRoute(onBack: () -> Unit) {
 
   CategoriesScreen(
     state = state,
-    onBack = onBack,
     onAdd = viewModel::add,
     onUpdate = viewModel::update,
     onDelete = viewModel::delete
@@ -101,7 +100,6 @@ fun CategoriesRoute(onBack: () -> Unit) {
 @Composable
 private fun CategoriesScreen(
   state: CategoriesUiState,
-  onBack: () -> Unit,
   onAdd: (String, TransactionType, Long) -> Unit,
   onUpdate: (Category) -> Unit,
   onDelete: (Category, Long?) -> Unit
