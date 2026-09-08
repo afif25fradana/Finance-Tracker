@@ -65,7 +65,8 @@ fun DashboardScreen(
   onHistory: () -> Unit,
   onEditTransaction: (Long) -> Unit,
   onManageReminders: () -> Unit,
-  onManageCategories: () -> Unit
+  onManageCategories: () -> Unit,
+  onExport: () -> Unit
 ) {
   val context = LocalContext.current
   val viewModel: DashboardViewModel = viewModel(
@@ -130,6 +131,20 @@ fun DashboardScreen(
           ) {
             Text(
               text = "Categories",
+              style = MaterialTheme.typography.labelSmall,
+              color = TermMuted,
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+          }
+          Spacer(modifier = Modifier.width(6.dp))
+          Surface(
+            shape = RoundedCornerShape(2.dp),
+            color = TermPanel,
+            border = BorderStroke(1.dp, TermBorder),
+            modifier = Modifier.clickable(onClick = onExport)
+          ) {
+            Text(
+              text = "Export",
               style = MaterialTheme.typography.labelSmall,
               color = TermMuted,
               modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
