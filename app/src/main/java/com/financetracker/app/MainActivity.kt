@@ -90,6 +90,9 @@ private enum class TopTab(
 }
 
 private fun NavHostController.navigateToTab(route: String) {
+  if (currentDestination?.route == TopTab.ADD.route && route != TopTab.ADD.route) {
+    popBackStack()
+  }
   navigate(route) {
     popUpTo(graph.findStartDestination().id) { saveState = true }
     launchSingleTop = true
@@ -176,7 +179,7 @@ class MainActivity : ComponentActivity() {
               composable(TopTab.ADD.route) {
                 AddEditTransactionRoute(
                   transactionId = null,
-                  onBack = { navController.navigateToTab(TopTab.DASHBOARD.route) }
+                  onBack = { navController.popBackStack() }
                 )
               }
               composable(

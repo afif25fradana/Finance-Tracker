@@ -43,6 +43,8 @@ class AddEditTransactionViewModel(
   private val _deleted = MutableStateFlow(false)
   val deleted: StateFlow<Boolean> = _deleted.asStateFlow()
 
+  private var saving = false
+
   init {
     if (transactionId != null) loadForEdit()
     viewModelScope.launch {
@@ -119,6 +121,8 @@ class AddEditTransactionViewModel(
       amount == null || amount <= 0 -> _uiState.update { it.copy(error = "Enter an amount greater than zero") }
       state.selectedCategoryId == null -> _uiState.update { it.copy(error = "Select a category") }
       else -> {
+        if (saving) return
+        saving = true
         val transaction = Transaction(
           id = transactionId ?: 0,
           amount = amount,
