@@ -27,6 +27,7 @@ data class CashflowPoint(
 data class CategorySlice(
   val name: String,
   val color: Long,
+  val iconKey: String,
   val amount: Long,
   val fraction: Float
 )
@@ -43,7 +44,8 @@ data class RecentRow(
   val amount: Long,
   val type: TransactionType,
   val categoryName: String,
-  val categoryColor: Long
+  val categoryColor: Long,
+  val categoryIcon: String
 )
 
 data class DashboardUiState(
@@ -119,6 +121,7 @@ class DashboardViewModel(
         CategorySlice(
           name = cat!!.name,
           color = cat.color,
+          iconKey = cat.icon,
           amount = amount,
           fraction = amount.toFloat() / totalExpense
         )
@@ -133,7 +136,8 @@ class DashboardViewModel(
           amount = tx.amount,
           type = tx.type,
           categoryName = cat?.name ?: "Deleted",
-          categoryColor = cat?.color ?: 0xFF8A8A8A
+          categoryColor = cat?.color ?: 0xFF8A8A8A,
+          categoryIcon = cat?.icon ?: ""
         )
       }
 

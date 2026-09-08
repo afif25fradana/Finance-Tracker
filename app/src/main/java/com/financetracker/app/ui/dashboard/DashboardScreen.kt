@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CashflowChart
+import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.TrendLineChart
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.formatRupiah
@@ -432,11 +433,11 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
           verticalAlignment = Alignment.CenterVertically
         ) {
           Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(
-              shape = RoundedCornerShape(1.dp),
-              color = Color(cat.color),
-              modifier = Modifier.size(8.dp)
-            ) {}
+            CategoryIconTile(
+              iconKey = cat.iconKey,
+              colorArgb = cat.color,
+              containerSize = 18.dp
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
               text = "${index + 1}. ${cat.name}",
@@ -487,11 +488,11 @@ private fun RecentRowItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.weight(1f)
       ) {
-        Surface(
-          shape = RoundedCornerShape(1.dp),
-          color = Color(row.categoryColor),
-          modifier = Modifier.size(10.dp)
-        ) {}
+        CategoryIconTile(
+          iconKey = row.categoryIcon,
+          colorArgb = row.categoryColor,
+          containerSize = 20.dp
+        )
         Spacer(modifier = Modifier.width(10.dp))
         Column {
           Text(

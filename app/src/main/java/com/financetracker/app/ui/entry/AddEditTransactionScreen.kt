@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -57,8 +58,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
+import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.components.utcMillisToEpochDay
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
@@ -68,6 +71,8 @@ import com.financetracker.app.ui.theme.TermMuted
 import com.financetracker.app.ui.theme.TermPanel
 import com.financetracker.app.ui.theme.TermPanelAlt
 import com.financetracker.app.ui.theme.TermText
+
+private val QUICK_ADD_AMOUNTS = listOf(10_000L, 25_000L, 50_000L, 100_000L, 500_000L)
 
 @Composable
 fun AddEditTransactionRoute(
@@ -105,6 +110,7 @@ fun AddEditTransactionRoute(
     onBack = onBack,
     onTypeSelected = viewModel::onTypeSelected,
     onAmountChange = viewModel::onAmountChange,
+    onQuickAdd = viewModel::onQuickAdd,
     onNoteChange = viewModel::onNoteChange,
     onCategorySelected = viewModel::onCategorySelected,
     onDateSelected = viewModel::onDateSelected,
@@ -120,6 +126,7 @@ private fun AddEditTransactionScreen(
   onBack: () -> Unit,
   onTypeSelected: (TransactionType) -> Unit,
   onAmountChange: (String) -> Unit,
+  onQuickAdd: (Long) -> Unit,
   onNoteChange: (String) -> Unit,
   onCategorySelected: (Long) -> Unit,
   onDateSelected: (Long) -> Unit,
@@ -246,6 +253,36 @@ private fun AddEditTransactionScreen(
               modifier = Modifier.fillMaxWidth()
             )
           }
+
+          Spacer(modifier = Modifier.height(12.dp))
+          Box(
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(1.dp)
+              .background(TermBorder)
+          )
+          Spacer(modifier = Modifier.height(10.dp))
+          FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+          ) {
+            QUICK_ADD_AMOUNTS.forEach { amount ->
+              Surface(
+                shape = RoundedCornerShape(2.dp),
+                color = TermBg,
+                border = BorderStroke(1.dp, TermBorder),
+                modifier = Modifier.clickable { onQuickAdd(amount) }
+              ) {
+                Text(
+                  text = "+" + formatRupiah(amount),
+                  style = MaterialTheme.typography.labelSmall,
+                  color = TermMuted,
+                  modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                )
+              }
+            }
+          }
         }
       }
     }
@@ -311,11 +348,11 @@ private fun AddEditTransactionScreen(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                   ) {
-                    Surface(
-                      shape = RoundedCornerShape(1.dp),
-                      color = Color(cat.color),
-                      modifier = Modifier.size(10.dp)
-                    ) {}
+                    CategoryIconTile(
+                      iconKey = cat.icon,
+                      colorArgb = cat.color,
+                      containerSize = 16.dp
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                       text = cat.name,

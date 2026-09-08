@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
@@ -273,11 +274,11 @@ private fun HistoryRowItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.weight(1f)
       ) {
-        Surface(
-          shape = RoundedCornerShape(1.dp),
-          color = Color(row.categoryColor),
-          modifier = Modifier.size(10.dp)
-        ) {}
+        CategoryIconTile(
+          iconKey = row.categoryIcon,
+          colorArgb = row.categoryColor,
+          containerSize = 20.dp
+        )
         Spacer(modifier = Modifier.width(10.dp))
         Column {
           Text(

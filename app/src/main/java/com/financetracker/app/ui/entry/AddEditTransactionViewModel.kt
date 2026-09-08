@@ -7,6 +7,7 @@ import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.addPresetToAmount
 import com.financetracker.app.ui.components.amountToInputText
 import com.financetracker.app.ui.components.parseAmount
 import com.financetracker.app.ui.components.todayEpochDay
@@ -93,6 +94,10 @@ class AddEditTransactionViewModel(
     if (text.matches(Regex("""\d{0,12}"""))) {
       _uiState.update { it.copy(amountText = text, error = null) }
     }
+  }
+
+  fun onQuickAdd(preset: Long) {
+    _uiState.update { it.copy(amountText = addPresetToAmount(it.amountText, preset), error = null) }
   }
 
   fun onNoteChange(note: String) {

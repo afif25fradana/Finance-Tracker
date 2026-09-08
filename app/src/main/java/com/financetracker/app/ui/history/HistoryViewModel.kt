@@ -21,7 +21,8 @@ data class HistoryRow(
   val amount: Long,
   val type: TransactionType,
   val categoryName: String,
-  val categoryColor: Long
+  val categoryColor: Long,
+  val categoryIcon: String
 )
 
 data class HistoryMonth(
@@ -65,7 +66,8 @@ class HistoryViewModel(
           amount = tx.amount,
           type = tx.type,
           categoryName = category?.name ?: "Deleted",
-          categoryColor = category?.color ?: 0xFF8A8A8A
+          categoryColor = category?.color ?: 0xFF8A8A8A,
+          categoryIcon = category?.icon ?: ""
         )
       }
 

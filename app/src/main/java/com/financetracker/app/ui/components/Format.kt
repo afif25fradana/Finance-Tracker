@@ -26,6 +26,13 @@ fun utcMillisToEpochDay(millis: Long): Long =
 
 fun amountToInputText(amount: Long): String = amount.toString()
 
+private const val MAX_INPUT_AMOUNT = 999_999_999_999L
+
+fun addPresetToAmount(current: String, preset: Long): String {
+  val base = current.toLongOrNull() ?: 0L
+  return (base + preset).coerceAtMost(MAX_INPUT_AMOUNT).toString()
+}
+
 fun parseAmount(text: String): Long? {
   val t = text.trim()
   if (t.isEmpty() || !t.matches(Regex("""\d{1,12}"""))) return null
