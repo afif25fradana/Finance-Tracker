@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
                       icon = {
                         Icon(
                           imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
-                          contentDescription = tab.label,
+                          contentDescription = null,
                           modifier = Modifier.size(20.dp)
                         )
                       },

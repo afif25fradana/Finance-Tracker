@@ -139,10 +139,7 @@ fun HistoryScreen(
           }
         )
         if (state.searchQuery.isNotEmpty()) {
-          IconButton(
-            onClick = { viewModel.onSearchQueryChange("") },
-            modifier = Modifier.size(20.dp)
-          ) {
+          IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
             Icon(
               imageVector = Icons.Default.Close,
               contentDescription = "Clear",

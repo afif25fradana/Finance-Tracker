@@ -307,7 +307,7 @@ private fun CategoryRowItem(
           color = TermMuted
         )
       }
-      IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+      IconButton(onClick = onEdit) {
         Icon(
           imageVector = Icons.Default.Edit,
           contentDescription = "Edit",
@@ -315,7 +315,7 @@ private fun CategoryRowItem(
           modifier = Modifier.size(14.dp)
         )
       }
-      IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+      IconButton(onClick = onDelete) {
         Icon(
           imageVector = Icons.Default.Delete,
           contentDescription = "Delete",

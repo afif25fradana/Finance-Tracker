@@ -240,7 +240,7 @@ private fun RunningBalanceCard(
           color = TermMuted,
           fontWeight = FontWeight.Medium
         )
-        IconButton(onClick = onToggleVisibility, modifier = Modifier.size(24.dp)) {
+        IconButton(onClick = onToggleVisibility) {
           Icon(
             imageVector = if (balanceVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
             contentDescription = "Toggle balance visibility",
