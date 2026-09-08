@@ -295,20 +295,20 @@ private fun RunningBalanceCard(
             .weight(1f)
             .clickable(onClick = onAddTransaction),
           shape = RoundedCornerShape(2.dp),
-          color = TermPanelAlt,
-          border = BorderStroke(1.dp, TermBorder)
+          color = SignalPositive
         ) {
           Row(
             modifier = Modifier.padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Icon(Icons.Default.Add, contentDescription = null, tint = SignalPositive, modifier = Modifier.size(14.dp))
+            Icon(Icons.Default.Add, contentDescription = null, tint = TermBg, modifier = Modifier.size(14.dp))
             Spacer(modifier = Modifier.width(6.dp))
             Text(
               text = "Add Transaction",
               style = MaterialTheme.typography.labelSmall,
-              color = TermText
+              fontWeight = FontWeight.Bold,
+              color = TermBg
             )
           }
         }
@@ -317,7 +317,7 @@ private fun RunningBalanceCard(
             .weight(1f)
             .clickable(onClick = onHistory),
           shape = RoundedCornerShape(2.dp),
-          color = TermPanelAlt,
+          color = TermPanel,
           border = BorderStroke(1.dp, TermBorder)
         ) {
           Row(
@@ -397,7 +397,7 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
 
       Spacer(modifier = Modifier.height(14.dp))
 
-      Row(modifier = Modifier.fillMaxWidth()) {
+      Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         categories.forEach { slice ->
           Box(
             modifier = Modifier

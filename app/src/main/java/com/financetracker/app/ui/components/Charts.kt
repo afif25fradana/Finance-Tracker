@@ -35,6 +35,7 @@ import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProdu
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.columnModel
 import com.patrykandpatrick.vico.compose.cartesian.data.lineModel
+import com.patrykandpatrick.vico.compose.cartesian.layer.CartesianLayerPadding
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
@@ -131,7 +132,8 @@ fun CashflowChart(
     CartesianChartHost(
       chart = rememberCartesianChart(
         layer,
-        bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = indexFormatter)
+        bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = indexFormatter),
+        layerPadding = { CartesianLayerPadding(unscalableEnd = 12f.dp) }
       ),
       modelProducer = modelProducer,
       modifier = Modifier.fillMaxWidth().height(150.dp)

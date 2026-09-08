@@ -432,14 +432,14 @@ private fun AddEditCategoryDialog(
                     error = null
                   },
                 shape = RoundedCornerShape(2.dp),
-                color = if (selected) TermPanelAlt else Color.Transparent,
+                color = if (selected) color else Color.Transparent,
                 border = BorderStroke(1.dp, if (selected) color else TermBorder)
               ) {
                 Text(
                   text = label,
                   style = MaterialTheme.typography.bodySmall,
                   fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                  color = if (selected) color else TermMuted,
+                  color = if (selected) TermBg else TermMuted,
                   textAlign = TextAlign.Center,
                   modifier = Modifier.padding(vertical = 8.dp)
                 )
