@@ -63,7 +63,8 @@ import java.util.Locale
 fun DashboardScreen(
   onAddTransaction: () -> Unit,
   onHistory: () -> Unit,
-  onEditTransaction: (Long) -> Unit
+  onEditTransaction: (Long) -> Unit,
+  onManageCategories: () -> Unit
 ) {
   val context = LocalContext.current
   val viewModel: DashboardViewModel = viewModel(
@@ -99,11 +100,27 @@ fun DashboardScreen(
           fontWeight = FontWeight.Bold,
           color = TermText
         )
-        Text(
-          text = state.monthLabel,
-          style = MaterialTheme.typography.bodySmall,
-          color = TermMuted
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Text(
+            text = state.monthLabel,
+            style = MaterialTheme.typography.bodySmall,
+            color = TermMuted
+          )
+          Spacer(modifier = Modifier.width(10.dp))
+          Surface(
+            shape = RoundedCornerShape(2.dp),
+            color = TermPanel,
+            border = BorderStroke(1.dp, TermBorder),
+            modifier = Modifier.clickable(onClick = onManageCategories)
+          ) {
+            Text(
+              text = "Categories",
+              style = MaterialTheme.typography.labelSmall,
+              color = TermMuted,
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+          }
+        }
       }
     }
 

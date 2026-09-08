@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.financetracker.app.ui.categories.CategoriesRoute
 import com.financetracker.app.ui.dashboard.DashboardScreen
 import com.financetracker.app.ui.entry.AddEditTransactionRoute
 import com.financetracker.app.ui.history.HistoryScreen
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
               DashboardScreen(
                 onAddTransaction = { navController.navigate("add_transaction") },
                 onHistory = { navController.navigate("history") },
-                onEditTransaction = { id -> navController.navigate("add_transaction/$id") }
+                onEditTransaction = { id -> navController.navigate("add_transaction/$id") },
+                onManageCategories = { navController.navigate("categories") }
               )
             }
             composable("history") {
@@ -63,6 +65,9 @@ class MainActivity : ComponentActivity() {
                 transactionId = null,
                 onBack = { navController.popBackStack() }
               )
+            }
+            composable("categories") {
+              CategoriesRoute(onBack = { navController.popBackStack() })
             }
           }
         }
