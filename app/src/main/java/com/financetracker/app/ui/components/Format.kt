@@ -15,6 +15,9 @@ fun epochDayToMonthLabel(epochDay: Long): String =
 
 fun todayEpochDay(): Long = LocalDate.now().toEpochDay()
 
+fun epochDayToIso(epochDay: Long): String =
+  LocalDate.ofEpochDay(epochDay).toString()
+
 fun epochDayToUtcMillis(epochDay: Long): Long =
   LocalDate.ofEpochDay(epochDay).atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()
 

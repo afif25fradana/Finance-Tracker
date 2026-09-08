@@ -1,7 +1,11 @@
 package com.financetracker.app.ui.export
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -87,6 +91,20 @@ fun ExportRoute(onBack: () -> Unit) {
 
 private enum class PickerTarget { FROM, TO }
 
+// The built-in CreateDocument contract only passes a MIME type, so DocumentsUI
+// would auto-name the file from it (e.g. "text_csv"). Provide a suggested name.
+private class CreateExportFile : ActivityResultContract<CreateExportFile.Request, Uri?>() {
+  data class Request(val fileName: String, val mimeType: String)
+
+  override fun createIntent(context: Context, input: Request): Intent =
+    Intent(Intent.ACTION_CREATE_DOCUMENT)
+      .setType(input.mimeType)
+      .putExtra(Intent.EXTRA_TITLE, input.fileName)
+
+  override fun parseResult(resultCode: Int, intent: Intent?): Uri? =
+    if (resultCode == Activity.RESULT_OK) intent?.data else null
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExportScreen(
@@ -95,13 +113,11 @@ private fun ExportScreen(
   onFromChange: (Long) -> Unit,
   onToChange: (Long) -> Unit,
   onFormatChange: (ExportFormat) -> Unit,
-  onExport: (android.net.Uri) -> Unit
+  onExport: (Uri) -> Unit
 ) {
   var pickerTarget by remember { mutableStateOf<PickerTarget?>(null) }
 
-  val saveLauncher = rememberLauncherForActivityResult(
-    ActivityResultContracts.CreateDocument()
-  ) { uri ->
+  val saveLauncher = rememberLauncherForActivityResult(CreateExportFile()) { uri ->
     if (uri != null) onExport(uri)
   }
 
@@ -205,7 +221,11 @@ private fun ExportScreen(
           Surface(
             modifier = Modifier
               .fillMaxWidth()
-              .clickable { saveLauncher.launch(state.format.mime) },
+              .clickable {
+                saveLauncher.launch(
+                  CreateExportFile.Request(fileName = state.suggestedFileName, mimeType = state.format.mime)
+                )
+              },
             shape = RoundedCornerShape(2.dp),
             color = SignalPositive
           ) {
@@ -240,7 +260,7 @@ private fun ExportScreen(
 
     item {
       Text(
-        text = "Choose where to save the file in the dialog and give it a name (e.g. FinanceTrack_2024-01-01_2024-12-31).",
+        text = "The save dialog pre-fills the name \"${state.suggestedFileName}\" — pick a location and save, or rename it there.",
         style = MaterialTheme.typography.labelSmall,
         color = TermMuted
       )

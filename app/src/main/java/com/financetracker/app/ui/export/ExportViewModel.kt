@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.export.exportToCsv
 import com.financetracker.app.export.exportToJson
+import com.financetracker.app.ui.components.epochDayToIso
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,10 @@ data class ExportUiState(
   val format: ExportFormat = ExportFormat.CSV,
   val message: String? = null,
   val isError: Boolean = false
-)
+) {
+  val suggestedFileName: String
+    get() = "FinanceTrack_${epochDayToIso(fromEpochDay)}_${epochDayToIso(toEpochDay)}.${format.extension}"
+}
 
 class ExportViewModel(
   context: Context,
