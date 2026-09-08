@@ -13,4 +13,5 @@ local.properties
 .env
 debug.keystore
 .playwright-mcp/
+gradle/gradle-daemon-jvm.properties
 
