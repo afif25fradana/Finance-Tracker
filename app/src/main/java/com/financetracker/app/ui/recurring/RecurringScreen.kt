@@ -181,7 +181,7 @@ private fun RecurringScreen(
             )
           }
           Text(
-            text = "Recurring",
+            text = "Reminders",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = TermText
