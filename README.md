@@ -1,6 +1,6 @@
 # Finance Tracker
 
-A local-first Android expense & income tracker with a warm "terminal" aesthetic — dark off-black surfaces, monospace numerals, and teal/coral signal colors.
+A local-first Android expense & income tracker built with Jetpack Compose.
 
 ## Features
 
