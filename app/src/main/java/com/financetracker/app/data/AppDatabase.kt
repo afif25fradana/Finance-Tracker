@@ -11,6 +11,7 @@ import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.RecurringItemDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
+import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
@@ -21,6 +22,12 @@ class Converters {
 
   @TypeConverter
   fun toTransactionType(value: String): TransactionType = TransactionType.valueOf(value)
+
+  @TypeConverter
+  fun fromRecurringFrequency(frequency: RecurringFrequency): String = frequency.name
+
+  @TypeConverter
+  fun toRecurringFrequency(value: String): RecurringFrequency = RecurringFrequency.valueOf(value)
 }
 
 @Database(

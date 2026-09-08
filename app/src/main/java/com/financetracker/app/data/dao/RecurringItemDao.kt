@@ -13,8 +13,14 @@ interface RecurringItemDao {
   @Query("SELECT * FROM recurring_items ORDER BY nextDueDate ASC")
   fun getAll(): Flow<List<RecurringItem>>
 
+  @Query("SELECT * FROM recurring_items ORDER BY nextDueDate ASC")
+  suspend fun getAllOnce(): List<RecurringItem>
+
   @Query("SELECT * FROM recurring_items WHERE id = :id")
   fun getById(id: Long): Flow<RecurringItem?>
+
+  @Query("SELECT * FROM recurring_items WHERE id = :id")
+  suspend fun getByIdOnce(id: Long): RecurringItem?
 
   @Insert
   suspend fun insert(item: RecurringItem): Long

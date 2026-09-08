@@ -17,6 +17,7 @@ import com.financetracker.app.ui.categories.CategoriesRoute
 import com.financetracker.app.ui.dashboard.DashboardScreen
 import com.financetracker.app.ui.entry.AddEditTransactionRoute
 import com.financetracker.app.ui.history.HistoryScreen
+import com.financetracker.app.ui.recurring.RecurringRoute
 import com.financetracker.app.ui.theme.FinanceTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                 onAddTransaction = { navController.navigate("add_transaction") },
                 onHistory = { navController.navigate("history") },
                 onEditTransaction = { id -> navController.navigate("add_transaction/$id") },
+                onManageReminders = { navController.navigate("recurring") },
                 onManageCategories = { navController.navigate("categories") }
               )
             }
@@ -68,6 +70,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("categories") {
               CategoriesRoute(onBack = { navController.popBackStack() })
+            }
+            composable("recurring") {
+              RecurringRoute(onBack = { navController.popBackStack() })
             }
           }
         }

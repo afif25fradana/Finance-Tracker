@@ -21,6 +21,6 @@ data class RecurringItem(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val categoryId: Long,
   val amount: Long,
-  val frequency: String,
+  val frequency: RecurringFrequency,
   val nextDueDate: Long
 )

@@ -19,6 +19,9 @@ abstract class CategoryDao {
   @Query("SELECT * FROM categories WHERE id = :id")
   abstract fun getById(id: Long): Flow<Category?>
 
+  @Query("SELECT * FROM categories WHERE id = :id")
+  abstract suspend fun getByIdOnce(id: Long): Category?
+
   @Insert
   abstract suspend fun insert(category: Category): Long
 
