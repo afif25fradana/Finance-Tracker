@@ -91,65 +91,33 @@ fun DashboardScreen(
     verticalArrangement = Arrangement.spacedBy(12.dp)
   ) {
     item {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          text = "Finance Tracker",
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          color = TermText
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "Finance Tracker",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = TermText
+          )
           Text(
             text = state.monthLabel,
             style = MaterialTheme.typography.bodySmall,
             color = TermMuted
           )
-          Spacer(modifier = Modifier.width(10.dp))
-          Surface(
-            shape = RoundedCornerShape(2.dp),
-            color = TermPanel,
-            border = BorderStroke(1.dp, TermBorder),
-            modifier = Modifier.clickable(onClick = onManageReminders)
-          ) {
-            Text(
-              text = "Reminders",
-              style = MaterialTheme.typography.labelSmall,
-              color = TermMuted,
-              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-          }
-          Spacer(modifier = Modifier.width(6.dp))
-          Surface(
-            shape = RoundedCornerShape(2.dp),
-            color = TermPanel,
-            border = BorderStroke(1.dp, TermBorder),
-            modifier = Modifier.clickable(onClick = onManageCategories)
-          ) {
-            Text(
-              text = "Categories",
-              style = MaterialTheme.typography.labelSmall,
-              color = TermMuted,
-              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-          }
-          Spacer(modifier = Modifier.width(6.dp))
-          Surface(
-            shape = RoundedCornerShape(2.dp),
-            color = TermPanel,
-            border = BorderStroke(1.dp, TermBorder),
-            modifier = Modifier.clickable(onClick = onExport)
-          ) {
-            Text(
-              text = "Export",
-              style = MaterialTheme.typography.labelSmall,
-              color = TermMuted,
-              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-          }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          HeaderChip(text = "Reminders", onClick = onManageReminders)
+          HeaderChip(text = "Categories", onClick = onManageCategories)
+          HeaderChip(text = "Export", onClick = onExport)
         }
       }
     }
@@ -227,6 +195,23 @@ fun DashboardScreen(
         RecentRowItem(row = row, onEdit = { onEditTransaction(row.id) })
       }
     }
+  }
+}
+
+@Composable
+private fun HeaderChip(text: String, onClick: () -> Unit) {
+  Surface(
+    shape = RoundedCornerShape(2.dp),
+    color = TermPanel,
+    border = BorderStroke(1.dp, TermBorder),
+    modifier = Modifier.clickable(onClick = onClick)
+  ) {
+    Text(
+      text = text,
+      style = MaterialTheme.typography.labelSmall,
+      color = TermMuted,
+      modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+    )
   }
 }
 
