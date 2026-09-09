@@ -60,7 +60,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.TransactionType
-import com.financetracker.app.ui.components.iconKeyToVector
+import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBg
@@ -71,8 +71,8 @@ import com.financetracker.app.ui.theme.TermPanelAlt
 import com.financetracker.app.ui.theme.TermText
 
 private val CATEGORY_PALETTE = listOf(
-  0xFF059669, 0xFF10B981, 0xFF06B6D4, 0xFF3B82F6, 0xFF6366F1,
-  0xFFA855F7, 0xFFEC4899, 0xFFF43F5E, 0xFFF59E0B
+  0xFF1B5543, 0xFF276A54, 0xFF266B77, 0xFF3761A5, 0xFF4245B3,
+  0xFF793CB3, 0xFFA03D6E, 0xFFA5384B, 0xFF8B682D
 )
 
 @Composable
@@ -273,7 +273,6 @@ private fun CategoryRowItem(
   onEdit: () -> Unit,
   onDelete: () -> Unit
 ) {
-  val type = row.category.type
   Surface(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(2.dp),
@@ -286,11 +285,10 @@ private fun CategoryRowItem(
         .padding(horizontal = 12.dp, vertical = 8.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Icon(
-        imageVector = iconKeyToVector(row.category.icon),
-        contentDescription = null,
-        tint = if (type == TransactionType.INCOME) SignalPositive else TermMuted,
-        modifier = Modifier.size(16.dp)
+      CategoryIconTile(
+        iconKey = row.category.icon,
+        colorArgb = row.category.color,
+        containerSize = 16.dp
       )
       Spacer(modifier = Modifier.width(10.dp))
       Column(modifier = Modifier.weight(1f)) {

@@ -79,13 +79,13 @@ private data class SeedCategory(
 )
 
 private val DEFAULT_CATEGORIES = listOf(
-  SeedCategory("Salary & Income", TransactionType.INCOME, 0xFF059669, "payments"),
-  SeedCategory("Rent & Housing", TransactionType.EXPENSE, 0xFF6366F1, "home"),
-  SeedCategory("Groceries", TransactionType.EXPENSE, 0xFF10B981, "shopping_cart"),
-  SeedCategory("Dining & Cafes", TransactionType.EXPENSE, 0xFFF43F5E, "restaurant"),
-  SeedCategory("Transport & Fuel", TransactionType.EXPENSE, 0xFFF59E0B, "directions_car"),
-  SeedCategory("Entertainment", TransactionType.EXPENSE, 0xFFA855F7, "movie"),
-  SeedCategory("Bills & Utilities", TransactionType.EXPENSE, 0xFF06B6D4, "bolt"),
-  SeedCategory("Tech & Subs", TransactionType.EXPENSE, 0xFF3B82F6, "devices"),
-  SeedCategory("Health & Wellness", TransactionType.EXPENSE, 0xFFEC4899, "medical_services")
+  SeedCategory("Salary & Income", TransactionType.INCOME, 0xFF1B5543, "payments"),
+  SeedCategory("Rent & Housing", TransactionType.EXPENSE, 0xFF4245B3, "home"),
+  SeedCategory("Groceries", TransactionType.EXPENSE, 0xFF276A54, "shopping_cart"),
+  SeedCategory("Dining & Cafes", TransactionType.EXPENSE, 0xFFA5384B, "restaurant"),
+  SeedCategory("Transport & Fuel", TransactionType.EXPENSE, 0xFF8B682D, "directions_car"),
+  SeedCategory("Entertainment", TransactionType.EXPENSE, 0xFF793CB3, "movie"),
+  SeedCategory("Bills & Utilities", TransactionType.EXPENSE, 0xFF266B77, "bolt"),
+  SeedCategory("Tech & Subs", TransactionType.EXPENSE, 0xFF3761A5, "devices"),
+  SeedCategory("Health & Wellness", TransactionType.EXPENSE, 0xFFA03D6E, "medical_services")
 )
