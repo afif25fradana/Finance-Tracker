@@ -1,35 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher foreground: "FT" glyphs from Consolas Bold (real font outlines via fonttools) + coral trend arrow. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Center 66dp content area: 21dp to 87dp -->
-    <!-- Wallet base card -->
+    <!-- "F" (Consolas Bold) -->
     <path
-        android:fillColor="#10B981"
-        android:pathData="M30,36 C27.8,36 26,37.8 26,40 L26,68 C26,70.2 27.8,72 30,72 L78,72 C80.2,72 82,70.2 82,68 L82,40 C82,37.8 80.2,36 78,36 Z" />
-    <!-- Wallet flap accent -->
+        android:fillColor="#FF5EEAD4"
+        android:pathData="M42.9 40.3V46.2H50.8V49.4H42.9V58.0H38.9V37.0H51.3V40.3Z" />
+    <!-- "T" (Consolas Bold) -->
     <path
-        android:fillColor="#047857"
-        android:pathData="M30,36 L78,36 C80.2,36 82,37.8 82,40 L82,46 L26,46 L26,40 C26,37.8 27.8,36 30,36 Z" />
-    <!-- Wallet clasp -->
-    <path
-        android:fillColor="#F59E0B"
-        android:pathData="M66,50 C66,48.3 67.3,47 69,47 L79,47 C80.7,47 82,48.3 82,50 L82,58 C82,59.7 80.7,61 79,61 L69,61 C67.3,61 66,59.7 66,58 Z" />
-    <!-- Clasp pin dot -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M73,52 C71.9,52 71,52.9 71,54 C71,55.1 71.9,56 73,56 C74.1,56 75,55.1 75,54 C75,52.9 74.1,52 73,52 Z" />
-    <!-- Rising finance trend curve overlay -->
+        android:fillColor="#FF5EEAD4"
+        android:pathData="M65.1 40.3V58.0H61.0V40.3H55.3V37.0H70.8V40.3Z" />
+    <!-- Ascending trend arrow (two segments) -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="2.8"
+        android:strokeColor="#FFF87171"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M34,62 L45,54 L55,58 L63,48" />
-    <!-- Upward arrow head -->
+        android:pathData="M41,76 L55,69 L66,62" />
+    <!-- Arrowhead -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M61,46 L66,47 L65,52 Z" />
+        android:fillColor="#FFF87171"
+        android:pathData="M75,55 L66,62 L69,68 Z" />
 </vector>
