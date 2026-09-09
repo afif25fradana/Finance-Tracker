@@ -20,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.financetracker.app.ui.dashboard.CashflowPoint
 import com.financetracker.app.ui.dashboard.TrendPoint
 import com.financetracker.app.ui.theme.SignalNegative
@@ -42,6 +44,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
@@ -51,6 +54,8 @@ private val monthLabelsKey = ExtraStore.Key<List<String>>()
 private val indexFormatter = CartesianValueFormatter { context, value, _ ->
   context.model.extraStore[monthLabelsKey].getOrNull(value.toInt()) ?: ""
 }
+
+private val monthAxisLabelStyle = TextStyle(color = TermMuted, fontSize = 12.sp)
 
 @Composable
 private fun ChartCard(
@@ -132,7 +137,10 @@ fun CashflowChart(
     CartesianChartHost(
       chart = rememberCartesianChart(
         layer,
-        bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = indexFormatter),
+        bottomAxis = HorizontalAxis.rememberBottom(
+          valueFormatter = indexFormatter,
+          label = rememberAxisLabelComponent(style = monthAxisLabelStyle)
+        ),
         layerPadding = { CartesianLayerPadding(unscalableEnd = 12f.dp) }
       ),
       modelProducer = modelProducer,
@@ -173,7 +181,10 @@ fun TrendLineChart(
     CartesianChartHost(
       chart = rememberCartesianChart(
         layer,
-        bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = indexFormatter)
+        bottomAxis = HorizontalAxis.rememberBottom(
+          valueFormatter = indexFormatter,
+          label = rememberAxisLabelComponent(style = monthAxisLabelStyle)
+        )
       ),
       modelProducer = modelProducer,
       modifier = Modifier.fillMaxWidth().height(130.dp)
