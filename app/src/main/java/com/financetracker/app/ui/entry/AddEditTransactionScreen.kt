@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -45,9 +47,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -137,10 +141,12 @@ private fun AddEditTransactionScreen(
   var showDatePicker by remember { mutableStateOf(false) }
   var showDeleteConfirm by remember { mutableStateOf(false) }
   val accent = if (state.transactionType == TransactionType.EXPENSE) SignalNegative else SignalPositive
+  val keyboardController = LocalSoftwareKeyboardController.current
 
   LazyColumn(
     modifier = Modifier
       .fillMaxSize()
+      .imePadding()
       .background(TermBg),
     contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 28.dp),
     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -249,7 +255,11 @@ private fun AddEditTransactionScreen(
                 color = TermText
               ),
               cursorBrush = SolidColor(SignalPositive),
-              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+              keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+              ),
+              keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
               singleLine = true,
               modifier = Modifier.fillMaxWidth()
             )
