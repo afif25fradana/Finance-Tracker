@@ -26,6 +26,9 @@ fun utcMillisToEpochDay(millis: Long): Long =
 
 fun amountToInputText(amount: Long): String = amount.toString()
 
+fun formatAmountInput(raw: String): String =
+  raw.reversed().chunked(3).joinToString(".").reversed()
+
 private const val MAX_INPUT_AMOUNT = 999_999_999_999L
 
 fun addPresetToAmount(current: String, preset: Long): String {

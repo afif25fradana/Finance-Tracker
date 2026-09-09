@@ -61,6 +61,7 @@ import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
+import com.financetracker.app.ui.components.formatAmountInput
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.components.utcMillisToEpochDay
 import com.financetracker.app.ui.theme.SignalNegative
@@ -239,7 +240,7 @@ private fun AddEditTransactionScreen(
             )
             Spacer(modifier = Modifier.width(6.dp))
             BasicTextField(
-              value = state.amountText,
+              value = formatAmountInput(state.amountText),
               onValueChange = onAmountChange,
               textStyle = TextStyle(
                 fontFamily = FontFamily.Monospace,

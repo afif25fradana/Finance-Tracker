@@ -93,9 +93,8 @@ class AddEditTransactionViewModel(
   }
 
   fun onAmountChange(text: String) {
-    if (text.matches(Regex("""\d{0,12}"""))) {
-      _uiState.update { it.copy(amountText = text, error = null) }
-    }
+    val digits = text.filter { it.isDigit() }.take(12)
+    _uiState.update { it.copy(amountText = digits, error = null) }
   }
 
   fun onQuickAdd(preset: Long) {
