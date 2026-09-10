@@ -1,2 +1,2 @@
-# Add project specific ProGuard rules here.
-
+-keep enum com.financetracker.app.data.entity.TransactionType { *; }
+-keep enum com.financetracker.app.data.entity.RecurringFrequency { *; }
