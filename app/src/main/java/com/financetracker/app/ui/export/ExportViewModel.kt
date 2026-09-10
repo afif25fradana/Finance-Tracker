@@ -62,14 +62,15 @@ class ExportViewModel(
     }
     viewModelScope.launch {
       try {
-        val rows = transactionDao.getBetweenOnce(state.fromEpochDay, state.toEpochDay)
-        val content = when (state.format) {
-          ExportFormat.CSV -> exportToCsv(rows)
-          ExportFormat.JSON -> exportToJson(rows)
-        }
-        withContext(Dispatchers.IO) {
+        val rows = withContext(Dispatchers.IO) {
+          val rows = transactionDao.getBetweenOnce(state.fromEpochDay, state.toEpochDay)
+          val content = when (state.format) {
+            ExportFormat.CSV -> exportToCsv(rows)
+            ExportFormat.JSON -> exportToJson(rows)
+          }
           contentResolver.openOutputStream(uri)?.use { it.write(content.toByteArray(Charsets.UTF_8)) }
             ?: throw IllegalStateException("Could not open output file")
+          rows
         }
         val noun = if (rows.size == 1) "transaction" else "transactions"
         _uiState.value = _uiState.value.copy(message = "Exported ${rows.size} $noun.", isError = false)
