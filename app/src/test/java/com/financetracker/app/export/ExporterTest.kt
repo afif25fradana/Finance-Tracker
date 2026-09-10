@@ -55,6 +55,44 @@ new line"
   }
 
   @Test
+  fun csv_formulaLikeNote_isGuardedWithLeadingQuote() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-04-01"),
+        amount = 1,
+        type = TransactionType.EXPENSE,
+        category = "Test",
+        note = "=SUM(A1:A2)"
+      )
+    )
+
+    assertEquals(
+      "date,amount,category,type,note\n" +
+        "2024-04-01,1,Test,expense,'=SUM(A1:A2)\n",
+      exportToCsv(rows)
+    )
+  }
+
+  @Test
+  fun csv_guardedFieldWithComma_isAlsoQuoted() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-04-01"),
+        amount = 1,
+        type = TransactionType.EXPENSE,
+        category = "Test",
+        note = "+A1,B2"
+      )
+    )
+
+    assertEquals(
+      "date,amount,category,type,note\n" +
+        "2024-04-01,1,Test,expense,\"'+A1,B2\"\n",
+      exportToCsv(rows)
+    )
+  }
+
+  @Test
   fun json_containsAllFieldsWithEscaping() {
     val rows = listOf(
       TransactionExport(

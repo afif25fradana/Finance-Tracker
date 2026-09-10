@@ -44,8 +44,9 @@ private fun isoDate(epochDay: Long): String = LocalDate.ofEpochDay(epochDay).toS
 
 // RFC 4180: quote when the field contains a delimiter, quote, CR or LF; double embedded quotes.
 private fun csvEscape(value: String): String {
-  val needsQuoting = value.any { it == ',' || it == '"' || it == '\n' || it == '\r' }
-  return if (needsQuoting) "\"${value.replace("\"", "\"\"")}\"" else value
+  val guarded = if (value.isNotEmpty() && value[0] in "=+-@") "'$value" else value
+  val needsQuoting = guarded.any { it == ',' || it == '"' || it == '\n' || it == '\r' }
+  return if (needsQuoting) "\"${guarded.replace("\"", "\"\"")}\"" else guarded
 }
 
 private fun jsonString(value: String): String = buildString {
