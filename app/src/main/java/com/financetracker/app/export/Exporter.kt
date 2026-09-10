@@ -3,6 +3,9 @@ package com.financetracker.app.export
 import com.financetracker.app.data.dao.TransactionExport
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.epochDayToIso
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
 private val EXPORT_HEADER = listOf("date", "amount", "category", "type", "note")
 
@@ -22,20 +25,28 @@ fun exportToCsv(rows: List<TransactionExport>): String = buildString {
   }
 }
 
-fun exportToJson(rows: List<TransactionExport>): String = buildString {
-  append("[")
-  rows.forEachIndexed { index, row ->
-    if (index > 0) append(",")
-    append("{")
-    append("\"date\":").append(jsonString(epochDayToIso(row.date))).append(",")
-    append("\"amount\":").append(row.amount).append(",")
-    append("\"category\":").append(jsonString(row.category)).append(",")
-    append("\"type\":").append(jsonString(typeLabel(row.type))).append(",")
-    append("\"note\":").append(jsonString(row.note))
-    append("}")
-  }
-  append("]")
-}
+fun exportToJson(rows: List<TransactionExport>): String =
+  Json.encodeToString(EXPORT_ROW_LIST, rows.map { it.toExportRow() })
+
+@Serializable
+private data class ExportJsonRow(
+  val date: String,
+  val amount: Long,
+  val category: String,
+  val type: String,
+  val note: String
+)
+
+private val EXPORT_ROW_LIST = ListSerializer(ExportJsonRow.serializer())
+
+private fun TransactionExport.toExportRow(): ExportJsonRow =
+  ExportJsonRow(
+    date = epochDayToIso(date),
+    amount = amount,
+    category = category,
+    type = typeLabel(type),
+    note = note
+  )
 
 private fun typeLabel(type: TransactionType): String =
   if (type == TransactionType.INCOME) "income" else "expense"
@@ -45,25 +56,4 @@ private fun csvEscape(value: String): String {
   val guarded = if (value.isNotEmpty() && value[0] in "=+-@") "'$value" else value
   val needsQuoting = guarded.any { it == ',' || it == '"' || it == '\n' || it == '\r' }
   return if (needsQuoting) "\"${guarded.replace("\"", "\"\"")}\"" else guarded
-}
-
-private fun jsonString(value: String): String = buildString {
-  append('"')
-  value.forEach { c ->
-    when (c) {
-      '"' -> append("\\\"")
-      '\\' -> append("\\\\")
-      '\b' -> append("\\b")
-      '\u000C' -> append("\\f")
-      '\n' -> append("\\n")
-      '\r' -> append("\\r")
-      '\t' -> append("\\t")
-      else -> if (c < ' ') {
-        append("\\u").append(c.code.toString(16).padStart(4, '0'))
-      } else {
-        append(c)
-      }
-    }
-  }
-  append('"')
 }
