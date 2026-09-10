@@ -5,12 +5,11 @@ import com.financetracker.app.data.entity.TransactionType
 
 object BackupValidator {
 
-  private val SUPPORTED_SCHEMA_VERSIONS = setOf(BACKUP_SCHEMA_VERSION)
   private val TRANSACTION_TYPES = TransactionType.entries.map { it.name }.toSet()
   private val FREQUENCIES = RecurringFrequency.entries.map { it.name }.toSet()
 
   fun validate(file: BackupFile): BackupResult {
-    if (file.schemaVersion !in SUPPORTED_SCHEMA_VERSIONS) {
+    if (file.schemaVersion != BACKUP_SCHEMA_VERSION) {
       return BackupResult.Invalid(
         "schemaVersion",
         "Unsupported backup schema version ${file.schemaVersion}; this app supports $BACKUP_SCHEMA_VERSION."

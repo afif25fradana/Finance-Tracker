@@ -2,7 +2,7 @@ package com.financetracker.app.export
 
 import com.financetracker.app.data.dao.TransactionExport
 import com.financetracker.app.data.entity.TransactionType
-import java.time.LocalDate
+import com.financetracker.app.ui.components.epochDayToIso
 
 private val EXPORT_HEADER = listOf("date", "amount", "category", "type", "note")
 
@@ -11,7 +11,7 @@ fun exportToCsv(rows: List<TransactionExport>): String = buildString {
   append('\n')
   rows.forEach { row ->
     val fields = listOf(
-      isoDate(row.date),
+      epochDayToIso(row.date),
       row.amount.toString(),
       row.category,
       typeLabel(row.type),
@@ -27,7 +27,7 @@ fun exportToJson(rows: List<TransactionExport>): String = buildString {
   rows.forEachIndexed { index, row ->
     if (index > 0) append(",")
     append("{")
-    append("\"date\":").append(jsonString(isoDate(row.date))).append(",")
+    append("\"date\":").append(jsonString(epochDayToIso(row.date))).append(",")
     append("\"amount\":").append(row.amount).append(",")
     append("\"category\":").append(jsonString(row.category)).append(",")
     append("\"type\":").append(jsonString(typeLabel(row.type))).append(",")
@@ -39,8 +39,6 @@ fun exportToJson(rows: List<TransactionExport>): String = buildString {
 
 private fun typeLabel(type: TransactionType): String =
   if (type == TransactionType.INCOME) "income" else "expense"
-
-private fun isoDate(epochDay: Long): String = LocalDate.ofEpochDay(epochDay).toString()
 
 // RFC 4180: quote when the field contains a delimiter, quote, CR or LF; double embedded quotes.
 private fun csvEscape(value: String): String {

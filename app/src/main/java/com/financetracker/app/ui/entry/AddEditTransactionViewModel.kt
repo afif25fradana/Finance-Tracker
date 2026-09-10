@@ -8,7 +8,7 @@ import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.addPresetToAmount
-import com.financetracker.app.ui.components.amountToInputText
+import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.parseAmount
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +68,7 @@ class AddEditTransactionViewModel(
           _uiState.update {
             it.copy(
               transactionType = tx.type,
-              amountText = amountToInputText(tx.amount),
+              amountText = tx.amount.toString(),
               note = tx.note,
               selectedCategoryId = tx.categoryId,
               dateEpochDay = tx.date,
@@ -93,8 +93,7 @@ class AddEditTransactionViewModel(
   }
 
   fun onAmountChange(text: String) {
-    val digits = text.filter { it.isDigit() }.take(12)
-    _uiState.update { it.copy(amountText = digits, error = null) }
+    _uiState.update { it.copy(amountText = digitsOnly(text), error = null) }
   }
 
   fun onQuickAdd(preset: Long) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.TransactionRow
 import com.financetracker.app.ui.components.epochDayToMonthLabel
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,17 +38,6 @@ data class TrendPoint(
   val amount: Long
 )
 
-data class RecentRow(
-  val id: Long,
-  val note: String,
-  val dateEpochDay: Long,
-  val amount: Long,
-  val type: TransactionType,
-  val categoryName: String,
-  val categoryColor: Long,
-  val categoryIcon: String
-)
-
 data class DashboardUiState(
   val monthLabel: String = "",
   val balance: Long = 0,
@@ -58,7 +48,7 @@ data class DashboardUiState(
   val cashflow: List<CashflowPoint> = emptyList(),
   val categories: List<CategorySlice> = emptyList(),
   val trend: List<TrendPoint> = emptyList(),
-  val recent: List<RecentRow> = emptyList()
+  val recent: List<TransactionRow> = emptyList()
 )
 
 class DashboardViewModel(
@@ -129,7 +119,7 @@ class DashboardViewModel(
 
       val recent = transactions.take(5).map { tx ->
         val cat = byId[tx.categoryId]
-        RecentRow(
+        TransactionRow(
           id = tx.id,
           note = tx.note,
           dateEpochDay = tx.date,

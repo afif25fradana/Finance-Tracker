@@ -17,9 +17,6 @@ interface RecurringItemDao {
   suspend fun getAllOnce(): List<RecurringItem>
 
   @Query("SELECT * FROM recurring_items WHERE id = :id")
-  fun getById(id: Long): Flow<RecurringItem?>
-
-  @Query("SELECT * FROM recurring_items WHERE id = :id")
   suspend fun getByIdOnce(id: Long): RecurringItem?
 
   @Insert

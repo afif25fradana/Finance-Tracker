@@ -72,7 +72,9 @@ import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.TransactionType
-import com.financetracker.app.ui.components.amountToInputText
+import com.financetracker.app.ui.components.CategoryChip
+import com.financetracker.app.ui.components.TypeToggle
+import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
 import com.financetracker.app.ui.components.formatRupiah
@@ -365,7 +367,7 @@ private fun AddEditReminderDialog(
   val categoryType = editingRow?.category?.type
   var typeInput by remember { mutableStateOf(categoryType ?: TransactionType.EXPENSE) }
   var amountInput by remember {
-    mutableStateOf(if (editing != null) amountToInputText(editing.amount) else "")
+    mutableStateOf(if (editing != null) editing.amount.toString() else "")
   }
   var categoryId by remember {
     mutableStateOf(editing?.categoryId ?: allCategories.firstOrNull { it.type == TransactionType.EXPENSE }?.id)
@@ -419,42 +421,14 @@ private fun AddEditReminderDialog(
       ) {
         if (categoryType == null) {
           Text(text = "Type", style = MaterialTheme.typography.labelSmall, color = TermMuted)
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-          ) {
-            val options = listOf(
-              TransactionType.EXPENSE to "Expense" to SignalNegative,
-              TransactionType.INCOME to "Income" to SignalPositive
-            )
-            options.forEach { option ->
-              val type = option.first.first
-              val label = option.first.second
-              val color = option.second
-              val selected = typeInput == type
-              Surface(
-                modifier = Modifier
-                  .weight(1f)
-                  .clickable {
-                    typeInput = type
-                    categoryId = allCategories.firstOrNull { it.type == type }?.id
-                    error = null
-                  },
-                shape = RoundedCornerShape(2.dp),
-                color = if (selected) color else Color.Transparent,
-                border = BorderStroke(1.dp, if (selected) color else TermBorder)
-              ) {
-                Text(
-                  text = label,
-                  style = MaterialTheme.typography.bodySmall,
-                  fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                  color = if (selected) TermBg else TermMuted,
-                  textAlign = TextAlign.Center,
-                  modifier = Modifier.padding(vertical = 8.dp)
-                )
-              }
+          TypeToggle(
+            selected = typeInput,
+            onSelected = {
+              typeInput = it
+              categoryId = allCategories.firstOrNull { c -> c.type == it }?.id
+              error = null
             }
-          }
+          )
         }
 
         Text(text = "Amount", style = MaterialTheme.typography.labelSmall, color = TermMuted)
@@ -474,7 +448,7 @@ private fun AddEditReminderDialog(
             Spacer(modifier = Modifier.width(6.dp))
             BasicTextField(
               value = amountInput,
-              onValueChange = { amountInput = it.filter { c -> c.isDigit() }.take(12) },
+              onValueChange = { amountInput = digitsOnly(it) },
               textStyle = TextStyle(
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp,
@@ -503,33 +477,15 @@ private fun AddEditReminderDialog(
             verticalArrangement = Arrangement.spacedBy(6.dp)
           ) {
             available.forEach { cat ->
-              val selected = cat.id == categoryId
-              Surface(
-                shape = RoundedCornerShape(2.dp),
-                color = if (selected) TermPanelAlt else TermBg,
-                border = BorderStroke(1.dp, if (selected) SignalPositive else TermBorder),
-                modifier = Modifier.clickable {
+              CategoryChip(
+                category = cat,
+                selected = cat.id == categoryId,
+                selectedBorderColor = SignalPositive,
+                onClick = {
                   categoryId = cat.id
                   error = null
                 }
-              ) {
-                Row(
-                  modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                  verticalAlignment = Alignment.CenterVertically
-                ) {
-                  Surface(
-                    shape = RoundedCornerShape(1.dp),
-                    color = Color(cat.color),
-                    modifier = Modifier.size(10.dp)
-                  ) {}
-                  Spacer(modifier = Modifier.width(6.dp))
-                  Text(
-                    text = cat.name,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (selected) TermText else TermMuted
-                  )
-                }
-              }
+              )
             }
           }
         }

@@ -24,12 +24,16 @@ fun epochDayToUtcMillis(epochDay: Long): Long =
 fun utcMillisToEpochDay(millis: Long): Long =
   java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneOffset.UTC).toLocalDate().toEpochDay()
 
-fun amountToInputText(amount: Long): String = amount.toString()
+fun formatAmountInput(raw: String): String = groupDigits(raw)
 
-fun formatAmountInput(raw: String): String =
-  raw.reversed().chunked(3).joinToString(".").reversed()
+fun digitsOnly(text: String): String = text.filter { it.isDigit() }.take(MAX_AMOUNT_DIGITS)
 
+private fun groupDigits(digits: String): String =
+  digits.reversed().chunked(3).joinToString(".").reversed()
+
+const val MAX_AMOUNT_DIGITS = 12
 private const val MAX_INPUT_AMOUNT = 999_999_999_999L
+private val AMOUNT_REGEX = Regex("""\d{1,$MAX_AMOUNT_DIGITS}""")
 
 fun addPresetToAmount(current: String, preset: Long): String {
   val base = current.toLongOrNull() ?: 0L
@@ -38,16 +42,11 @@ fun addPresetToAmount(current: String, preset: Long): String {
 
 fun parseAmount(text: String): Long? {
   val t = text.trim()
-  if (t.isEmpty() || !t.matches(Regex("""\d{1,12}"""))) return null
+  if (t.isEmpty() || !AMOUNT_REGEX.matches(t)) return null
   return t.toLongOrNull()
 }
 
 fun formatRupiah(amount: Long): String {
   val sign = if (amount < 0) "-" else ""
-  val grouped = abs(amount).toString()
-    .reversed()
-    .chunked(3)
-    .joinToString(".")
-    .reversed()
-  return "${sign}Rp$grouped"
+  return "${sign}Rp${groupDigits(abs(amount).toString())}"
 }

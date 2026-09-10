@@ -1,7 +1,6 @@
 package com.financetracker.app.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -36,17 +35,11 @@ interface TransactionDao {
   )
   suspend fun getBetweenOnce(fromEpochDay: Long, toEpochDay: Long): List<TransactionExport>
 
-  @Query("SELECT * FROM transactions WHERE categoryId = :categoryId")
-  fun getByCategory(categoryId: Long): Flow<List<Transaction>>
-
   @Insert
   suspend fun insert(transaction: Transaction): Long
 
   @Update
   suspend fun update(transaction: Transaction)
-
-  @Delete
-  suspend fun delete(transaction: Transaction)
 
   @Query("DELETE FROM transactions WHERE id = :id")
   suspend fun deleteById(id: Long)

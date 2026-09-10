@@ -44,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -62,7 +61,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
-import com.financetracker.app.ui.components.CategoryIconTile
+import com.financetracker.app.ui.components.CategoryChip
+import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
 import com.financetracker.app.ui.components.formatAmountInput
@@ -189,38 +189,10 @@ private fun AddEditTransactionScreen(
     }
 
     item {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-      ) {
-        val options = listOf(
-          TransactionType.EXPENSE to "Expense" to SignalNegative,
-          TransactionType.INCOME to "Income" to SignalPositive
-        )
-        options.forEach { option ->
-          val type = option.first.first
-          val label = option.first.second
-          val color = option.second
-          val selected = state.transactionType == type
-          Surface(
-            modifier = Modifier
-              .weight(1f)
-              .clickable { onTypeSelected(type) },
-            shape = RoundedCornerShape(2.dp),
-            color = if (selected) color else Color.Transparent,
-            border = BorderStroke(1.dp, if (selected) color else TermBorder)
-          ) {
-            Text(
-              text = label,
-              style = MaterialTheme.typography.bodySmall,
-              fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-              color = if (selected) TermBg else TermMuted,
-              textAlign = TextAlign.Center,
-              modifier = Modifier.padding(vertical = 8.dp)
-            )
-          }
-        }
-      }
+      TypeToggle(
+        selected = state.transactionType,
+        onSelected = onTypeSelected
+      )
     }
 
     item {
@@ -348,30 +320,13 @@ private fun AddEditTransactionScreen(
               verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
               categories.forEach { cat ->
-                val selected = cat.id == state.selectedCategoryId
-                Surface(
-                  shape = RoundedCornerShape(2.dp),
-                  color = if (selected) TermPanelAlt else TermBg,
-                  border = BorderStroke(1.dp, if (selected) accent else TermBorder),
-                  modifier = Modifier.clickable { onCategorySelected(cat.id) }
-                ) {
-                  Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                  ) {
-                    CategoryIconTile(
-                      iconKey = cat.icon,
-                      colorArgb = cat.color,
-                      containerSize = 16.dp
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                      text = cat.name,
-                      style = MaterialTheme.typography.labelSmall,
-                      color = if (selected) TermText else TermMuted
-                    )
-                  }
-                }
+                CategoryChip(
+                  category = cat,
+                  selected = cat.id == state.selectedCategoryId,
+                  selectedBorderColor = accent,
+                  onClick = { onCategorySelected(cat.id) },
+                  showIcon = true
+                )
               }
             }
           }

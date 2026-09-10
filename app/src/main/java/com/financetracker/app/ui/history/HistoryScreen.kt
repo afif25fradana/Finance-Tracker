@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -46,8 +45,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
-import com.financetracker.app.ui.components.CategoryIconTile
-import com.financetracker.app.ui.components.epochDayToDisplay
+import com.financetracker.app.ui.components.TransactionRowItem
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
@@ -239,7 +237,7 @@ fun HistoryScreen(
           }
 
           items(month.rows, key = { it.id }) { row ->
-            HistoryRowItem(row = row, onEdit = { onEditTransaction(row.id) })
+            TransactionRowItem(row = row, onEdit = { onEditTransaction(row.id) })
           }
         }
       }
@@ -247,56 +245,4 @@ fun HistoryScreen(
   }
 }
 
-@Composable
-private fun HistoryRowItem(
-  row: HistoryRow,
-  onEdit: () -> Unit
-) {
-  Surface(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onEdit),
-    shape = RoundedCornerShape(2.dp),
-    color = TermPanel,
-    border = BorderStroke(1.dp, TermBorder)
-  ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.weight(1f)
-      ) {
-        CategoryIconTile(
-          iconKey = row.categoryIcon,
-          colorArgb = row.categoryColor,
-          containerSize = 20.dp
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Column {
-          Text(
-            text = row.note.ifEmpty { row.categoryName },
-            style = MaterialTheme.typography.bodySmall,
-            color = TermText,
-            maxLines = 1
-          )
-          Text(
-            text = "${epochDayToDisplay(row.dateEpochDay)} · ${row.categoryName}",
-            style = MaterialTheme.typography.labelSmall,
-            color = TermMuted
-          )
-        }
-      }
-      Text(
-        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + formatRupiah(row.amount),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Bold,
-        color = if (row.type == TransactionType.EXPENSE) SignalNegative else SignalPositive
-      )
-    }
-  }
-}
+

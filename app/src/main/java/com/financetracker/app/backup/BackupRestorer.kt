@@ -16,12 +16,6 @@ class BackupRestorer(
       is BackupResult.Valid -> BackupValidator.validate(decoded.file)
     }
 
-  suspend fun restoreFromText(text: String): BackupResult =
-    when (val validated = validateFromText(text)) {
-      is BackupResult.Invalid -> validated
-      is BackupResult.Valid -> restore(validated.file)
-    }
-
   suspend fun restore(file: BackupFile): BackupResult {
     val categories: List<Category>
     val recurringItems: List<RecurringItem>

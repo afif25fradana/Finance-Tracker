@@ -17,9 +17,6 @@ abstract class CategoryDao {
   abstract fun getAll(): Flow<List<Category>>
 
   @Query("SELECT * FROM categories WHERE id = :id")
-  abstract fun getById(id: Long): Flow<Category?>
-
-  @Query("SELECT * FROM categories WHERE id = :id")
   abstract suspend fun getByIdOnce(id: Long): Category?
 
   @Insert
@@ -30,9 +27,6 @@ abstract class CategoryDao {
 
   @Delete
   abstract suspend fun delete(category: Category)
-
-  @Query("SELECT COUNT(*) FROM categories")
-  abstract suspend fun count(): Int
 
   @Query("SELECT categoryId, COUNT(*) AS refCount FROM transactions GROUP BY categoryId")
   abstract fun transactionCounts(): Flow<List<CategoryRefCount>>

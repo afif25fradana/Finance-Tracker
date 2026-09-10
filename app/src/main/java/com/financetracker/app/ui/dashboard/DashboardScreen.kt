@@ -44,11 +44,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
-import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CashflowChart
 import com.financetracker.app.ui.components.CategoryIconTile
+import com.financetracker.app.ui.components.TransactionRowItem
 import com.financetracker.app.ui.components.TrendLineChart
-import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
@@ -56,7 +55,6 @@ import com.financetracker.app.ui.theme.TermBg
 import com.financetracker.app.ui.theme.TermBorder
 import com.financetracker.app.ui.theme.TermMuted
 import com.financetracker.app.ui.theme.TermPanel
-import com.financetracker.app.ui.theme.TermPanelAlt
 import com.financetracker.app.ui.theme.TermText
 import java.util.Locale
 
@@ -193,7 +191,7 @@ fun DashboardScreen(
       }
     } else {
       items(state.recent, key = { it.id }) { row ->
-        RecentRowItem(row = row, onEdit = { onEditTransaction(row.id) })
+        TransactionRowItem(row = row, onEdit = { onEditTransaction(row.id) })
       }
     }
   }
@@ -466,57 +464,5 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
   }
 }
 
-@Composable
-private fun RecentRowItem(
-  row: RecentRow,
-  onEdit: () -> Unit
-) {
-  Surface(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onEdit),
-    shape = RoundedCornerShape(2.dp),
-    color = TermPanel,
-    border = BorderStroke(1.dp, TermBorder)
-  ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.weight(1f)
-      ) {
-        CategoryIconTile(
-          iconKey = row.categoryIcon,
-          colorArgb = row.categoryColor,
-          containerSize = 20.dp
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Column {
-          Text(
-            text = row.note.ifEmpty { row.categoryName },
-            style = MaterialTheme.typography.bodySmall,
-            color = TermText,
-            maxLines = 1
-          )
-          Text(
-            text = "${epochDayToDisplay(row.dateEpochDay)} · ${row.categoryName}",
-            style = MaterialTheme.typography.labelSmall,
-            color = TermMuted
-          )
-        }
-      }
-      Text(
-        text = (if (row.type == TransactionType.EXPENSE) "-" else "+") + formatRupiah(row.amount),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Bold,
-        color = if (row.type == TransactionType.EXPENSE) SignalNegative else SignalPositive
-      )
-    }
-  }
-}
+
 

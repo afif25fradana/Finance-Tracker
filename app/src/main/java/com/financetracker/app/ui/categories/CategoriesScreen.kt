@@ -50,7 +50,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,7 +59,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.CategoryChip
 import com.financetracker.app.ui.components.CategoryIconTile
+import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBg
@@ -407,41 +408,13 @@ private fun AddEditCategoryDialog(
           )
         } else {
           Text(text = "Type", style = MaterialTheme.typography.labelSmall, color = TermMuted)
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-          ) {
-            val options = listOf(
-              TransactionType.EXPENSE to "Expense" to SignalNegative,
-              TransactionType.INCOME to "Income" to SignalPositive
-            )
-            options.forEach { option ->
-              val type = option.first.first
-              val label = option.first.second
-              val color = option.second
-              val selected = typeInput == type
-              Surface(
-                modifier = Modifier
-                  .weight(1f)
-                  .clickable {
-                    typeInput = type
-                    error = null
-                  },
-                shape = RoundedCornerShape(2.dp),
-                color = if (selected) color else Color.Transparent,
-                border = BorderStroke(1.dp, if (selected) color else TermBorder)
-              ) {
-                Text(
-                  text = label,
-                  style = MaterialTheme.typography.bodySmall,
-                  fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                  color = if (selected) TermBg else TermMuted,
-                  textAlign = TextAlign.Center,
-                  modifier = Modifier.padding(vertical = 8.dp)
-                )
-              }
+          TypeToggle(
+            selected = typeInput,
+            onSelected = {
+              typeInput = it
+              error = null
             }
-          }
+          )
         }
 
         Text(text = "Color", style = MaterialTheme.typography.labelSmall, color = TermMuted)
@@ -589,30 +562,12 @@ private fun ReassignDeleteDialog(
           verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           targets.forEach { cat ->
-            val selected = cat.id == selectedId
-            Surface(
-              shape = RoundedCornerShape(2.dp),
-              color = if (selected) TermPanelAlt else TermBg,
-              border = BorderStroke(1.dp, if (selected) SignalNegative else TermBorder),
-              modifier = Modifier.clickable { selectedId = cat.id }
-            ) {
-              Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-                Surface(
-                  shape = RoundedCornerShape(1.dp),
-                  color = Color(cat.color),
-                  modifier = Modifier.size(10.dp)
-                ) {}
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                  text = cat.name,
-                  style = MaterialTheme.typography.labelSmall,
-                  color = if (selected) TermText else TermMuted
-                )
-              }
-            }
+            CategoryChip(
+              category = cat,
+              selected = cat.id == selectedId,
+              selectedBorderColor = SignalNegative,
+              onClick = { selectedId = cat.id }
+            )
           }
         }
       }

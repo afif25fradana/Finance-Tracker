@@ -71,6 +71,12 @@ class BackupRestorerTest {
     recurringItems = emptyList()
   )
 
+  private suspend fun BackupRestorer.restoreFromText(text: String): BackupResult =
+    when (val validated = validateFromText(text)) {
+      is BackupResult.Invalid -> validated
+      is BackupResult.Valid -> restore(validated.file)
+    }
+
   @Test
   fun restore_replacesAllDataInFkSafeOrderAndPreservesIds() = runBlocking {
     val dao = FakeBackupDao().apply {

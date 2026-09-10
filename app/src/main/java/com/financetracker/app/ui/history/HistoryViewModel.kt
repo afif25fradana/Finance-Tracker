@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.TransactionRow
 import com.financetracker.app.ui.components.epochDayToMonthLabel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,22 +17,11 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.YearMonth
 
-data class HistoryRow(
-  val id: Long,
-  val note: String,
-  val dateEpochDay: Long,
-  val amount: Long,
-  val type: TransactionType,
-  val categoryName: String,
-  val categoryColor: Long,
-  val categoryIcon: String
-)
-
 data class HistoryMonth(
   val label: String,
   val income: Long,
   val expense: Long,
-  val rows: List<HistoryRow>
+  val rows: List<TransactionRow>
 )
 
 data class HistoryUiState(
@@ -61,7 +51,7 @@ class HistoryViewModel(
 
       val allRows = transactions.map { tx ->
         val category = byId[tx.categoryId]
-        HistoryRow(
+        TransactionRow(
           id = tx.id,
           note = tx.note,
           dateEpochDay = tx.date,
