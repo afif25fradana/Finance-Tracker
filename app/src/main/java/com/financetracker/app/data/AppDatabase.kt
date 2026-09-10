@@ -4,39 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.RecurringItemDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
-import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
-
-class Converters {
-  @TypeConverter
-  fun fromTransactionType(type: TransactionType): String = type.name
-
-  @TypeConverter
-  fun toTransactionType(value: String): TransactionType = TransactionType.valueOf(value)
-
-  @TypeConverter
-  fun fromRecurringFrequency(frequency: RecurringFrequency): String = frequency.name
-
-  @TypeConverter
-  fun toRecurringFrequency(value: String): RecurringFrequency = RecurringFrequency.valueOf(value)
-}
 
 @Database(
   entities = [Category::class, Transaction::class, RecurringItem::class],
   version = 1,
   exportSchema = false
 )
-@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
   abstract fun categoryDao(): CategoryDao
   abstract fun transactionDao(): TransactionDao
