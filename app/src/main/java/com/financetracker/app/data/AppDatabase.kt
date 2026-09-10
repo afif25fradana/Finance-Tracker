@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.RecurringItemDao
 import com.financetracker.app.data.dao.TransactionDao
@@ -40,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
   abstract fun categoryDao(): CategoryDao
   abstract fun transactionDao(): TransactionDao
   abstract fun recurringItemDao(): RecurringItemDao
+  abstract fun backupDao(): BackupDao
 
   companion object {
     @Volatile
