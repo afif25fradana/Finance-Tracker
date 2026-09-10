@@ -10,6 +10,7 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 - **Categories** — editable defaults + custom categories, each with a color and icon (icons render as tinted glyph tiles across every screen)
 - **Recurring reminders** — daily/weekly/monthly/yearly templates that post a notification on the next due date (never auto-creates transactions), re-armed across reboots
 - **CSV / JSON export** — date-range export via the system save dialog with pre-filled filenames
+- **Backup & Restore** — versioned JSON backup of all data via the system save dialog, restorable on a new device or after a reinstall — restore **replaces** all existing data, it does not merge
 - **Single currency** — Indonesian Rupiah stored as whole-number `Long`s (no float math)
 
 ## Screenshots
@@ -49,8 +50,9 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 - Room (Flow-based DAOs, `@Transaction` reassign-and-delete)
 - Navigation Compose (4-tab bottom navigation + pushed full-screen edit/utility routes)
 - Vico for cashflow bar + trend line charts
+- kotlinx.serialization for the backup JSON format
 - AlarmManager + `BroadcastReceiver` for recurring reminders
-- JUnit unit tests for export serialization and amount quick-add logic
+- JUnit unit tests for export serialization, amount quick-add logic, and backup encode/decode/validate/restore logic
 
 ## Requirements
 
