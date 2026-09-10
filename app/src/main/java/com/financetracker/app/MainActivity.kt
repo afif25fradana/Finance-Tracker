@@ -39,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.financetracker.app.ui.backup.BackupRestoreRoute
 import com.financetracker.app.ui.categories.CategoriesRoute
 import com.financetracker.app.ui.dashboard.DashboardScreen
 import com.financetracker.app.ui.entry.AddEditTransactionRoute
@@ -168,7 +169,8 @@ class MainActivity : ComponentActivity() {
                   onHistory = { navController.navigateToTab(TopTab.HISTORY.route) },
                   onEditTransaction = { id -> navController.navigate("add_transaction/$id") },
                   onManageReminders = { navController.navigate("recurring") },
-                  onExport = { navController.navigate("export") }
+                  onExport = { navController.navigate("export") },
+                  onBackupRestore = { navController.navigate("backup_restore") }
                 )
               }
               composable(TopTab.HISTORY.route) {
@@ -202,6 +204,9 @@ class MainActivity : ComponentActivity() {
               }
               composable("export") {
                 ExportRoute(onBack = { navController.popBackStack() })
+              }
+              composable("backup_restore") {
+                BackupRestoreRoute(onBack = { navController.popBackStack() })
               }
             }
           }

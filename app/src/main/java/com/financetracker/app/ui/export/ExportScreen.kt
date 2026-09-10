@@ -1,11 +1,7 @@
 package com.financetracker.app.ui.export
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
+import com.financetracker.app.ui.components.CreateDocumentWithName
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
 import com.financetracker.app.ui.components.utcMillisToEpochDay
@@ -91,20 +88,6 @@ fun ExportRoute(onBack: () -> Unit) {
 
 private enum class PickerTarget { FROM, TO }
 
-// The built-in CreateDocument contract only passes a MIME type, so DocumentsUI
-// would auto-name the file from it (e.g. "text_csv"). Provide a suggested name.
-private class CreateExportFile : ActivityResultContract<CreateExportFile.Request, Uri?>() {
-  data class Request(val fileName: String, val mimeType: String)
-
-  override fun createIntent(context: Context, input: Request): Intent =
-    Intent(Intent.ACTION_CREATE_DOCUMENT)
-      .setType(input.mimeType)
-      .putExtra(Intent.EXTRA_TITLE, input.fileName)
-
-  override fun parseResult(resultCode: Int, intent: Intent?): Uri? =
-    if (resultCode == Activity.RESULT_OK) intent?.data else null
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExportScreen(
@@ -117,7 +100,7 @@ private fun ExportScreen(
 ) {
   var pickerTarget by remember { mutableStateOf<PickerTarget?>(null) }
 
-  val saveLauncher = rememberLauncherForActivityResult(CreateExportFile()) { uri ->
+  val saveLauncher = rememberLauncherForActivityResult(CreateDocumentWithName()) { uri ->
     if (uri != null) onExport(uri)
   }
 
@@ -223,7 +206,7 @@ private fun ExportScreen(
               .fillMaxWidth()
               .clickable {
                 saveLauncher.launch(
-                  CreateExportFile.Request(fileName = state.suggestedFileName, mimeType = state.format.mime)
+                  CreateDocumentWithName.Request(fileName = state.suggestedFileName, mimeType = state.format.mime)
                 )
               },
             shape = RoundedCornerShape(2.dp),

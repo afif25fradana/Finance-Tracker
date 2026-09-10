@@ -10,13 +10,16 @@ class BackupRestorer(
   private val rescheduleReminders: (List<RecurringItem>) -> Unit
 ) {
 
-  suspend fun restoreFromText(text: String): BackupResult =
+  fun validateFromText(text: String): BackupResult =
     when (val decoded = BackupCodec.decode(text)) {
       is BackupResult.Invalid -> decoded
-      is BackupResult.Valid -> when (val validated = BackupValidator.validate(decoded.file)) {
-        is BackupResult.Invalid -> validated
-        is BackupResult.Valid -> restore(validated.file)
-      }
+      is BackupResult.Valid -> BackupValidator.validate(decoded.file)
+    }
+
+  suspend fun restoreFromText(text: String): BackupResult =
+    when (val validated = validateFromText(text)) {
+      is BackupResult.Invalid -> validated
+      is BackupResult.Valid -> restore(validated.file)
     }
 
   suspend fun restore(file: BackupFile): BackupResult {

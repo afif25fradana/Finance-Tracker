@@ -66,7 +66,8 @@ fun DashboardScreen(
   onHistory: () -> Unit,
   onEditTransaction: (Long) -> Unit,
   onManageReminders: () -> Unit,
-  onExport: () -> Unit
+  onExport: () -> Unit,
+  onBackupRestore: () -> Unit
 ) {
   val context = LocalContext.current
   val viewModel: DashboardViewModel = viewModel(
@@ -117,6 +118,7 @@ fun DashboardScreen(
         ) {
           HeaderChip(text = "Reminders", onClick = onManageReminders)
           HeaderChip(text = "Export", onClick = onExport)
+          HeaderChip(text = "Backup", onClick = onBackupRestore)
         }
       }
     }
