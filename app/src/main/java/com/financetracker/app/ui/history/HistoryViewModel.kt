@@ -6,10 +6,12 @@ import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.epochDayToMonthLabel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.YearMonth
@@ -98,7 +100,8 @@ class HistoryViewModel(
         totalCount = transactions.size,
         months = months
       )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HistoryUiState())
+    }.flowOn(Dispatchers.Default)
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HistoryUiState())
 
   fun onSearchQueryChange(value: String) {
     searchQuery.value = value
