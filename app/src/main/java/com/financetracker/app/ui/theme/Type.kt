@@ -22,23 +22,11 @@ val Typography = Typography(
     lineHeight = 34.sp,
     letterSpacing = (-0.2).sp
   ),
-  headlineMedium = TextStyle(
-    fontFamily = FontFamily.Monospace,
-    fontWeight = FontWeight.Bold,
-    fontSize = 22.sp,
-    lineHeight = 28.sp
-  ),
   headlineSmall = TextStyle(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.Bold,
     fontSize = 18.sp,
     lineHeight = 24.sp
-  ),
-  titleLarge = TextStyle(
-    fontFamily = FontFamily.Monospace,
-    fontWeight = FontWeight.SemiBold,
-    fontSize = 16.sp,
-    lineHeight = 22.sp
   ),
   titleMedium = TextStyle(
     fontFamily = FontFamily.Monospace,
@@ -75,13 +63,6 @@ val Typography = Typography(
     fontWeight = FontWeight.Medium,
     fontSize = 13.sp,
     lineHeight = 18.sp
-  ),
-  labelMedium = TextStyle(
-    fontFamily = FontFamily.Monospace,
-    fontWeight = FontWeight.Medium,
-    fontSize = 11.sp,
-    lineHeight = 15.sp,
-    letterSpacing = 0.4.sp
   ),
   labelSmall = TextStyle(
     fontFamily = FontFamily.Monospace,
