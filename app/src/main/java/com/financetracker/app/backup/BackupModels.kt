@@ -1,8 +1,10 @@
 package com.financetracker.app.backup
 
 import com.financetracker.app.data.entity.Category
+import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
+import com.financetracker.app.data.entity.TransactionType
 import kotlinx.serialization.Serializable
 
 const val BACKUP_SCHEMA_VERSION = 1
@@ -60,3 +62,12 @@ fun Transaction.toBackup(): BackupTransaction =
 
 fun RecurringItem.toBackup(): BackupRecurringItem =
   BackupRecurringItem(id, categoryId, amount, frequency.name, nextDueDate)
+
+fun BackupCategory.toEntity(): Category =
+  Category(id, name, TransactionType.valueOf(type), color, icon, isDefault)
+
+fun BackupTransaction.toEntity(): Transaction =
+  Transaction(id, amount, TransactionType.valueOf(type), categoryId, date, note)
+
+fun BackupRecurringItem.toEntity(): RecurringItem =
+  RecurringItem(id, categoryId, amount, RecurringFrequency.valueOf(frequency), nextDueDate)
