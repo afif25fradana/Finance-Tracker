@@ -40,7 +40,7 @@ class BackupCodecTest {
     nextDueDate = 20100
   )
 
-  private fun encode(): String = encodeBackup(
+  private fun encode(): String = BackupCodec.encode(
     appVersion = "1.0",
     currency = "IDR",
     createdAt = "2026-09-11T00:00:00Z",
@@ -91,7 +91,7 @@ class BackupCodecTest {
 
   @Test
   fun encode_emptyTablesProduceEmptyArrays() {
-    val out = encodeBackup(
+    val out = BackupCodec.encode(
       appVersion = "1.0",
       currency = "IDR",
       createdAt = "2026-09-11T00:00:00Z",
@@ -104,5 +104,89 @@ class BackupCodecTest {
     assertTrue(root["categories"]!!.jsonArray.isEmpty())
     assertTrue(root["transactions"]!!.jsonArray.isEmpty())
     assertTrue(root["recurringItems"]!!.jsonArray.isEmpty())
+  }
+
+  private fun validJson(): String = """
+    {
+      "schemaVersion": 1,
+      "appVersion": "1.0",
+      "currency": "IDR",
+      "createdAt": "2026-09-11T00:00:00Z",
+      "categories": [
+        { "id": 1, "name": "Groceries", "type": "EXPENSE", "color": 255, "icon": "shopping_cart", "isDefault": true }
+      ],
+      "transactions": [
+        { "id": 7, "amount": 50000, "type": "EXPENSE", "categoryId": 1, "date": 20000, "note": "weekly" }
+      ],
+      "recurringItems": [
+        { "id": 3, "categoryId": 1, "amount": 250000, "frequency": "MONTHLY", "nextDueDate": 20100 }
+      ]
+    }
+  """.trimIndent()
+
+  private fun invalid(result: BackupResult): BackupResult.Invalid {
+    assertTrue("expected Invalid but was $result", result is BackupResult.Invalid)
+    return result as BackupResult.Invalid
+  }
+
+  @Test
+  fun decode_validJson_isValid() {
+    assertTrue(BackupCodec.decode(validJson()) is BackupResult.Valid)
+  }
+
+  @Test
+  fun decode_malformedJson_isInvalid() {
+    invalid(BackupCodec.decode("{ not json"))
+  }
+
+  @Test
+  fun decode_missingRequiredField_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"currency\": \"IDR\",", "")))
+
+    assertEquals("currency", r.field)
+  }
+
+  @Test
+  fun decode_unknownField_isInvalid() {
+    invalid(
+      BackupCodec.decode(
+        validJson().replace("\"schemaVersion\": 1,", "\"schemaVersion\": 1,\n  \"extra\": 1,")
+      )
+    )
+  }
+
+  @Test
+  fun decode_amountAsString_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"amount\": 50000", "\"amount\": \"50000\"")))
+
+    assertTrue(r.field.contains("amount"))
+  }
+
+  @Test
+  fun decode_amountAsDouble_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"amount\": 50000", "\"amount\": 50000.0")))
+
+    assertTrue(r.field.contains("amount"))
+  }
+
+  @Test
+  fun decode_idAsString_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"id\": 7", "\"id\": \"7\"")))
+
+    assertTrue(r.field.contains("id"))
+  }
+
+  @Test
+  fun decode_colorAsString_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"color\": 255", "\"color\": \"255\"")))
+
+    assertTrue(r.field.contains("color"))
+  }
+
+  @Test
+  fun decode_dateAsString_isInvalid() {
+    val r = invalid(BackupCodec.decode(validJson().replace("\"date\": 20000", "\"date\": \"20000\"")))
+
+    assertTrue(r.field.contains("date"))
   }
 }
