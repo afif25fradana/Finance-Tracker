@@ -229,24 +229,40 @@ private fun AddEditTransactionScreen(
               color = accent
             )
             Spacer(modifier = Modifier.width(6.dp))
-            BasicTextField(
-              value = formatAmountInput(state.amountText),
-              onValueChange = onAmountChange,
-              textStyle = TextStyle(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = TermText
-              ),
-              cursorBrush = SolidColor(SignalPositive),
-              keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-              ),
-              keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-              singleLine = true,
-              modifier = Modifier.fillMaxWidth()
-            )
+              BasicTextField(
+                value = formatAmountInput(state.amountText),
+                onValueChange = onAmountChange,
+                textStyle = TextStyle(
+                  fontFamily = FontFamily.Monospace,
+                  fontSize = 28.sp,
+                  fontWeight = FontWeight.Bold,
+                  color = TermText
+                ),
+                cursorBrush = SolidColor(SignalPositive),
+                keyboardOptions = KeyboardOptions(
+                  keyboardType = KeyboardType.Number,
+                  imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { innerTextField ->
+                  Box {
+                    if (state.amountText.isEmpty()) {
+                      Text(
+                        text = "0",
+                        style = TextStyle(
+                          fontFamily = FontFamily.Monospace,
+                          fontSize = 28.sp,
+                          fontWeight = FontWeight.Bold,
+                          color = TermMuted
+                        )
+                      )
+                    }
+                    innerTextField()
+                  }
+                }
+              )
           }
 
           Spacer(modifier = Modifier.height(12.dp))
@@ -289,7 +305,7 @@ private fun AddEditTransactionScreen(
         color = TermPanel,
         border = BorderStroke(1.dp, TermBorder)
       ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
           Text(text = "Note", style = MaterialTheme.typography.labelSmall, color = TermMuted)
           Spacer(modifier = Modifier.height(6.dp))
           BasicTextField(
@@ -302,7 +318,22 @@ private fun AddEditTransactionScreen(
             ),
             cursorBrush = SolidColor(SignalPositive),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            decorationBox = { innerTextField ->
+              Box {
+                if (state.note.isEmpty()) {
+                  Text(
+                    text = "Optional note...",
+                    style = TextStyle(
+                      fontFamily = FontFamily.Monospace,
+                      fontSize = 14.sp,
+                      color = TermMuted
+                    )
+                  )
+                }
+                innerTextField()
+              }
+            }
           )
         }
       }
@@ -315,7 +346,7 @@ private fun AddEditTransactionScreen(
         color = TermPanel,
         border = BorderStroke(1.dp, TermBorder)
       ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
           Text(text = "Category", style = MaterialTheme.typography.labelSmall, color = TermMuted)
           Spacer(modifier = Modifier.height(10.dp))
           val categories = state.categories.filter { it.type == state.transactionType }
@@ -357,7 +388,7 @@ private fun AddEditTransactionScreen(
           modifier = Modifier
             .fillMaxWidth()
             .clickable { showDatePicker = true }
-            .padding(14.dp),
+            .padding(16.dp),
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
