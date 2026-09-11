@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.EmptyState
 import com.financetracker.app.ui.components.TransactionRowItem
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
@@ -182,18 +183,10 @@ fun HistoryScreen(
     Spacer(modifier = Modifier.height(4.dp))
 
     if (state.months.isEmpty()) {
-      Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 32.dp),
-        contentAlignment = Alignment.Center
-      ) {
-        Text(
-          text = "No transactions found",
-          style = MaterialTheme.typography.bodySmall,
-          color = TermMuted
-        )
-      }
+      EmptyState(
+        message = "No transactions found",
+        cta = "Tap + to add one"
+      )
     } else {
       LazyColumn(
         modifier = Modifier

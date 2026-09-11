@@ -74,6 +74,7 @@ import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CategoryChip
 import com.financetracker.app.ui.components.CategoryIconTile
+import com.financetracker.app.ui.components.EmptyState
 import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.epochDayToDisplay
@@ -214,13 +215,10 @@ private fun RecurringScreen(
 
     if (state.rows.isEmpty()) {
       item {
-        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-          Text(
-            text = "No recurring reminders yet",
-            style = MaterialTheme.typography.bodySmall,
-            color = TermMuted
-          )
-        }
+        EmptyState(
+          message = "No recurring reminders yet",
+          cta = "Tap + New Reminder to add one"
+        )
       }
     } else {
       items(state.rows, key = { it.item.id }) { row ->

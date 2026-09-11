@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.ui.components.CashflowChart
 import com.financetracker.app.ui.components.CategoryIconTile
+import com.financetracker.app.ui.components.EmptyState
 import com.financetracker.app.ui.components.TransactionRowItem
 import com.financetracker.app.ui.components.TrendLineChart
 import com.financetracker.app.ui.components.formatRupiah
@@ -183,10 +184,9 @@ fun DashboardScreen(
 
     if (state.recent.isEmpty()) {
       item {
-        Text(
-          text = "No transactions yet.",
-          style = MaterialTheme.typography.bodySmall,
-          color = TermMuted
+        EmptyState(
+          message = "No transactions yet",
+          cta = "Tap + to add one"
         )
       }
     } else {

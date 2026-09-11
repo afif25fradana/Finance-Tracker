@@ -170,11 +170,19 @@ private fun BackupRestoreScreen(
     val message = state.message
     if (message != null) {
       item {
-        Text(
-          text = message,
-          style = MaterialTheme.typography.bodySmall,
-          color = if (state.isError) SignalNegative else SignalPositive
-        )
+        Surface(
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(2.dp),
+          color = TermPanel,
+          border = BorderStroke(1.dp, if (state.isError) SignalNegative else SignalPositive)
+        ) {
+          Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (state.isError) SignalNegative else SignalPositive,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+          )
+        }
       }
     }
   }
