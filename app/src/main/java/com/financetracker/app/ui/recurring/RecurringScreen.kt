@@ -203,7 +203,7 @@ private fun RecurringScreen(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
               text = "New Reminder",
-              style = MaterialTheme.typography.labelSmall,
+              style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.Bold,
               color = TermBg
             )

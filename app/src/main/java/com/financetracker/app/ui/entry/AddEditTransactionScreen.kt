@@ -406,7 +406,7 @@ private fun AddEditTransactionScreen(
         ) {
           Text(
             text = "Cancel",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = TermMuted,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 12.dp)
@@ -421,7 +421,7 @@ private fun AddEditTransactionScreen(
         ) {
           Text(
             text = "Save",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = TermBg,
             textAlign = TextAlign.Center,

@@ -77,7 +77,7 @@ private fun ChartCard(
       ) {
         Text(
           text = title,
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.titleSmall,
           color = TermMuted,
           fontWeight = FontWeight.Medium
         )

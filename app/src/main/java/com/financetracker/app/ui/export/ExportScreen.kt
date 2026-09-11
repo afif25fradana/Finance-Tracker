@@ -221,7 +221,7 @@ private fun ExportScreen(
               Spacer(modifier = Modifier.width(6.dp))
               Text(
                 text = "Export ${state.format.label}",
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = TermBg
               )

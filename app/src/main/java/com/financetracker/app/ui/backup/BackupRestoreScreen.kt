@@ -261,7 +261,7 @@ private fun ActionCard(
           Spacer(modifier = Modifier.width(6.dp))
           Text(
             text = actionLabel,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = if (enabled) TermBg else TermMuted,
             textAlign = TextAlign.Center

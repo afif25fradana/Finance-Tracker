@@ -157,7 +157,7 @@ fun DashboardScreen(
       ) {
         Text(
           text = "Recent Transactions",
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.titleSmall,
           fontWeight = FontWeight.SemiBold,
           color = TermText
         )
@@ -236,7 +236,7 @@ private fun RunningBalanceCard(
       ) {
         Text(
           text = "Balance",
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.titleSmall,
           color = TermMuted,
           fontWeight = FontWeight.Medium
         )
@@ -320,7 +320,7 @@ private fun RunningBalanceCard(
             Spacer(modifier = Modifier.width(6.dp))
             Text(
               text = "Add Transaction",
-              style = MaterialTheme.typography.labelSmall,
+              style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.Bold,
               color = TermBg
             )
@@ -341,7 +341,7 @@ private fun RunningBalanceCard(
           ) {
             Text(
               text = "History",
-              style = MaterialTheme.typography.labelSmall,
+              style = MaterialTheme.typography.bodyMedium,
               color = TermMuted
             )
             Spacer(modifier = Modifier.width(6.dp))
@@ -375,7 +375,7 @@ private fun Metric(label: String, amount: Long, isExpense: Boolean) {
     Spacer(modifier = Modifier.height(2.dp))
     Text(
       text = "$sign${formatRupiah(kotlin.math.abs(amount))}",
-      style = MaterialTheme.typography.bodyMedium,
+      style = MaterialTheme.typography.bodyLarge,
       fontWeight = FontWeight.Bold,
       color = color
     )
@@ -398,7 +398,7 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
       ) {
         Text(
           text = "Spending by Category",
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.titleSmall,
           color = TermMuted,
           fontWeight = FontWeight.Medium
         )
