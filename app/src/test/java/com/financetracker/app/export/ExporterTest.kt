@@ -25,8 +25,12 @@ class ExporterTest {
     val csv = exportToCsv(rows)
 
     assertEquals(
-      "date,amount,category,type,note\n" +
-        "2024-01-05,50000,Groceries,expense,weekly shop\n",
+      "Date,Amount,Category,Type,Note\n" +
+        "2024-01-05,50000,Groceries,expense,weekly shop\n" +
+        "\n" +
+        ",0,Total Income,,\n" +
+        ",50000,Total Expenses,,\n" +
+        ",-50000,Net Balance,,\n",
       csv
     )
   }
@@ -46,9 +50,13 @@ class ExporterTest {
     val csv = exportToCsv(rows)
 
     assertEquals(
-      """date,amount,category,type,note
+      """Date,Amount,Category,Type,Note
 2024-02-01,100000,Salary & Income,income,"says ""hi"",
 new line"
+
+,100000,Total Income,,
+,0,Total Expenses,,
+,100000,Net Balance,,
 """,
       csv
     )
@@ -67,8 +75,12 @@ new line"
     )
 
     assertEquals(
-      "date,amount,category,type,note\n" +
-        "2024-04-01,1,Test,expense,'=SUM(A1:A2)\n",
+      "Date,Amount,Category,Type,Note\n" +
+        "2024-04-01,1,Test,expense,'=SUM(A1:A2)\n" +
+        "\n" +
+        ",0,Total Income,,\n" +
+        ",1,Total Expenses,,\n" +
+        ",-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }
@@ -86,9 +98,56 @@ new line"
     )
 
     assertEquals(
-      "date,amount,category,type,note\n" +
-        "2024-04-01,1,Test,expense,\"'+A1,B2\"\n",
+      "Date,Amount,Category,Type,Note\n" +
+        "2024-04-01,1,Test,expense,\"'+A1,B2\"\n" +
+        "\n" +
+        ",0,Total Income,,\n" +
+        ",1,Total Expenses,,\n" +
+        ",-1,Net Balance,,\n",
       exportToCsv(rows)
+    )
+  }
+
+  @Test
+  fun csv_multiRow_computesSummaryCorrectly() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-05-01"),
+        amount = 150000,
+        type = TransactionType.INCOME,
+        category = "Salary & Income",
+        note = "freelance"
+      ),
+      TransactionExport(
+        date = day("2024-05-02"),
+        amount = 45000,
+        type = TransactionType.EXPENSE,
+        category = "Dining & Cafes",
+        note = "lunch"
+      )
+    )
+
+    assertEquals(
+      "Date,Amount,Category,Type,Note\n" +
+        "2024-05-01,150000,Salary & Income,income,freelance\n" +
+        "2024-05-02,45000,Dining & Cafes,expense,lunch\n" +
+        "\n" +
+        ",150000,Total Income,,\n" +
+        ",45000,Total Expenses,,\n" +
+        ",105000,Net Balance,,\n",
+      exportToCsv(rows)
+    )
+  }
+
+  @Test
+  fun csv_emptyRows_hasHeaderAndZeroSummaries() {
+    assertEquals(
+      "Date,Amount,Category,Type,Note\n" +
+        "\n" +
+        ",0,Total Income,,\n" +
+        ",0,Total Expenses,,\n" +
+        ",0,Net Balance,,\n",
+      exportToCsv(emptyList())
     )
   }
 

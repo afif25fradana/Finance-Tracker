@@ -7,12 +7,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
-private val EXPORT_HEADER = listOf("date", "amount", "category", "type", "note")
+private val EXPORT_HEADER = listOf("Date", "Amount", "Category", "Type", "Note")
 
 fun exportToCsv(rows: List<TransactionExport>): String = buildString {
   append(EXPORT_HEADER.joinToString(","))
   append('\n')
+  var totalIncome = 0L
+  var totalExpenses = 0L
   rows.forEach { row ->
+    when (row.type) {
+      TransactionType.INCOME -> totalIncome += row.amount
+      TransactionType.EXPENSE -> totalExpenses += row.amount
+    }
     val fields = listOf(
       epochDayToIso(row.date),
       row.amount.toString(),
@@ -21,6 +27,26 @@ fun exportToCsv(rows: List<TransactionExport>): String = buildString {
       row.note
     )
     append(fields.joinToString(",") { csvEscape(it) })
+    append('\n')
+  }
+
+  append('\n')
+
+  val netBalance = totalIncome - totalExpenses
+  val summaryRows = listOf(
+    listOf("", totalIncome.toString(), "Total Income", "", ""),
+    listOf("", totalExpenses.toString(), "Total Expenses", "", ""),
+    listOf("", netBalance.toString(), "Net Balance", "", "")
+  )
+  summaryRows.forEach { (date, amount, category, type, note) ->
+    val fields = listOf(
+      csvEscape(date),
+      amount,
+      csvEscape(category),
+      csvEscape(type),
+      csvEscape(note)
+    )
+    append(fields.joinToString(","))
     append('\n')
   }
 }
