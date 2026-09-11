@@ -17,29 +17,43 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 
 <table>
   <tr>
-    <td align="center" width="50%">
-      <img src="Asset/screenshots/dashboard.png" width="270" alt="Dashboard"><br>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/dashboard.png" width="200" alt="Dashboard"><br>
       <b>Dashboard</b> — balance, cashflow, category breakdown
     </td>
-    <td align="center" width="50%">
-      <img src="Asset/screenshots/add.png" width="270" alt="Add transaction"><br>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/add.png" width="200" alt="Add transaction"><br>
       <b>Add</b> — quick income / expense entry
     </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="Asset/screenshots/history.png" width="270" alt="History"><br>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/history.png" width="200" alt="History"><br>
       <b>History</b> — month-grouped list with per-month totals
     </td>
-    <td align="center" width="50%">
-      <img src="Asset/screenshots/categories.png" width="270" alt="Categories"><br>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/categories.png" width="200" alt="Categories"><br>
       <b>Categories</b> — editable defaults + custom color/icon tiles
+    </td>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/edit-transaction.png" width="200" alt="Edit transaction"><br>
+      <b>Edit Transaction</b> — full form with amount presets
+    </td>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/reminders.png" width="200" alt="Recurring reminders"><br>
+      <b>Reminders</b> — recurring templates with next due dates
     </td>
   </tr>
   <tr>
-    <td align="center" colspan="2">
-      <img src="Asset/screenshots/edit-transaction.png" width="270" alt="Edit transaction"><br>
-      <b>Edit Transaction</b> — full form with amount presets
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/export.png" width="200" alt="Export"><br>
+      <b>Export</b> — date-range CSV and JSON export
+    </td>
+    <td align="center" width="33%">
+      <img src="Asset/screenshots/backup.png" width="200" alt="Backup & Restore"><br>
+      <b>Backup</b> — versioned JSON backup and restore
+    </td>
+    <td align="center" width="33%">
     </td>
   </tr>
 </table>
