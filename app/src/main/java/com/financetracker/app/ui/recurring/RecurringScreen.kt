@@ -73,6 +73,7 @@ import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CategoryChip
+import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.epochDayToDisplay
@@ -310,11 +311,11 @@ private fun RecurringRowItem(
       verticalAlignment = Alignment.CenterVertically
     ) {
       val category = row.category
-      Surface(
-        shape = RoundedCornerShape(1.dp),
-        color = Color(category?.color ?: 0xFF8A8A8AL),
-        modifier = Modifier.size(10.dp)
-      ) {}
+      CategoryIconTile(
+        iconKey = category?.icon ?: "",
+        colorArgb = category?.color ?: 0xFF8A8A8AL,
+        containerSize = 16.dp
+      )
       Spacer(modifier = Modifier.width(10.dp))
       Column(modifier = Modifier.weight(1f)) {
         Text(
