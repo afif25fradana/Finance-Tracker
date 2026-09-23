@@ -16,14 +16,20 @@ import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.components.todayEpochDay
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-private val receiverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+class ReminderReceiver @JvmOverloads constructor(
+  private val coroutineContext: CoroutineContext = Dispatchers.IO,
+  private val dbProvider: (Context) -> AppDatabase = { AppDatabase.getInstance(it) }
+) : BroadcastReceiver() {
 
-class ReminderReceiver : BroadcastReceiver() {
+  private val receiverScope = CoroutineScope(SupervisorJob() + coroutineContext)
+  var lastJob: kotlinx.coroutines.Job? = null
+    internal set
 
   override fun onReceive(context: Context, intent: Intent) {
     when (intent.action) {
@@ -31,25 +37,25 @@ class ReminderReceiver : BroadcastReceiver() {
         val itemId = intent.getLongExtra(ReminderScheduler.EXTRA_ITEM_ID, -1L)
         if (itemId < 0) return
         val pendingResult = goAsync()
-        receiverScope.launch {
+        lastJob = receiverScope.launch {
           try {
             onReminderFired(context.applicationContext, itemId)
           } finally {
-            pendingResult.finish()
+            pendingResult?.finish()
           }
         }
       }
 
       Intent.ACTION_BOOT_COMPLETED -> {
         val pendingResult = goAsync()
-        receiverScope.launch {
+        lastJob = receiverScope.launch {
           try {
-            val items = AppDatabase.getInstance(context.applicationContext)
+            val items = dbProvider(context.applicationContext)
               .recurringItemDao()
               .getAllOnce()
             ReminderScheduler.rescheduleAll(context.applicationContext, items)
           } finally {
-            pendingResult.finish()
+            pendingResult?.finish()
           }
         }
       }
@@ -58,7 +64,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
   /** Post a notification only — never writes a Transaction — then advance to the next occurrence. */
   private suspend fun onReminderFired(context: Context, itemId: Long) {
-    val db = AppDatabase.getInstance(context)
+    val db = dbProvider(context)
     val item = db.recurringItemDao().getByIdOnce(itemId)
     if (item == null) {
       ReminderScheduler.cancel(context, itemId)
