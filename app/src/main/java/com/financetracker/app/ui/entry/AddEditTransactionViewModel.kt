@@ -63,19 +63,18 @@ class AddEditTransactionViewModel(
 
   private fun loadForEdit() {
     viewModelScope.launch {
-      transactionDao.getById(transactionId!!).collect { tx ->
-        if (tx != null) {
-          _uiState.update {
-            it.copy(
-              transactionType = tx.type,
-              amountText = tx.amount.toString(),
-              note = tx.note,
-              selectedCategoryId = tx.categoryId,
-              dateEpochDay = tx.date,
-              isEditing = true,
-              error = null
-            )
-          }
+      val tx = transactionDao.getByIdOnce(transactionId!!)
+      if (tx != null) {
+        _uiState.update {
+          it.copy(
+            transactionType = tx.type,
+            amountText = tx.amount.toString(),
+            note = tx.note,
+            selectedCategoryId = tx.categoryId,
+            dateEpochDay = tx.date,
+            isEditing = true,
+            error = null
+          )
         }
       }
     }
