@@ -40,6 +40,17 @@ abstract class AppDatabase : RoomDatabase() {
           .build()
           .also { INSTANCE = it }
       }
+
+    fun createInMemory(context: Context, withDefaultSeed: Boolean = false): AppDatabase {
+      val builder = Room.inMemoryDatabaseBuilder(
+        context.applicationContext,
+        AppDatabase::class.java
+      ).allowMainThreadQueries()
+      if (withDefaultSeed) {
+        builder.addCallback(DEFAULT_CATEGORY_SEED)
+      }
+      return builder.build()
+    }
   }
 }
 
