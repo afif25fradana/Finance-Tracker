@@ -8,9 +8,11 @@ import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.TransactionRow
 import com.financetracker.app.ui.components.epochDayToMonthLabel
 import com.financetracker.app.ui.components.todayEpochDay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.YearMonth
@@ -143,5 +145,6 @@ class DashboardViewModel(
         trend = trend,
         recent = recent
       )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DashboardUiState())
+    }.flowOn(Dispatchers.Default)
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DashboardUiState())
 }
