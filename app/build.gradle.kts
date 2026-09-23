@@ -72,3 +72,7 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
 }
 
+kotlin {
+  jvmToolchain(21)
+}
+
