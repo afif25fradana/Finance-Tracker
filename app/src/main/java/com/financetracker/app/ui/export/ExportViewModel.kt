@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.OutputStream
 import java.time.LocalDate
 
 enum class ExportFormat(val label: String, val mime: String, val extension: String) {
@@ -37,7 +38,10 @@ data class ExportUiState(
 class ExportViewModel(
   context: Context,
   private val transactionDao: TransactionDao,
-  private val savedStateHandle: SavedStateHandle? = null
+  private val savedStateHandle: SavedStateHandle? = null,
+  private val openOutputStream: (Uri) -> OutputStream? = { uri ->
+    context.applicationContext.contentResolver.openOutputStream(uri)
+  }
 ) : ViewModel() {
 
   companion object {
@@ -46,7 +50,6 @@ class ExportViewModel(
     private const val KEY_FORMAT = "export_format"
   }
 
-  private val contentResolver = context.applicationContext.contentResolver
   private val _uiState = MutableStateFlow(
     ExportUiState(
       fromEpochDay = savedStateHandle?.get<Long>(KEY_FROM) ?: LocalDate.now().withDayOfMonth(1).toEpochDay(),
@@ -85,7 +88,7 @@ class ExportViewModel(
             ExportFormat.CSV -> exportToCsv(rows)
             ExportFormat.JSON -> exportToJson(rows)
           }
-          contentResolver.openOutputStream(uri)?.use { it.write(content.toByteArray(Charsets.UTF_8)) }
+          openOutputStream(uri)?.use { it.write(content.toByteArray(Charsets.UTF_8)) }
             ?: throw IllegalStateException("Could not open output file")
           rows
         }

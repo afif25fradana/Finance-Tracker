@@ -28,7 +28,13 @@ data class RecurringUiState(
 class RecurringViewModel(
   context: Context,
   private val recurringItemDao: RecurringItemDao,
-  categoryDao: CategoryDao
+  categoryDao: CategoryDao,
+  private val scheduleReminder: (Context, RecurringItem) -> Unit = { ctx, item ->
+    ReminderScheduler.schedule(ctx, item)
+  },
+  private val cancelReminder: (Context, Long) -> Unit = { ctx, id ->
+    ReminderScheduler.cancel(ctx, id)
+  }
 ) : ViewModel() {
 
   private val appContext = context.applicationContext
@@ -55,7 +61,7 @@ class RecurringViewModel(
           nextDueDate = nextDueDate
         )
       )
-      ReminderScheduler.schedule(appContext, RecurringItem(id, categoryId, amount, frequency, nextDueDate))
+      scheduleReminder(appContext, RecurringItem(id, categoryId, amount, frequency, nextDueDate))
     }
   }
 
@@ -68,14 +74,14 @@ class RecurringViewModel(
     )
     viewModelScope.launch {
       recurringItemDao.update(updated)
-      ReminderScheduler.schedule(appContext, updated)
+      scheduleReminder(appContext, updated)
     }
   }
 
   fun delete(item: RecurringItem) {
     viewModelScope.launch {
       recurringItemDao.delete(item)
-      ReminderScheduler.cancel(appContext, item.id)
+      cancelReminder(appContext, item.id)
     }
   }
 }

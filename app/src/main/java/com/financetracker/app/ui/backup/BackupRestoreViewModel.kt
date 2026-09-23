@@ -15,6 +15,8 @@ import com.financetracker.app.backup.BackupResult
 import com.financetracker.app.backup.toBackup
 import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.reminder.ReminderScheduler
+import java.io.InputStream
+import java.io.OutputStream
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -39,7 +41,22 @@ private val FILE_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss
 class BackupRestoreViewModel(
   context: Context,
   private val backupDao: BackupDao,
-  private val savedStateHandle: SavedStateHandle? = null
+  private val savedStateHandle: SavedStateHandle? = null,
+  private val restorer: BackupRestorer = BackupRestorer(
+    backupDao = backupDao,
+    rescheduleReminders = { items ->
+      ReminderScheduler.rescheduleAll(context.applicationContext, items)
+    },
+    cancelReminders = { ids ->
+      ReminderScheduler.cancelAll(context.applicationContext, ids)
+    }
+  ),
+  private val openInputStream: (Uri) -> InputStream? = { uri ->
+    context.applicationContext.contentResolver.openInputStream(uri)
+  },
+  private val openOutputStream: (Uri) -> OutputStream? = { uri ->
+    context.applicationContext.contentResolver.openOutputStream(uri)
+  }
 ) : ViewModel() {
 
   companion object {
@@ -48,16 +65,6 @@ class BackupRestoreViewModel(
   }
 
   private val appContext = context.applicationContext
-  private val contentResolver = appContext.contentResolver
-  private val restorer = BackupRestorer(
-    backupDao = backupDao,
-    rescheduleReminders = { items ->
-      ReminderScheduler.rescheduleAll(appContext, items)
-    },
-    cancelReminders = { ids ->
-      ReminderScheduler.cancelAll(appContext, ids)
-    }
-  )
 
   private val _uiState = MutableStateFlow(
     BackupRestoreUiState(
@@ -87,7 +94,7 @@ class BackupRestoreViewModel(
           recurringItems = recurring.map { it.toBackup() }
         )
         withContext(Dispatchers.IO) {
-          contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
+          openOutputStream(uri)?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
             ?: throw IllegalStateException("Could not open the selected file for writing.")
         }
         val msg = "Backup created: ${transactions.size} transaction(s)."
@@ -117,7 +124,7 @@ class BackupRestoreViewModel(
       _uiState.update { it.copy(isWorking = true, message = null) }
       try {
         val text = withContext(Dispatchers.IO) {
-          contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+          openInputStream(uri)?.bufferedReader()?.use { it.readText() }
             ?: throw IllegalStateException("Could not open the selected file.")
         }
         when (val result = restorer.validateFromText(text)) {
