@@ -43,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.createSavedStateHandle
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,7 +95,8 @@ fun AddEditTransactionRoute(
         AddEditTransactionViewModel(
           transactionDao = db.transactionDao(),
           categoryDao = db.categoryDao(),
-          transactionId = transactionId
+          transactionId = transactionId,
+          savedStateHandle = this.createSavedStateHandle()
         )
       }
     }

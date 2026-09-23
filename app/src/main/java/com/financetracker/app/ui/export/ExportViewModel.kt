@@ -2,6 +2,7 @@ package com.financetracker.app.ui.export
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.TransactionDao
@@ -35,22 +36,38 @@ data class ExportUiState(
 
 class ExportViewModel(
   context: Context,
-  private val transactionDao: TransactionDao
+  private val transactionDao: TransactionDao,
+  private val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
 
+  companion object {
+    private const val KEY_FROM = "export_from"
+    private const val KEY_TO = "export_to"
+    private const val KEY_FORMAT = "export_format"
+  }
+
   private val contentResolver = context.applicationContext.contentResolver
-  private val _uiState = MutableStateFlow(ExportUiState())
+  private val _uiState = MutableStateFlow(
+    ExportUiState(
+      fromEpochDay = savedStateHandle?.get<Long>(KEY_FROM) ?: LocalDate.now().withDayOfMonth(1).toEpochDay(),
+      toEpochDay = savedStateHandle?.get<Long>(KEY_TO) ?: todayEpochDay(),
+      format = savedStateHandle?.get<String>(KEY_FORMAT)?.let { runCatching { ExportFormat.valueOf(it) }.getOrNull() } ?: ExportFormat.CSV
+    )
+  )
   val uiState: StateFlow<ExportUiState> = _uiState.asStateFlow()
 
   fun onFromChange(epochDay: Long) {
+    savedStateHandle?.set(KEY_FROM, epochDay)
     _uiState.value = _uiState.value.copy(fromEpochDay = epochDay, message = null)
   }
 
   fun onToChange(epochDay: Long) {
+    savedStateHandle?.set(KEY_TO, epochDay)
     _uiState.value = _uiState.value.copy(toEpochDay = epochDay, message = null)
   }
 
   fun onFormatChange(format: ExportFormat) {
+    savedStateHandle?.set(KEY_FORMAT, format.name)
     _uiState.value = _uiState.value.copy(format = format, message = null)
   }
 

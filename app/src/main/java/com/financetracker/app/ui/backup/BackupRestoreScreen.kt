@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -63,7 +64,8 @@ fun BackupRestoreRoute(onBack: () -> Unit) {
         val db = AppDatabase.getInstance(context.applicationContext)
         BackupRestoreViewModel(
           context = context.applicationContext,
-          backupDao = db.backupDao()
+          backupDao = db.backupDao(),
+          savedStateHandle = this.createSavedStateHandle()
         )
       }
     }

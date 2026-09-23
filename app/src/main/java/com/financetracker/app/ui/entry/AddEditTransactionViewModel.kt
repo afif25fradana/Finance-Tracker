@@ -1,5 +1,6 @@
 package com.financetracker.app.ui.entry
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
@@ -31,10 +32,35 @@ data class EntryUiState(
 class AddEditTransactionViewModel(
   private val transactionDao: TransactionDao,
   categoryDao: CategoryDao,
-  private val transactionId: Long?
+  private val transactionId: Long?,
+  private val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
 
-  private val _uiState = MutableStateFlow(EntryUiState())
+  companion object {
+    private const val KEY_TYPE = "add_edit_type"
+    private const val KEY_AMOUNT = "add_edit_amount"
+    private const val KEY_NOTE = "add_edit_note"
+    private const val KEY_CATEGORY_ID = "add_edit_category_id"
+    private const val KEY_DATE = "add_edit_date"
+    private const val KEY_RESTORED = "add_edit_restored"
+  }
+
+  private val isRestored = savedStateHandle?.get<Boolean>(KEY_RESTORED) ?: false
+
+  private val _uiState = MutableStateFlow(
+    if (isRestored) {
+      EntryUiState(
+        transactionType = savedStateHandle?.get<String>(KEY_TYPE)?.let { TransactionType.valueOf(it) } ?: TransactionType.EXPENSE,
+        amountText = savedStateHandle?.get<String>(KEY_AMOUNT) ?: "",
+        note = savedStateHandle?.get<String>(KEY_NOTE) ?: "",
+        selectedCategoryId = savedStateHandle?.get<Long>(KEY_CATEGORY_ID),
+        dateEpochDay = savedStateHandle?.get<Long>(KEY_DATE) ?: todayEpochDay(),
+        isEditing = transactionId != null
+      )
+    } else {
+      EntryUiState()
+    }
+  )
   val uiState: StateFlow<EntryUiState> = _uiState.asStateFlow()
 
   private val _saved = MutableStateFlow(false)
@@ -46,15 +72,18 @@ class AddEditTransactionViewModel(
   private var saving = false
 
   init {
-    if (transactionId != null) loadForEdit()
+    if (transactionId != null && !isRestored) loadForEdit()
+    savedStateHandle?.set(KEY_RESTORED, true)
     viewModelScope.launch {
       categoryDao.getAll().collect { categories ->
         _uiState.update { state ->
           val validIds = categories.filter { it.type == state.transactionType }.map { it.id }
           val current = state.selectedCategoryId
+          val resolvedCategory = if (current == null || current !in validIds) validIds.firstOrNull() else current
+          savedStateHandle?.set(KEY_CATEGORY_ID, resolvedCategory)
           state.copy(
             categories = categories,
-            selectedCategoryId = if (current == null || current !in validIds) validIds.firstOrNull() else current
+            selectedCategoryId = resolvedCategory
           )
         }
       }
@@ -65,6 +94,11 @@ class AddEditTransactionViewModel(
     viewModelScope.launch {
       val tx = transactionDao.getByIdOnce(transactionId!!)
       if (tx != null) {
+        savedStateHandle?.set(KEY_TYPE, tx.type.name)
+        savedStateHandle?.set(KEY_AMOUNT, tx.amount.toString())
+        savedStateHandle?.set(KEY_NOTE, tx.note)
+        savedStateHandle?.set(KEY_CATEGORY_ID, tx.categoryId)
+        savedStateHandle?.set(KEY_DATE, tx.date)
         _uiState.update {
           it.copy(
             transactionType = tx.type,
@@ -81,33 +115,43 @@ class AddEditTransactionViewModel(
   }
 
   fun onTypeSelected(type: TransactionType) {
+    savedStateHandle?.set(KEY_TYPE, type.name)
     _uiState.update { state ->
       val validIds = state.categories.filter { it.type == type }.map { it.id }
       val current = state.selectedCategoryId
+      val resolvedCategory = if (current == null || current !in validIds) validIds.firstOrNull() else current
+      savedStateHandle?.set(KEY_CATEGORY_ID, resolvedCategory)
       state.copy(
         transactionType = type,
-        selectedCategoryId = if (current == null || current !in validIds) validIds.firstOrNull() else current
+        selectedCategoryId = resolvedCategory
       )
     }
   }
 
   fun onAmountChange(text: String) {
-    _uiState.update { it.copy(amountText = digitsOnly(text), error = null) }
+    val digits = digitsOnly(text)
+    savedStateHandle?.set(KEY_AMOUNT, digits)
+    _uiState.update { it.copy(amountText = digits, error = null) }
   }
 
   fun onQuickAdd(preset: Long) {
-    _uiState.update { it.copy(amountText = addPresetToAmount(it.amountText, preset), error = null) }
+    val updated = addPresetToAmount(_uiState.value.amountText, preset)
+    savedStateHandle?.set(KEY_AMOUNT, updated)
+    _uiState.update { it.copy(amountText = updated, error = null) }
   }
 
   fun onNoteChange(note: String) {
+    savedStateHandle?.set(KEY_NOTE, note)
     _uiState.update { it.copy(note = note) }
   }
 
   fun onCategorySelected(id: Long) {
+    savedStateHandle?.set(KEY_CATEGORY_ID, id)
     _uiState.update { it.copy(selectedCategoryId = id, error = null) }
   }
 
   fun onDateSelected(epochDay: Long) {
+    savedStateHandle?.set(KEY_DATE, epochDay)
     _uiState.update { it.copy(dateEpochDay = epochDay) }
   }
 

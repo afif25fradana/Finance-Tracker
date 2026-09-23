@@ -1,5 +1,6 @@
 package com.financetracker.app.ui.history
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
@@ -33,11 +34,19 @@ data class HistoryUiState(
 
 class HistoryViewModel(
   transactionDao: TransactionDao,
-  categoryDao: CategoryDao
+  categoryDao: CategoryDao,
+  private val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
 
-  private val searchQuery = MutableStateFlow("")
-  private val typeFilter = MutableStateFlow<TransactionType?>(null)
+  companion object {
+    private const val KEY_SEARCH = "history_search"
+    private const val KEY_TYPE_FILTER = "history_type_filter"
+  }
+
+  private val searchQuery = MutableStateFlow(savedStateHandle?.get<String>(KEY_SEARCH) ?: "")
+  private val typeFilter = MutableStateFlow<TransactionType?>(
+    savedStateHandle?.get<String>(KEY_TYPE_FILTER)?.let { runCatching { TransactionType.valueOf(it) }.getOrNull() }
+  )
 
   val uiState: StateFlow<HistoryUiState> =
     combine(
@@ -91,13 +100,19 @@ class HistoryViewModel(
         months = months
       )
     }.flowOn(Dispatchers.Default)
-      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HistoryUiState())
+      .stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        HistoryUiState(searchQuery = searchQuery.value, typeFilter = typeFilter.value)
+      )
 
   fun onSearchQueryChange(value: String) {
+    savedStateHandle?.set(KEY_SEARCH, value)
     searchQuery.value = value
   }
 
   fun onTypeFilterChange(value: TransactionType?) {
+    savedStateHandle?.set(KEY_TYPE_FILTER, value?.name)
     typeFilter.value = value
   }
 }

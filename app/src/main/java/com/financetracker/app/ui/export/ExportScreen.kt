@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -69,7 +70,8 @@ fun ExportRoute(onBack: () -> Unit) {
         val db = AppDatabase.getInstance(context.applicationContext)
         ExportViewModel(
           context = context.applicationContext,
-          transactionDao = db.transactionDao()
+          transactionDao = db.transactionDao(),
+          savedStateHandle = this.createSavedStateHandle()
         )
       }
     }

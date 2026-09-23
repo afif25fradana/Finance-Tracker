@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financetracker.app.backup.BACKUP_CURRENCY
@@ -36,8 +37,14 @@ private val FILE_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss
 
 class BackupRestoreViewModel(
   context: Context,
-  private val backupDao: BackupDao
+  private val backupDao: BackupDao,
+  private val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
+
+  companion object {
+    private const val KEY_MESSAGE = "backup_message"
+    private const val KEY_IS_ERROR = "backup_is_error"
+  }
 
   private val appContext = context.applicationContext
   private val contentResolver = appContext.contentResolver
@@ -45,7 +52,12 @@ class BackupRestoreViewModel(
     ReminderScheduler.rescheduleAll(appContext, items)
   }
 
-  private val _uiState = MutableStateFlow(BackupRestoreUiState())
+  private val _uiState = MutableStateFlow(
+    BackupRestoreUiState(
+      message = savedStateHandle?.get<String>(KEY_MESSAGE),
+      isError = savedStateHandle?.get<Boolean>(KEY_IS_ERROR) ?: false
+    )
+  )
   val uiState: StateFlow<BackupRestoreUiState> = _uiState.asStateFlow()
 
   fun suggestedFileName(): String =
@@ -71,16 +83,22 @@ class BackupRestoreViewModel(
           contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
             ?: throw IllegalStateException("Could not open the selected file for writing.")
         }
+        val msg = "Backup created: ${transactions.size} transaction(s)."
+        savedStateHandle?.set(KEY_MESSAGE, msg)
+        savedStateHandle?.set(KEY_IS_ERROR, false)
         _uiState.update {
           it.copy(
             isWorking = false,
-            message = "Backup created: ${transactions.size} transaction(s).",
+            message = msg,
             isError = false
           )
         }
       } catch (e: Exception) {
+        val msg = "Backup failed: ${e.message}"
+        savedStateHandle?.set(KEY_MESSAGE, msg)
+        savedStateHandle?.set(KEY_IS_ERROR, true)
         _uiState.update {
-          it.copy(isWorking = false, message = "Backup failed: ${e.message}", isError = true)
+          it.copy(isWorking = false, message = msg, isError = true)
         }
       }
     }
@@ -98,12 +116,19 @@ class BackupRestoreViewModel(
         when (val result = restorer.validateFromText(text)) {
           is BackupResult.Valid ->
             _uiState.update { it.copy(isWorking = false, pendingRestore = result.file) }
-          is BackupResult.Invalid ->
-            _uiState.update { it.copy(isWorking = false, message = result.displayMessage(), isError = true) }
+          is BackupResult.Invalid -> {
+            val msg = result.displayMessage()
+            savedStateHandle?.set(KEY_MESSAGE, msg)
+            savedStateHandle?.set(KEY_IS_ERROR, true)
+            _uiState.update { it.copy(isWorking = false, message = msg, isError = true) }
+          }
         }
       } catch (e: Exception) {
+        val msg = "Could not read the file: ${e.message}"
+        savedStateHandle?.set(KEY_MESSAGE, msg)
+        savedStateHandle?.set(KEY_IS_ERROR, true)
         _uiState.update {
-          it.copy(isWorking = false, message = "Could not read the file: ${e.message}", isError = true)
+          it.copy(isWorking = false, message = msg, isError = true)
         }
       }
     }
@@ -115,16 +140,24 @@ class BackupRestoreViewModel(
     viewModelScope.launch {
       _uiState.update { it.copy(isWorking = true, pendingRestore = null, message = null) }
       when (val result = withContext(Dispatchers.IO) { restorer.restore(file) }) {
-        is BackupResult.Valid ->
+        is BackupResult.Valid -> {
+          val msg = "Restore completed. ${file.transactions.size} transactions restored."
+          savedStateHandle?.set(KEY_MESSAGE, msg)
+          savedStateHandle?.set(KEY_IS_ERROR, false)
           _uiState.update {
             it.copy(
               isWorking = false,
-              message = "Restore completed. ${file.transactions.size} transactions restored.",
+              message = msg,
               isError = false
             )
           }
-        is BackupResult.Invalid ->
-          _uiState.update { it.copy(isWorking = false, message = result.displayMessage(), isError = true) }
+        }
+        is BackupResult.Invalid -> {
+          val msg = result.displayMessage()
+          savedStateHandle?.set(KEY_MESSAGE, msg)
+          savedStateHandle?.set(KEY_IS_ERROR, true)
+          _uiState.update { it.copy(isWorking = false, message = msg, isError = true) }
+        }
       }
     }
   }
