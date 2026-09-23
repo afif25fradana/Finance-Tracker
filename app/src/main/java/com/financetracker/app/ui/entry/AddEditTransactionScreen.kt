@@ -43,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.createSavedStateHandle
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -142,8 +143,8 @@ private fun AddEditTransactionScreen(
   onSave: () -> Unit,
   onDelete: () -> Unit
 ) {
-  var showDatePicker by remember { mutableStateOf(false) }
-  var showDeleteConfirm by remember { mutableStateOf(false) }
+  var showDatePicker by rememberSaveable { mutableStateOf(false) }
+  var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
   val accent = if (state.transactionType == TransactionType.EXPENSE) SignalNegative else SignalPositive
   val keyboardController = LocalSoftwareKeyboardController.current
 

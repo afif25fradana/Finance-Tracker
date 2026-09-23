@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,9 +109,15 @@ private fun CategoriesScreen(
   onDelete: (Category, Long?) -> Unit,
   onClearError: () -> Unit
 ) {
-  var adding by remember { mutableStateOf(false) }
-  var editing by remember { mutableStateOf<Category?>(null) }
-  var deleteTarget by remember { mutableStateOf<CategoryRow?>(null) }
+  var adding by rememberSaveable { mutableStateOf(false) }
+  var editingCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
+  val editing = editingCategoryId?.let { id ->
+    (state.expense + state.income).firstOrNull { it.category.id == id }?.category
+  }
+  var deleteTargetCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
+  val deleteTarget = deleteTargetCategoryId?.let { id ->
+    (state.expense + state.income).firstOrNull { it.category.id == id }
+  }
 
   LazyColumn(
     modifier = Modifier
@@ -169,8 +176,8 @@ private fun CategoriesScreen(
       items(state.expense, key = { it.category.id }) { row ->
         CategoryRowItem(
           row = row,
-          onEdit = { editing = row.category },
-          onDelete = { deleteTarget = row }
+          onEdit = { editingCategoryId = row.category.id },
+          onDelete = { deleteTargetCategoryId = row.category.id }
         )
       }
     }
@@ -182,8 +189,8 @@ private fun CategoriesScreen(
       items(state.income, key = { it.category.id }) { row ->
         CategoryRowItem(
           row = row,
-          onEdit = { editing = row.category },
-          onDelete = { deleteTarget = row }
+          onEdit = { editingCategoryId = row.category.id },
+          onDelete = { deleteTargetCategoryId = row.category.id }
         )
       }
     }
@@ -195,16 +202,16 @@ private fun CategoriesScreen(
       existingNames = sameTypeNames(state, editing?.type ?: TransactionType.EXPENSE, excludeId = editing?.id),
       onDismiss = {
         adding = false
-        editing = null
+        editingCategoryId = null
       },
       onSave = { name, type, color ->
         if (editing != null) {
-          onUpdate(editing!!.copy(name = name, color = color))
+          onUpdate(editing.copy(name = name, color = color))
         } else {
           onAdd(name, type, color)
         }
         adding = false
-        editing = null
+        editingCategoryId = null
       }
     )
   }
@@ -218,10 +225,10 @@ private fun CategoriesScreen(
         categoryName = target.category.name,
         isLastOfType = sameType.size == 1,
         typeLabel = typeLabel(target.category.type),
-        onDismiss = { deleteTarget = null },
+        onDismiss = { deleteTargetCategoryId = null },
         onConfirm = {
           onDelete(target.category, null)
-          deleteTarget = null
+          deleteTargetCategoryId = null
         }
       )
 
@@ -229,17 +236,17 @@ private fun CategoriesScreen(
         categoryName = target.category.name,
         referenceCount = target.totalReferences,
         typeLabel = typeLabel(target.category.type),
-        onDismiss = { deleteTarget = null }
+        onDismiss = { deleteTargetCategoryId = null }
       )
 
       else -> ReassignDeleteDialog(
         categoryName = target.category.name,
         referenceCount = target.totalReferences,
         targets = others.map { it.category },
-        onDismiss = { deleteTarget = null },
+        onDismiss = { deleteTargetCategoryId = null },
         onConfirm = { newId ->
           onDelete(target.category, newId)
-          deleteTarget = null
+          deleteTargetCategoryId = null
         }
       )
     }
@@ -352,10 +359,10 @@ private fun AddEditCategoryDialog(
 ) {
   val isEditing = editing != null
   val fixedType = editing?.type
-  var nameInput by remember { mutableStateOf(editing?.name ?: "") }
-  var typeInput by remember { mutableStateOf(editing?.type ?: TransactionType.EXPENSE) }
-  var colorInput by remember { mutableStateOf(editing?.color ?: CATEGORY_PALETTE.first()) }
-  var error by remember { mutableStateOf<String?>(null) }
+  var nameInput by rememberSaveable { mutableStateOf(editing?.name ?: "") }
+  var typeInput by rememberSaveable { mutableStateOf(editing?.type ?: TransactionType.EXPENSE) }
+  var colorInput by rememberSaveable { mutableStateOf(editing?.color ?: CATEGORY_PALETTE.first()) }
+  var error by rememberSaveable { mutableStateOf<String?>(null) }
 
   fun attemptSave() {
     val name = nameInput.trim()
@@ -549,7 +556,7 @@ private fun ReassignDeleteDialog(
   onDismiss: () -> Unit,
   onConfirm: (Long) -> Unit
 ) {
-  var selectedId by remember { mutableStateOf(targets.first().id) }
+  var selectedId by rememberSaveable { mutableStateOf(targets.first().id) }
 
   AlertDialog(
     onDismissRequest = onDismiss,

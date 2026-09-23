@@ -50,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -128,9 +129,11 @@ private fun RecurringScreen(
   onDelete: (com.financetracker.app.data.entity.RecurringItem) -> Unit
 ) {
   val context = LocalContext.current
-  var adding by remember { mutableStateOf(false) }
-  var editing by remember { mutableStateOf<RecurringRow?>(null) }
-  var deleteTarget by remember { mutableStateOf<RecurringRow?>(null) }
+  var adding by rememberSaveable { mutableStateOf(false) }
+  var editingId by rememberSaveable { mutableStateOf<Long?>(null) }
+  val editing = editingId?.let { id -> state.rows.firstOrNull { it.item.id == id } }
+  var deleteTargetId by rememberSaveable { mutableStateOf<Long?>(null) }
+  val deleteTarget = deleteTargetId?.let { id -> state.rows.firstOrNull { it.item.id == id } }
   var pendingSave by remember { mutableStateOf<PendingReminderSave?>(null) }
 
   val permissionLauncher = rememberLauncherForActivityResult(
@@ -224,8 +227,8 @@ private fun RecurringScreen(
       items(state.rows, key = { it.item.id }) { row ->
         RecurringRowItem(
           row = row,
-          onEdit = { editing = row },
-          onDelete = { deleteTarget = row }
+          onEdit = { editingId = row.item.id },
+          onDelete = { deleteTargetId = row.item.id }
         )
       }
     }
@@ -238,7 +241,7 @@ private fun RecurringScreen(
       allCategories = state.categories,
       onDismiss = {
         adding = false
-        editing = null
+        editingId = null
       },
       onSave = { amount, categoryId, frequency, nextDueDate ->
         runSave(
@@ -251,7 +254,7 @@ private fun RecurringScreen(
           )
         )
         adding = false
-        editing = null
+        editingId = null
       }
     )
   }
@@ -259,20 +262,20 @@ private fun RecurringScreen(
   val target = deleteTarget
   if (target != null) {
     AlertDialog(
-      onDismissRequest = { deleteTarget = null },
+      onDismissRequest = { deleteTargetId = null },
       containerColor = TermPanel,
       titleContentColor = TermText,
       textContentColor = TermMuted,
       confirmButton = {
         TextButton(onClick = {
           onDelete(target.item)
-          deleteTarget = null
+          deleteTargetId = null
         }) {
           Text("Delete", color = SignalNegative, fontWeight = FontWeight.Bold)
         }
       },
       dismissButton = {
-        TextButton(onClick = { deleteTarget = null }) {
+        TextButton(onClick = { deleteTargetId = null }) {
           Text("Cancel", color = TermMuted)
         }
       },
@@ -364,21 +367,21 @@ private fun AddEditReminderDialog(
 ) {
   val editing = editingRow?.item
   val categoryType = editingRow?.category?.type
-  var typeInput by remember { mutableStateOf(categoryType ?: TransactionType.EXPENSE) }
-  var amountInput by remember {
+  var typeInput by rememberSaveable { mutableStateOf(categoryType ?: TransactionType.EXPENSE) }
+  var amountInput by rememberSaveable {
     mutableStateOf(if (editing != null) editing.amount.toString() else "")
   }
-  var categoryId by remember {
+  var categoryId by rememberSaveable {
     mutableStateOf(editing?.categoryId ?: allCategories.firstOrNull { it.type == TransactionType.EXPENSE }?.id)
   }
-  var frequencyInput by remember {
+  var frequencyInput by rememberSaveable {
     mutableStateOf(editing?.frequency ?: RecurringFrequency.MONTHLY)
   }
-  var nextDueInput by remember {
+  var nextDueInput by rememberSaveable {
     mutableStateOf(editing?.nextDueDate ?: todayEpochDay())
   }
-  var showDatePicker by remember { mutableStateOf(false) }
-  var error by remember { mutableStateOf<String?>(null) }
+  var showDatePicker by rememberSaveable { mutableStateOf(false) }
+  var error by rememberSaveable { mutableStateOf<String?>(null) }
 
   fun attemptSave() {
     val amount = parseAmount(amountInput)

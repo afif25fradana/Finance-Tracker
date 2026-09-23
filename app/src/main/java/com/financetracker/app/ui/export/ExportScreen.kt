@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,7 +101,7 @@ private fun ExportScreen(
   onFormatChange: (ExportFormat) -> Unit,
   onExport: (Uri) -> Unit
 ) {
-  var pickerTarget by remember { mutableStateOf<PickerTarget?>(null) }
+  var pickerTarget by rememberSaveable { mutableStateOf<PickerTarget?>(null) }
 
   val saveLauncher = rememberLauncherForActivityResult(CreateDocumentWithName()) { uri ->
     if (uri != null) onExport(uri)
