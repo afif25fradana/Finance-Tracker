@@ -2,6 +2,7 @@ package com.financetracker.app.backup
 
 import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.data.entity.Category
+import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
@@ -12,7 +13,7 @@ import org.junit.Test
 
 class BackupRestorerTest {
 
-  private class FakeBackupDao : BackupDao() {
+  private open class FakeBackupDao : BackupDao() {
     val ops = mutableListOf<String>()
     var categories = mutableListOf<Category>()
     var recurring = mutableListOf<RecurringItem>()
@@ -156,5 +157,48 @@ class BackupRestorerTest {
     assertTrue(dao.categories.isEmpty())
     assertTrue(dao.transactions.isEmpty())
     assertTrue(dao.recurring.isEmpty())
+  }
+
+  @Test
+  fun restore_cancelsExistingRemindersBeforeReplacingDatabase() = runBlocking {
+    val executionOrder = mutableListOf<String>()
+    val dao = object : FakeBackupDao() {
+      override suspend fun getAllRecurringOnce(): List<RecurringItem> {
+        executionOrder += "getAllRecurringOnce"
+        return super.getAllRecurringOnce()
+      }
+
+      override suspend fun clearTransactions() {
+        executionOrder += "replaceAll:clearTransactions"
+        super.clearTransactions()
+      }
+    }.apply {
+      recurring.add(RecurringItem(101L, 1L, 50000L, RecurringFrequency.MONTHLY, 20000L))
+      recurring.add(RecurringItem(102L, 1L, 75000L, RecurringFrequency.WEEKLY, 20005L))
+    }
+
+    var cancelledIds: List<Long>? = null
+    val restorer = BackupRestorer(
+      backupDao = dao,
+      rescheduleReminders = { executionOrder += "rescheduleReminders" },
+      cancelReminders = { ids ->
+        executionOrder += "cancelReminders:$ids"
+        cancelledIds = ids
+      }
+    )
+
+    val result = restorer.restoreFromText(backupJson())
+
+    assertTrue(result is BackupResult.Valid)
+    assertEquals(listOf(101L, 102L), cancelledIds)
+
+    val cancelIndex = executionOrder.indexOf("cancelReminders:[101, 102]")
+    val replaceIndex = executionOrder.indexOf("replaceAll:clearTransactions")
+    val rescheduleIndex = executionOrder.indexOf("rescheduleReminders")
+
+    assertTrue("cancelReminders must be called", cancelIndex != -1)
+    assertTrue("replaceAll must be called", replaceIndex != -1)
+    assertTrue("cancelReminders ($cancelIndex) must execute BEFORE replaceAll ($replaceIndex)", cancelIndex < replaceIndex)
+    assertTrue("replaceAll ($replaceIndex) must execute BEFORE rescheduleReminders ($rescheduleIndex)", replaceIndex < rescheduleIndex)
   }
 }

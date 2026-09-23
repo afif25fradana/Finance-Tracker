@@ -7,7 +7,8 @@ import com.financetracker.app.data.entity.Transaction
 
 class BackupRestorer(
   private val backupDao: BackupDao,
-  private val rescheduleReminders: (List<RecurringItem>) -> Unit
+  private val cancelReminders: (List<Long>) -> Unit = {},
+  private val rescheduleReminders: (List<RecurringItem>) -> Unit = {}
 ) {
 
   fun validateFromText(text: String): BackupResult =
@@ -24,6 +25,10 @@ class BackupRestorer(
       categories = file.categories.map { it.toEntity() }
       recurringItems = file.recurringItems.map { it.toEntity() }
       transactions = file.transactions.map { it.toEntity() }
+
+      val existingRecurringIds = backupDao.getAllRecurringOnce().map { it.id }
+      cancelReminders(existingRecurringIds)
+
       backupDao.replaceAll(categories, recurringItems, transactions)
     } catch (e: Exception) {
       return BackupResult.Invalid("database", e.message ?: "The restore could not be completed.")

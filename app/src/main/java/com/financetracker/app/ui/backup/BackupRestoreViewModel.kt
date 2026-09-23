@@ -48,9 +48,15 @@ class BackupRestoreViewModel(
 
   private val appContext = context.applicationContext
   private val contentResolver = appContext.contentResolver
-  private val restorer = BackupRestorer(backupDao) { items ->
-    ReminderScheduler.rescheduleAll(appContext, items)
-  }
+  private val restorer = BackupRestorer(
+    backupDao = backupDao,
+    rescheduleReminders = { items ->
+      ReminderScheduler.rescheduleAll(appContext, items)
+    },
+    cancelReminders = { ids ->
+      ReminderScheduler.cancelAll(appContext, ids)
+    }
+  )
 
   private val _uiState = MutableStateFlow(
     BackupRestoreUiState(

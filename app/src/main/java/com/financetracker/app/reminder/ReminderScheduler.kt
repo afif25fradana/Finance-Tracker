@@ -47,6 +47,10 @@ object ReminderScheduler {
     alarmManager.cancel(firePendingIntent(context, itemId))
   }
 
+  fun cancelAll(context: Context, itemIds: List<Long>) {
+    itemIds.forEach { cancel(context, it) }
+  }
+
   fun rescheduleAll(context: Context, items: List<RecurringItem>) {
     items.forEach { schedule(context, it) }
   }
