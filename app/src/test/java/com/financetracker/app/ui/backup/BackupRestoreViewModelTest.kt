@@ -39,7 +39,17 @@ import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
+import android.app.AlarmManager
+import com.financetracker.app.reminder.ReminderScheduler
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows
+import org.robolectric.annotation.Config
+
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class BackupRestoreViewModelTest {
 
   private val testDispatcher = StandardTestDispatcher()
@@ -50,7 +60,7 @@ class BackupRestoreViewModelTest {
     override fun getPackageName(): String = "com.financetracker.app"
   }
 
-  private val dummyUri = android.net.TestUri("content://test/backup.json")
+  private val dummyUri = Uri.parse("content://test/backup.json")
 
   private open class FakeBackupDao(
     val executionLog: MutableList<String> = mutableListOf()
@@ -239,5 +249,40 @@ class BackupRestoreViewModelTest {
     assertTrue(errorState.isError)
     assertNull(errorState.pendingRestore)
     assertNotNull(errorState.message)
+  }
+
+  @Test
+  fun defaultRestorerWiring_cancelsExistingAlarmsAndReschedulesRestoredAlarms() = runTest(testDispatcher) {
+    val context = RuntimeEnvironment.getApplication()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val shadowAlarmManager = Shadows.shadowOf(alarmManager)
+
+    val existingItem = RecurringItem(999L, 1L, 100_000L, RecurringFrequency.WEEKLY, 20010L)
+    ReminderScheduler.schedule(context, existingItem)
+    assertEquals(1, shadowAlarmManager.scheduledAlarms.size)
+
+    val dao = FakeBackupDao().apply {
+      existingRecurring.add(existingItem)
+    }
+
+    val validJson = sampleValidJson()
+    val viewModel = BackupRestoreViewModel(
+      context = context,
+      backupDao = dao,
+      openInputStream = { ByteArrayInputStream(validJson.toByteArray(Charsets.UTF_8)) }
+      // uses default restorer!
+    )
+
+    viewModel.onRestoreFilePicked(dummyUri)
+    val pickedState = viewModel.uiState.first { !it.isWorking && it.pendingRestore != null }
+    assertNotNull(pickedState.pendingRestore)
+
+    viewModel.confirmRestore()
+    val restoredState = viewModel.uiState.first { !it.isWorking && it.message != null }
+    assertFalse(restoredState.isError)
+
+    assertEquals(1, shadowAlarmManager.scheduledAlarms.size)
+    val remainingAlarm = shadowAlarmManager.scheduledAlarms.first()
+    assertEquals(100, Shadows.shadowOf(remainingAlarm.operation).requestCode)
   }
 }

@@ -25,7 +25,17 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 
+import android.app.AlarmManager
+import org.junit.Assert.assertTrue
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows
+import org.robolectric.annotation.Config
+
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class RecurringViewModelTest {
 
   private val testDispatcher = StandardTestDispatcher()
@@ -192,5 +202,42 @@ class RecurringViewModelTest {
     assertEquals(25L, recDao.deleted[0].id)
 
     assertEquals(listOf(25L), cancelledIds)
+  }
+
+  @Test
+  fun defaultReminderWiring_schedulesAndCancelsAlarmsInAlarmManager() = runTest(testDispatcher) {
+    val context = RuntimeEnvironment.getApplication()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val shadowAlarmManager = Shadows.shadowOf(alarmManager)
+
+    val recDao = FakeRecurringItemDao()
+    val catDao = FakeCategoryDao()
+
+    val viewModel = RecurringViewModel(
+      context = context,
+      recurringItemDao = recDao,
+      categoryDao = catDao
+      // uses default scheduleReminder and cancelReminder lambdas
+    )
+
+    viewModel.add(
+      amount = 150_000L,
+      categoryId = 1L,
+      frequency = RecurringFrequency.MONTHLY,
+      nextDueDate = 20050L
+    )
+    advanceUntilIdle()
+
+    assertEquals(1, shadowAlarmManager.scheduledAlarms.size)
+    val scheduledAlarm = shadowAlarmManager.scheduledAlarms.first()
+    val insertedItem = recDao.inserted.single()
+    assertEquals(insertedItem.id.toInt(), Shadows.shadowOf(scheduledAlarm.operation).requestCode)
+    assertEquals(AlarmManager.RTC_WAKEUP, scheduledAlarm.type)
+    assertTrue(scheduledAlarm.isAllowWhileIdle)
+
+    viewModel.delete(insertedItem)
+    advanceUntilIdle()
+
+    assertTrue(shadowAlarmManager.scheduledAlarms.isEmpty())
   }
 }
