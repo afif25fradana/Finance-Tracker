@@ -19,6 +19,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -145,7 +146,7 @@ class BackupRestoreViewModel(
     if (_uiState.value.isWorking) return
     viewModelScope.launch {
       _uiState.update { it.copy(isWorking = true, pendingRestore = null, message = null) }
-      when (val result = withContext(Dispatchers.IO) { restorer.restore(file) }) {
+      when (val result = withContext(Dispatchers.IO + NonCancellable) { restorer.restore(file) }) {
         is BackupResult.Valid -> {
           val msg = "Restore completed. ${file.transactions.size} transactions restored."
           savedStateHandle?.set(KEY_MESSAGE, msg)
