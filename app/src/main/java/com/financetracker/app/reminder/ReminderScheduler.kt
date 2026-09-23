@@ -15,6 +15,8 @@ object ReminderScheduler {
   const val CHANNEL_ID = "recurring_reminders"
   const val ACTION_FIRE = "com.financetracker.app.reminder.FIRE"
   const val EXTRA_ITEM_ID = "itemId"
+  const val DEFAULT_REMINDER_HOUR = 9
+  const val DEFAULT_REMINDER_MINUTE = 0
 
   fun ensureChannel(context: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -27,12 +29,13 @@ object ReminderScheduler {
     manager.createNotificationChannel(channel)
   }
 
-  /** Fires an inexact one-shot alarm at local start-of-day of [RecurringItem.nextDueDate]. */
+  /** Fires an inexact one-shot alarm at 09:00 local time of [RecurringItem.nextDueDate]. */
   fun schedule(context: Context, item: RecurringItem) {
     ensureChannel(context)
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val triggerAtMillis = LocalDate.ofEpochDay(item.nextDueDate)
-      .atStartOfDay(ZoneId.systemDefault())
+      .atTime(DEFAULT_REMINDER_HOUR, DEFAULT_REMINDER_MINUTE)
+      .atZone(ZoneId.systemDefault())
       .toInstant()
       .toEpochMilli()
     alarmManager.setAndAllowWhileIdle(
