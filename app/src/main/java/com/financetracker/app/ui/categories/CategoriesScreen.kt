@@ -94,7 +94,8 @@ fun CategoriesRoute() {
     state = state,
     onAdd = viewModel::add,
     onUpdate = viewModel::update,
-    onDelete = viewModel::delete
+    onDelete = viewModel::delete,
+    onClearError = viewModel::clearError
   )
 }
 
@@ -104,7 +105,8 @@ private fun CategoriesScreen(
   state: CategoriesUiState,
   onAdd: (String, TransactionType, Long) -> Unit,
   onUpdate: (Category) -> Unit,
-  onDelete: (Category, Long?) -> Unit
+  onDelete: (Category, Long?) -> Unit,
+  onClearError: () -> Unit
 ) {
   var adding by remember { mutableStateOf(false) }
   var editing by remember { mutableStateOf<Category?>(null) }
@@ -241,6 +243,22 @@ private fun CategoriesScreen(
         }
       )
     }
+  }
+
+  if (state.errorMessage != null) {
+    AlertDialog(
+      onDismissRequest = onClearError,
+      containerColor = TermPanel,
+      titleContentColor = SignalNegative,
+      textContentColor = TermMuted,
+      confirmButton = {
+        TextButton(onClick = onClearError) {
+          Text("OK", color = TermText)
+        }
+      },
+      title = { Text("Delete Failed") },
+      text = { Text(state.errorMessage) }
+    )
   }
 }
 
