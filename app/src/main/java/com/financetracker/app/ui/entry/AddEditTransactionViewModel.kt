@@ -1,5 +1,6 @@
 package com.financetracker.app.ui.entry
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,16 +34,17 @@ class AddEditTransactionViewModel(
   private val transactionDao: TransactionDao,
   categoryDao: CategoryDao,
   private val transactionId: Long?,
-  private val savedStateHandle: SavedStateHandle? = null
+  @VisibleForTesting
+  internal val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
 
   companion object {
-    private const val KEY_TYPE = "add_edit_type"
-    private const val KEY_AMOUNT = "add_edit_amount"
-    private const val KEY_NOTE = "add_edit_note"
-    private const val KEY_CATEGORY_ID = "add_edit_category_id"
-    private const val KEY_DATE = "add_edit_date"
-    private const val KEY_RESTORED = "add_edit_restored"
+    internal const val KEY_TYPE = "add_edit_type"
+    internal const val KEY_AMOUNT = "add_edit_amount"
+    internal const val KEY_NOTE = "add_edit_note"
+    internal const val KEY_CATEGORY_ID = "add_edit_category_id"
+    internal const val KEY_DATE = "add_edit_date"
+    internal const val KEY_RESTORED = "add_edit_restored"
   }
 
   private val isRestored = savedStateHandle?.get<Boolean>(KEY_RESTORED) ?: false

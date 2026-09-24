@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -102,6 +103,10 @@ private fun NavHostController.navigateToTab(route: String) {
 }
 
 class MainActivity : ComponentActivity() {
+  @VisibleForTesting
+  internal var navController: NavHostController? = null
+    private set
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
@@ -111,7 +116,7 @@ class MainActivity : ComponentActivity() {
           modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background
         ) {
-          val navController = rememberNavController()
+          val navController = rememberNavController().also { this@MainActivity.navController = it }
           val backStackEntry by navController.currentBackStackEntryAsState()
           val currentRoute = backStackEntry?.destination?.route
           val showBottomBar = TopTab.entries.any { it.route == currentRoute }
