@@ -1,5 +1,7 @@
 # Finance Tracker
 
+[![Tests](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml)
+
 A local-first Android expense & income tracker built with Jetpack Compose.
 
 ## Installation
