@@ -66,7 +66,7 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 - Vico for cashflow bar + trend line charts
 - kotlinx.serialization for the backup JSON format
 - AlarmManager + `BroadcastReceiver` for recurring reminders
-- JUnit unit tests for export serialization, amount quick-add logic, and backup encode/decode/validate/restore logic
+- Unit and instrumented tests covering ViewModels, Room DAOs, export/backup serialization, reminder scheduling, and Compose UI flows
 
 ## Requirements
 
