@@ -6,6 +6,17 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 
 Download and install the latest release: [FinanceTracker-v1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.0.0/FinanceTracker-v1.0.apk).
 
+### Verification & Checksums
+
+| File | SHA-256 Hash |
+| :--- | :--- |
+| `FinanceTracker-v1.0.apk` | `6bcb966ad0efe7d21ec35244dbb590c0d68eef65c116c95dfe681a15da9310b0` |
+
+To verify in PowerShell:
+```powershell
+Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
+```
+
 ## Features
 
 - **Dashboard** — running balance (mask/unmask), current-month income / expense / net vs last month, 5-month cashflow bars, spending-by-category breakdown, spending trend, recent transactions
