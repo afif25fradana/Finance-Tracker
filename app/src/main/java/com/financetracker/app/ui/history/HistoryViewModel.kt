@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
 import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.MAX_SEARCH_QUERY_LENGTH
 import com.financetracker.app.ui.components.TransactionRow
 import com.financetracker.app.ui.components.epochDayToMonthLabel
 import kotlinx.coroutines.Dispatchers
@@ -107,8 +108,9 @@ class HistoryViewModel(
       )
 
   fun onSearchQueryChange(value: String) {
-    savedStateHandle?.set(KEY_SEARCH, value)
-    searchQuery.value = value
+    val capped = value.take(MAX_SEARCH_QUERY_LENGTH)
+    savedStateHandle?.set(KEY_SEARCH, capped)
+    searchQuery.value = capped
   }
 
   fun onTypeFilterChange(value: TransactionType?) {

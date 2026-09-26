@@ -179,4 +179,20 @@ class HistoryViewModelTest {
     viewModel.onTypeFilterChange(TransactionType.INCOME)
     assertEquals("INCOME", savedState.get<String>("history_type_filter"))
   }
+
+  @Test
+  fun onSearchQueryChange_pastedOversizedQuery_capsAt50Chars() = runTest(testDispatcher) {
+    val savedState = SavedStateHandle()
+    val viewModel = HistoryViewModel(FakeTransactionDao(), FakeCategoryDao(), savedState)
+    val pastedText = "Search query pasted from clipboard that is way too long for a transaction search".take(120)
+    viewModel.onSearchQueryChange(pastedText)
+
+    assertEquals(50, savedState.get<String>("history_search")?.length)
+    assertEquals(pastedText.take(50), savedState.get<String>("history_search"))
+
+    val state = viewModel.uiState.first { it.searchQuery.isNotEmpty() }
+    assertEquals(com.financetracker.app.ui.components.MAX_SEARCH_QUERY_LENGTH, state.searchQuery.length)
+    assertEquals(50, state.searchQuery.length)
+    assertEquals(pastedText.take(50), state.searchQuery)
+  }
 }

@@ -9,6 +9,7 @@ import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.Transaction
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.MAX_NOTE_LENGTH
 import com.financetracker.app.ui.components.addPresetToAmount
 import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.parseAmount
@@ -143,8 +144,9 @@ class AddEditTransactionViewModel(
   }
 
   fun onNoteChange(note: String) {
-    savedStateHandle?.set(KEY_NOTE, note)
-    _uiState.update { it.copy(note = note) }
+    val capped = note.take(MAX_NOTE_LENGTH)
+    savedStateHandle?.set(KEY_NOTE, capped)
+    _uiState.update { it.copy(note = capped) }
   }
 
   fun onCategorySelected(id: Long) {
@@ -172,7 +174,7 @@ class AddEditTransactionViewModel(
           type = state.transactionType,
           categoryId = state.selectedCategoryId,
           date = state.dateEpochDay,
-          note = state.note.trim()
+          note = state.note.trim().take(MAX_NOTE_LENGTH)
         )
         viewModelScope.launch {
           if (state.isEditing) transactionDao.update(transaction)

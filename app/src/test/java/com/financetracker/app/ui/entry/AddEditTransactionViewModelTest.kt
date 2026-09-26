@@ -140,4 +140,20 @@ class AddEditTransactionViewModelTest {
     assertEquals("125000", viewModel.uiState.value.amountText)
     assertEquals("Draft note in progress", viewModel.uiState.value.note)
   }
+
+  @Test
+  fun onNoteChange_pastedOversizedNote_capsAt100Chars() = runTest {
+    val viewModel = AddEditTransactionViewModel(
+      transactionDao = FakeTransactionDao(),
+      categoryDao = FakeCategoryDao(),
+      transactionId = null
+    )
+    val pastedText = "A".repeat(250) // 250 chars pasted
+    viewModel.onNoteChange(pastedText)
+
+    val note = viewModel.uiState.value.note
+    assertEquals(com.financetracker.app.ui.components.MAX_NOTE_LENGTH, note.length)
+    assertEquals(100, note.length)
+    assertEquals("A".repeat(100), note)
+  }
 }

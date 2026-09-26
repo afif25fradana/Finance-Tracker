@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.theme.SignalNegative
@@ -72,7 +73,8 @@ fun TransactionRowItem(
             text = row.note.ifEmpty { row.categoryName },
             style = MaterialTheme.typography.bodySmall,
             color = TermText,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
           )
           Text(
             text = "${epochDayToDisplay(row.dateEpochDay)} · ${row.categoryName}",

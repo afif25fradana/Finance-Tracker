@@ -32,6 +32,9 @@ private fun groupDigits(digits: String): String =
   digits.reversed().chunked(3).joinToString(".").reversed()
 
 const val MAX_AMOUNT_DIGITS = 12
+const val MAX_CATEGORY_NAME_LENGTH = 36
+const val MAX_NOTE_LENGTH = 100
+const val MAX_SEARCH_QUERY_LENGTH = 50
 private const val MAX_INPUT_AMOUNT = 999_999_999_999L
 private val AMOUNT_REGEX = Regex("""\d{1,$MAX_AMOUNT_DIGITS}""")
 

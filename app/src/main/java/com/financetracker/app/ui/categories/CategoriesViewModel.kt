@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+import com.financetracker.app.ui.components.MAX_CATEGORY_NAME_LENGTH
+
 data class CategoryRow(
   val category: Category,
   val transactionCount: Int,
@@ -58,10 +60,12 @@ class CategoriesViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CategoriesUiState())
 
   fun add(name: String, type: TransactionType, color: Long) {
+    val cleanName = name.trim().take(MAX_CATEGORY_NAME_LENGTH)
+    if (cleanName.isEmpty()) return
     viewModelScope.launch {
       categoryDao.insert(
         Category(
-          name = name,
+          name = cleanName,
           type = type,
           color = color,
           icon = "category",
@@ -72,7 +76,9 @@ class CategoriesViewModel(
   }
 
   fun update(category: Category) {
-    viewModelScope.launch { categoryDao.update(category) }
+    val clean = category.copy(name = category.name.trim().take(MAX_CATEGORY_NAME_LENGTH))
+    if (clean.name.isEmpty()) return
+    viewModelScope.launch { categoryDao.update(clean) }
   }
 
   fun delete(category: Category, reassignTo: Long?) {

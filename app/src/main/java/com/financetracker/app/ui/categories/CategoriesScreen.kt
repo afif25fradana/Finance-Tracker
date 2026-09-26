@@ -63,6 +63,7 @@ import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CategoryChip
 import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.EmptyState
+import com.financetracker.app.ui.components.MAX_CATEGORY_NAME_LENGTH
 import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
@@ -365,7 +366,7 @@ private fun AddEditCategoryDialog(
   var error by rememberSaveable { mutableStateOf<String?>(null) }
 
   fun attemptSave() {
-    val name = nameInput.trim()
+    val name = nameInput.trim().take(MAX_CATEGORY_NAME_LENGTH)
     when {
       name.isEmpty() -> error = "Name is required"
       name.lowercase() in existingNames -> error = "A ${typeLabel(typeInput)} category with this name already exists"
@@ -408,7 +409,7 @@ private fun AddEditCategoryDialog(
           BasicTextField(
             value = nameInput,
             onValueChange = {
-              nameInput = it
+              nameInput = it.take(MAX_CATEGORY_NAME_LENGTH)
               error = null
             },
             textStyle = TextStyle(

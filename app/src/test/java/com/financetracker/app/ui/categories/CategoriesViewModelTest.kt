@@ -129,4 +129,31 @@ class CategoriesViewModelTest {
 
     collectJob.cancel()
   }
+
+  @Test
+  fun add_pastedOversizedCategoryName_capsAt36Chars() = runTest(testDispatcher) {
+    var inserted: Category? = null
+    val dao = object : TestCategoryDao() {
+      override suspend fun insert(category: Category): Long {
+        inserted = category
+        return 10L
+      }
+    }
+    val viewModel = CategoriesViewModel(categoryDao = dao)
+    val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+      viewModel.uiState.collect {}
+    }
+    advanceUntilIdle()
+
+    val pastedText = "Extremely Long Category Name Pasted From Clipboard Exceeding Thirty Six Characters"
+    viewModel.add(name = pastedText, type = TransactionType.EXPENSE, color = 0xFF123456)
+    advanceUntilIdle()
+
+    assertNotNull(inserted)
+    assertEquals(com.financetracker.app.ui.components.MAX_CATEGORY_NAME_LENGTH, inserted?.name?.length)
+    assertEquals(36, inserted?.name?.length)
+    assertEquals(pastedText.take(36), inserted?.name)
+
+    collectJob.cancel()
+  }
 }

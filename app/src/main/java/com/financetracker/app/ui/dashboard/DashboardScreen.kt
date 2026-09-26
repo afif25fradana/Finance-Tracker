@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -433,7 +434,10 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Row(verticalAlignment = Alignment.CenterVertically) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+          ) {
             CategoryIconTile(
               iconKey = cat.iconKey,
               colorArgb = cat.color,
@@ -443,9 +447,12 @@ private fun CategoryBreakdownCard(categories: List<CategorySlice>) {
             Text(
               text = "${index + 1}. ${cat.name}",
               style = MaterialTheme.typography.bodySmall,
-              color = TermText
+              color = TermText,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
             )
           }
+          Spacer(modifier = Modifier.width(8.dp))
           Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
               text = formatRupiah(cat.amount),

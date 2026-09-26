@@ -66,6 +66,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.CategoryChip
+import com.financetracker.app.ui.components.MAX_NOTE_LENGTH
 import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
@@ -313,7 +314,7 @@ private fun AddEditTransactionScreen(
           Spacer(modifier = Modifier.height(6.dp))
           BasicTextField(
             value = state.note,
-            onValueChange = onNoteChange,
+            onValueChange = { onNoteChange(it.take(MAX_NOTE_LENGTH)) },
             textStyle = TextStyle(
               fontFamily = FontFamily.Monospace,
               fontSize = 14.sp,
