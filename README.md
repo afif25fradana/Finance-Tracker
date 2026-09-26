@@ -2,6 +2,10 @@
 
 A local-first Android expense & income tracker built with Jetpack Compose.
 
+## Installation
+
+Download and install the latest release: [FinanceTracker-v1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.0.0/FinanceTracker-v1.0.apk).
+
 ## Features
 
 - **Dashboard** — running balance (mask/unmask), current-month income / expense / net vs last month, 5-month cashflow bars, spending-by-category breakdown, spending trend, recent transactions
@@ -74,7 +78,7 @@ A local-first Android expense & income tracker built with Jetpack Compose.
 - Android SDK (minSdk 26, target & compileSdk 36)
 - The Gradle wrapper downloads Gradle 9.3.1 automatically — no manual Gradle install needed
 
-## Build & run
+## Build from source (for developers)
 
 The repo includes a [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html), so no Gradle installation is required.
 
