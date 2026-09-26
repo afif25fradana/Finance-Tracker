@@ -12,11 +12,12 @@ import com.financetracker.app.data.dao.TransactionDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
+import androidx.room.migration.Migration
 import com.financetracker.app.data.entity.TransactionType
 
 @Database(
   entities = [Category::class, Transaction::class, RecurringItem::class],
-  version = 1,
+  version = 2,
   exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +30,12 @@ abstract class AppDatabase : RoomDatabase() {
     @Volatile
     private var INSTANCE: AppDatabase? = null
 
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_transactions_date_id ON transactions(date, id)")
+      }
+    }
+
     fun getInstance(context: Context): AppDatabase =
       INSTANCE ?: synchronized(this) {
         INSTANCE ?: Room.databaseBuilder(
@@ -36,6 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
           AppDatabase::class.java,
           "finance_tracker.db"
         )
+          .addMigrations(MIGRATION_1_2)
           .addCallback(DEFAULT_CATEGORY_SEED)
           .build()
           .also { INSTANCE = it }
@@ -46,6 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
         context.applicationContext,
         AppDatabase::class.java
       ).allowMainThreadQueries()
+        .addMigrations(MIGRATION_1_2)
       if (withDefaultSeed) {
         builder.addCallback(DEFAULT_CATEGORY_SEED)
       }

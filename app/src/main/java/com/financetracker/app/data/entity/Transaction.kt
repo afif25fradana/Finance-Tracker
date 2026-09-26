@@ -15,7 +15,10 @@ import androidx.room.PrimaryKey
       onDelete = ForeignKey.RESTRICT
     )
   ],
-  indices = [Index("categoryId")]
+  indices = [
+    Index("categoryId"),
+    Index(value = ["date", "id"])
+  ]
 )
 data class Transaction(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
