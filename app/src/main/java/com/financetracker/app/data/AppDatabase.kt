@@ -69,7 +69,7 @@ private val DEFAULT_CATEGORY_SEED = object : RoomDatabase.Callback() {
     for (category in DEFAULT_CATEGORIES) {
       db.execSQL(
         "INSERT INTO categories (name, type, color, icon, isDefault) VALUES (?, ?, ?, ?, ?)",
-        arrayOf(category.name, category.type.name, category.color, category.icon, 1)
+        arrayOf<Any>(category.name, category.type.name, category.color, category.icon, 1)
       )
     }
   }

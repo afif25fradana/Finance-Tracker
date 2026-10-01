@@ -97,4 +97,62 @@ class BackupValidatorTest {
 
     assertEquals("recurringItems[0].frequency", r.field)
   }
+
+  @Test
+  fun validate_categoryNameTooLong_isInvalid() {
+    val longName = "A".repeat(37)
+    val r = invalid(BackupValidator.validate(file(categories = listOf(category().copy(name = longName)))))
+
+    assertEquals("categories[0].name", r.field)
+  }
+
+  @Test
+  fun validate_transactionAmountNonPositive_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(transactions = listOf(transaction().copy(amount = 0)))))
+
+    assertEquals("transactions[0].amount", r.field)
+  }
+
+  @Test
+  fun validate_transactionNoteTooLong_isInvalid() {
+    val longNote = "A".repeat(101)
+    val r = invalid(BackupValidator.validate(file(transactions = listOf(transaction().copy(note = longNote)))))
+
+    assertEquals("transactions[0].note", r.field)
+  }
+
+  @Test
+  fun validate_recurringAmountNonPositive_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(recurringItems = listOf(recurring().copy(amount = -100)))))
+
+    assertEquals("recurringItems[0].amount", r.field)
+  }
+
+  @Test
+  fun validate_recurringAmountZero_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(recurringItems = listOf(recurring().copy(amount = 0)))))
+
+    assertEquals("recurringItems[0].amount", r.field)
+  }
+
+  @Test
+  fun validate_transactionAmountNegative_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(transactions = listOf(transaction().copy(amount = -50)))))
+
+    assertEquals("transactions[0].amount", r.field)
+  }
+
+  @Test
+  fun validate_invalidCategoryType_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(categories = listOf(category().copy(type = "TRANSFER")))))
+
+    assertEquals("categories[0].type", r.field)
+  }
+
+  @Test
+  fun validate_blankCategoryName_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(categories = listOf(category().copy(name = "   ")))))
+
+    assertEquals("categories[0].name", r.field)
+  }
 }

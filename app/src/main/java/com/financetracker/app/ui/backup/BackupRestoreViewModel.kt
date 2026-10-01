@@ -20,6 +20,7 @@ import java.io.OutputStream
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,8 +108,10 @@ class BackupRestoreViewModel(
             isError = false
           )
         }
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
-        val msg = "Backup failed: ${e.message}"
+        val msg = "Backup failed. Could not write backup file."
         savedStateHandle?.set(KEY_MESSAGE, msg)
         savedStateHandle?.set(KEY_IS_ERROR, true)
         _uiState.update {
@@ -137,8 +140,10 @@ class BackupRestoreViewModel(
             _uiState.update { it.copy(isWorking = false, message = msg, isError = true) }
           }
         }
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
-        val msg = "Could not read the file: ${e.message}"
+        val msg = "Could not read the file: Invalid or unreadable file."
         savedStateHandle?.set(KEY_MESSAGE, msg)
         savedStateHandle?.set(KEY_IS_ERROR, true)
         _uiState.update {

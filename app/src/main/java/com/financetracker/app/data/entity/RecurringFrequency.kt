@@ -10,11 +10,12 @@ enum class RecurringFrequency(val label: String) {
 
   /** Next occurrence strictly after [fromEpochDay], skipping any date <= today. */
   fun nextDueEpochDay(fromEpochDay: Long, todayEpochDay: Long): Long {
-    var next = advance(LocalDate.ofEpochDay(fromEpochDay)).toEpochDay()
-    while (next <= todayEpochDay) {
-      next = advance(LocalDate.ofEpochDay(next)).toEpochDay()
+    val today = LocalDate.ofEpochDay(todayEpochDay)
+    var next = advance(LocalDate.ofEpochDay(fromEpochDay))
+    while (!next.isAfter(today)) {
+      next = advance(next)
     }
-    return next
+    return next.toEpochDay()
   }
 
   private fun advance(date: LocalDate): LocalDate = when (this) {

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 import com.financetracker.app.ui.components.MAX_CATEGORY_NAME_LENGTH
@@ -63,22 +64,36 @@ class CategoriesViewModel(
     val cleanName = name.trim().take(MAX_CATEGORY_NAME_LENGTH)
     if (cleanName.isEmpty()) return
     viewModelScope.launch {
-      categoryDao.insert(
-        Category(
-          name = cleanName,
-          type = type,
-          color = color,
-          icon = "category",
-          isDefault = false
+      try {
+        categoryDao.insert(
+          Category(
+            name = cleanName,
+            type = type,
+            color = color,
+            icon = "category",
+            isDefault = false
+          )
         )
-      )
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        _errorMessage.value = "Failed to add category '$cleanName'."
+      }
     }
   }
 
   fun update(category: Category) {
     val clean = category.copy(name = category.name.trim().take(MAX_CATEGORY_NAME_LENGTH))
     if (clean.name.isEmpty()) return
-    viewModelScope.launch { categoryDao.update(clean) }
+    viewModelScope.launch {
+      try {
+        categoryDao.update(clean)
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        _errorMessage.value = "Failed to update category '${clean.name}'."
+      }
+    }
   }
 
   fun delete(category: Category, reassignTo: Long?) {
@@ -91,8 +106,10 @@ class CategoriesViewModel(
         }
       } catch (e: SQLiteConstraintException) {
         _errorMessage.value = "Cannot delete category '${category.name}': it is referenced by existing transactions or recurring items."
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
-        _errorMessage.value = "Failed to delete category '${category.name}': ${e.message}"
+        _errorMessage.value = "Failed to delete category '${category.name}'."
       }
     }
   }

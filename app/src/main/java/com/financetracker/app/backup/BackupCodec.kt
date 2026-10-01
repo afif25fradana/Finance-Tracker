@@ -1,5 +1,6 @@
 package com.financetracker.app.backup
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
@@ -85,6 +86,7 @@ private fun checkIntegerTypes(root: JsonObject): BackupResult.Invalid? {
   return null
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerializationException.toBackupInvalid(): BackupResult.Invalid {
   (this as? MissingFieldException)?.missingFields?.firstOrNull()?.let {
     return BackupResult.Invalid(it, "Required field \"$it\" is missing.")

@@ -14,6 +14,7 @@ import com.financetracker.app.ui.components.addPresetToAmount
 import com.financetracker.app.ui.components.digitsOnly
 import com.financetracker.app.ui.components.parseAmount
 import com.financetracker.app.ui.components.todayEpochDay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +36,7 @@ class AddEditTransactionViewModel(
   private val transactionDao: TransactionDao,
   categoryDao: CategoryDao,
   private val transactionId: Long?,
-  @VisibleForTesting
+  @get:VisibleForTesting
   internal val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel() {
 
@@ -177,9 +178,16 @@ class AddEditTransactionViewModel(
           note = state.note.trim().take(MAX_NOTE_LENGTH)
         )
         viewModelScope.launch {
-          if (state.isEditing) transactionDao.update(transaction)
-          else transactionDao.insert(transaction)
-          _saved.value = true
+          try {
+            if (state.isEditing) transactionDao.update(transaction)
+            else transactionDao.insert(transaction)
+            _saved.value = true
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Exception) {
+            saving = false
+            _uiState.update { it.copy(error = "Failed to save transaction") }
+          }
         }
       }
     }
@@ -188,8 +196,14 @@ class AddEditTransactionViewModel(
   fun delete() {
     val id = transactionId ?: return
     viewModelScope.launch {
-      transactionDao.deleteById(id)
-      _deleted.value = true
+      try {
+        transactionDao.deleteById(id)
+        _deleted.value = true
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        _uiState.update { it.copy(error = "Failed to delete transaction") }
+      }
     }
   }
 }

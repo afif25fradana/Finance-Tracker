@@ -233,9 +233,10 @@ private fun AddEditTransactionScreen(
               color = accent
             )
             Spacer(modifier = Modifier.width(6.dp))
-              BasicTextField(
-                value = formatAmountInput(state.amountText),
-                onValueChange = onAmountChange,
+            val formattedAmount = remember(state.amountText) { formatAmountInput(state.amountText) }
+            BasicTextField(
+              value = formattedAmount,
+              onValueChange = onAmountChange,
                 textStyle = TextStyle(
                   fontFamily = FontFamily.Monospace,
                   fontSize = 28.sp,

@@ -4,6 +4,7 @@ import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
+import kotlinx.coroutines.CancellationException
 
 class BackupRestorer(
   private val backupDao: BackupDao,
@@ -30,10 +31,12 @@ class BackupRestorer(
       cancelReminders(existingRecurringIds)
 
       backupDao.replaceAll(categories, recurringItems, transactions)
+    } catch (e: CancellationException) {
+      throw e
     } catch (e: Exception) {
-      return BackupResult.Invalid("database", e.message ?: "The restore could not be completed.")
+      return BackupResult.Invalid("database", "The restore could not be completed.")
     }
-    rescheduleReminders(recurringItems)
+    runCatching { rescheduleReminders(recurringItems) }
     return BackupResult.Valid(file)
   }
 }

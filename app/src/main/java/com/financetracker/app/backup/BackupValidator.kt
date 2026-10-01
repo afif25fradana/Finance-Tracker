@@ -2,6 +2,8 @@ package com.financetracker.app.backup
 
 import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.TransactionType
+import com.financetracker.app.ui.components.MAX_CATEGORY_NAME_LENGTH
+import com.financetracker.app.ui.components.MAX_NOTE_LENGTH
 
 object BackupValidator {
 
@@ -23,11 +25,40 @@ object BackupValidator {
     }
 
     validateIds("categories", file.categories.map { it.id })?.let { return it }
+    file.categories.forEachIndexed { index, cat ->
+      if (cat.name.isBlank()) {
+        return BackupResult.Invalid(
+          "categories[$index].name",
+          "Category name must not be blank."
+        )
+      }
+      if (cat.name.length > MAX_CATEGORY_NAME_LENGTH) {
+        return BackupResult.Invalid(
+          "categories[$index].name",
+          "Category name exceeds maximum length of $MAX_CATEGORY_NAME_LENGTH."
+        )
+      }
+      if (cat.type !in TRANSACTION_TYPES) {
+        return BackupResult.Invalid(
+          "categories[$index].type",
+          "Unknown transaction type \"${cat.type}\"."
+        )
+      }
+    }
 
     val categoryIds = file.categories.map { it.id }.toSet()
 
     validateIds("transactions", file.transactions.map { it.id })?.let { return it }
     file.transactions.forEachIndexed { index, tx ->
+      if (tx.amount <= 0) {
+        return BackupResult.Invalid("transactions[$index].amount", "Amount must be positive; found ${tx.amount}.")
+      }
+      if (tx.note.length > MAX_NOTE_LENGTH) {
+        return BackupResult.Invalid(
+          "transactions[$index].note",
+          "Note exceeds maximum length of $MAX_NOTE_LENGTH."
+        )
+      }
       if (tx.type !in TRANSACTION_TYPES) {
         return BackupResult.Invalid("transactions[$index].type", "Unknown transaction type \"${tx.type}\".")
       }
@@ -41,6 +72,9 @@ object BackupValidator {
 
     validateIds("recurringItems", file.recurringItems.map { it.id })?.let { return it }
     file.recurringItems.forEachIndexed { index, item ->
+      if (item.amount <= 0) {
+        return BackupResult.Invalid("recurringItems[$index].amount", "Amount must be positive; found ${item.amount}.")
+      }
       if (item.frequency !in FREQUENCIES) {
         return BackupResult.Invalid(
           "recurringItems[$index].frequency",

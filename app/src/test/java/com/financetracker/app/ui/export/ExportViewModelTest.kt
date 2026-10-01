@@ -46,7 +46,6 @@ class ExportViewModelTest {
     var lastTo: Long? = null
 
     override fun getAll(): Flow<List<Transaction>> = MutableStateFlow(emptyList())
-    override fun getById(id: Long): Flow<Transaction?> = MutableStateFlow(null)
     override suspend fun getByIdOnce(id: Long): Transaction? = null
     override suspend fun getBetweenOnce(fromEpochDay: Long, toEpochDay: Long): List<TransactionExport> {
       lastFrom = fromEpochDay
@@ -175,6 +174,6 @@ class ExportViewModelTest {
 
     assertTrue(state.isError)
     assertNotNull(state.message)
-    assertTrue(state.message!!.contains("Export failed: Disk full or permission denied"))
+    assertEquals("Export failed. Could not write to destination.", state.message)
   }
 }

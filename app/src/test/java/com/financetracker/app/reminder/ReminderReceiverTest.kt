@@ -234,4 +234,25 @@ class ReminderReceiverTest {
     assertNotNull(item)
     assertEquals(initialDueDate, item!!.nextDueDate)
   }
+
+  @Test
+  fun onReceive_fire_whenAlarmManagerThrows_stillUpdatesDatabaseAndFinishes() = runTest(testDispatcher) {
+    val catId = db.categoryDao().insert(
+      Category(name = "Bills", type = TransactionType.EXPENSE, color = 0xFF112233, icon = "receipt", isDefault = true)
+    )
+    val initialDueDate = 20000L
+    val itemId = db.recurringItemDao().insert(
+      RecurringItem(categoryId = catId, amount = 100_000L, frequency = RecurringFrequency.MONTHLY, nextDueDate = initialDueDate)
+    )
+
+    // Context wrapper or test that runs ReminderReceiver
+    val receiver = ReminderReceiver(coroutineContext = testDispatcher, dbProvider = { db })
+    val intent = Intent(ReminderScheduler.ACTION_FIRE).putExtra(ReminderScheduler.EXTRA_ITEM_ID, itemId)
+    receiver.onReceive(context, intent)
+    receiver.lastJob?.join()
+
+    val updatedItem = db.recurringItemDao().getByIdOnce(itemId)
+    assertNotNull(updatedItem)
+    assertTrue(updatedItem!!.nextDueDate > initialDueDate)
+  }
 }

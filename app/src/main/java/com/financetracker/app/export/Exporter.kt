@@ -38,15 +38,8 @@ fun exportToCsv(rows: List<TransactionExport>): String = buildString {
     listOf("", totalExpenses.toString(), "Total Expenses", "", ""),
     listOf("", netBalance.toString(), "Net Balance", "", "")
   )
-  summaryRows.forEach { (date, amount, category, type, note) ->
-    val fields = listOf(
-      csvEscape(date),
-      amount,
-      csvEscape(category),
-      csvEscape(type),
-      csvEscape(note)
-    )
-    append(fields.joinToString(","))
+  summaryRows.forEach { row ->
+    append(row.joinToString(",") { csvEscape(it) })
     append('\n')
   }
 }
@@ -79,7 +72,9 @@ private fun typeLabel(type: TransactionType): String =
 
 // RFC 4180: quote when the field contains a delimiter, quote, CR or LF; double embedded quotes.
 private fun csvEscape(value: String): String {
-  val guarded = if (value.isNotEmpty() && value[0] in "=+-@") "'$value" else value
+  val trimmed = value.trimStart()
+  val isFormula = trimmed.isNotEmpty() && (trimmed[0] in "=+-@" || value.startsWith("\t") || value.startsWith("\r"))
+  val guarded = if (isFormula) "'$value" else value
   val needsQuoting = guarded.any { it == ',' || it == '"' || it == '\n' || it == '\r' }
   return if (needsQuoting) "\"${guarded.replace("\"", "\"\"")}\"" else guarded
 }

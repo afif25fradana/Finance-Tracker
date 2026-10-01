@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.financetracker.app.data.entity.RecurringItem
 import java.time.LocalDate
 import java.time.ZoneId
@@ -19,7 +18,6 @@ object ReminderScheduler {
   const val DEFAULT_REMINDER_MINUTE = 0
 
   fun ensureChannel(context: Context) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val channel = NotificationChannel(
       CHANNEL_ID,

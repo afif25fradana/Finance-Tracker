@@ -10,6 +10,7 @@ import com.financetracker.app.export.exportToCsv
 import com.financetracker.app.export.exportToJson
 import com.financetracker.app.ui.components.epochDayToIso
 import com.financetracker.app.ui.components.todayEpochDay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -94,8 +95,10 @@ class ExportViewModel(
         }
         val noun = if (rows.size == 1) "transaction" else "transactions"
         _uiState.value = _uiState.value.copy(message = "Exported ${rows.size} $noun.", isError = false)
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
-        _uiState.value = _uiState.value.copy(message = "Export failed: ${e.message}", isError = true)
+        _uiState.value = _uiState.value.copy(message = "Export failed. Could not write to destination.", isError = true)
       }
     }
   }

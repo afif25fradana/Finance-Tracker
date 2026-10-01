@@ -19,6 +19,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -41,13 +43,11 @@ class AddEditTransactionViewModelTest {
     override suspend fun deleteById(id: Long) {}
   }
 
-  private class FakeTransactionDao : TransactionDao {
+  private open class FakeTransactionDao : TransactionDao {
     val continuousFlow = MutableSharedFlow<Transaction?>(replay = 1)
     var currentTransaction: Transaction? = null
 
     override fun getAll(): Flow<List<Transaction>> = MutableStateFlow(emptyList())
-
-    override fun getById(id: Long): Flow<Transaction?> = continuousFlow
 
     override suspend fun getByIdOnce(id: Long): Transaction? = currentTransaction
 
@@ -155,5 +155,62 @@ class AddEditTransactionViewModelTest {
     assertEquals(com.financetracker.app.ui.components.MAX_NOTE_LENGTH, note.length)
     assertEquals(100, note.length)
     assertEquals("A".repeat(100), note)
+  }
+
+  @Test
+  fun save_whenDaoThrows_resetsSavingAndSurfacesError() = runTest(testDispatcher) {
+    var shouldFail = true
+    val throwingDao = object : FakeTransactionDao() {
+      override suspend fun insert(transaction: Transaction): Long {
+        if (shouldFail) throw RuntimeException("DB Disk Full")
+        return super.insert(transaction)
+      }
+    }
+    val fakeCatDao = FakeCategoryDao().apply {
+      categoriesFlow.value = listOf(
+        Category(id = 1L, name = "Groceries", type = TransactionType.EXPENSE, color = 1L, icon = "cart", isDefault = false)
+      )
+    }
+    val viewModel = AddEditTransactionViewModel(
+      transactionDao = throwingDao,
+      categoryDao = fakeCatDao,
+      transactionId = null
+    )
+    advanceUntilIdle()
+    viewModel.onAmountChange("50000")
+    viewModel.onCategorySelected(1L)
+
+    viewModel.save()
+    advanceUntilIdle()
+
+    assertEquals("Failed to save transaction", viewModel.uiState.value.error)
+    assertFalse(viewModel.saved.value)
+
+    shouldFail = false
+    viewModel.save()
+    advanceUntilIdle()
+
+    assertTrue(viewModel.saved.value)
+  }
+
+  @Test
+  fun delete_whenDaoThrows_surfacesErrorAndDoesNotMarkDeleted() = runTest(testDispatcher) {
+    val throwingDao = object : FakeTransactionDao() {
+      override suspend fun deleteById(id: Long) {
+        throw RuntimeException("DB Delete Failed")
+      }
+    }
+    val viewModel = AddEditTransactionViewModel(
+      transactionDao = throwingDao,
+      categoryDao = FakeCategoryDao(),
+      transactionId = 42L
+    )
+    advanceUntilIdle()
+
+    viewModel.delete()
+    advanceUntilIdle()
+
+    assertEquals("Failed to delete transaction", viewModel.uiState.value.error)
+    assertFalse(viewModel.deleted.value)
   }
 }

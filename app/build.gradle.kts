@@ -59,7 +59,6 @@ dependencies {
 
   implementation(libs.vico.compose)
 
-  implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.serialization.json)
 

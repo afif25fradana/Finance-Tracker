@@ -201,4 +201,40 @@ class BackupRestorerTest {
     assertTrue("cancelReminders ($cancelIndex) must execute BEFORE replaceAll ($replaceIndex)", cancelIndex < replaceIndex)
     assertTrue("replaceAll ($replaceIndex) must execute BEFORE rescheduleReminders ($rescheduleIndex)", replaceIndex < rescheduleIndex)
   }
+
+  @Test
+  fun restore_whenRescheduleRemindersThrows_stillReturnsValid() = runBlocking {
+    val dao = FakeBackupDao()
+    val restorer = BackupRestorer(
+      backupDao = dao,
+      rescheduleReminders = { throw SecurityException("Exact alarm permission not granted") }
+    )
+
+    val result = restorer.restoreFromText(backupJson())
+
+    assertTrue(result is BackupResult.Valid)
+    assertEquals(1, dao.categories.size)
+    assertEquals(1, dao.transactions.size)
+    assertEquals(1, dao.recurring.size)
+  }
+
+  @Test
+  fun restore_whenDatabaseThrows_returnsSanitizedError() = runBlocking {
+    val dao = object : FakeBackupDao() {
+      override suspend fun replaceAll(
+        categories: List<com.financetracker.app.data.entity.Category>,
+        recurringItems: List<com.financetracker.app.data.entity.RecurringItem>,
+        transactions: List<com.financetracker.app.data.entity.Transaction>
+      ) {
+        throw android.database.sqlite.SQLiteException("table /data/data/com.financetracker/databases/corrupt.db error")
+      }
+    }
+    val restorer = BackupRestorer(backupDao = dao)
+    val result = restorer.restoreFromText(backupJson())
+
+    assertTrue(result is BackupResult.Invalid)
+    val invalid = result as BackupResult.Invalid
+    assertEquals("database", invalid.field)
+    assertEquals("The restore could not be completed.", invalid.reason)
+  }
 }

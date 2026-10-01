@@ -1,6 +1,7 @@
 package com.financetracker.app.reminder
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -53,7 +54,7 @@ class ReminderReceiver @JvmOverloads constructor(
             val items = dbProvider(context.applicationContext)
               .recurringItemDao()
               .getAllOnce()
-            ReminderScheduler.rescheduleAll(context.applicationContext, items)
+            runCatching { ReminderScheduler.rescheduleAll(context.applicationContext, items) }
           } finally {
             pendingResult?.finish()
           }
@@ -63,6 +64,7 @@ class ReminderReceiver @JvmOverloads constructor(
   }
 
   /** Post a notification only — never writes a Transaction — then advance to the next occurrence. */
+  @SuppressLint("MissingPermission")
   private suspend fun onReminderFired(context: Context, itemId: Long) {
     val db = dbProvider(context)
     val item = db.recurringItemDao().getByIdOnce(itemId)
@@ -88,13 +90,17 @@ class ReminderReceiver @JvmOverloads constructor(
         .setContentIntent(contentIntent)
         .setAutoCancel(true)
         .build()
-      NotificationManagerCompat.from(context).notify(itemId.toInt(), notification)
+      try {
+        NotificationManagerCompat.from(context).notify(itemId.toInt(), notification)
+      } catch (e: SecurityException) {
+        // Notification permission revoked or missing at runtime
+      }
     }
 
     val nextDue = item.frequency.nextDueEpochDay(item.nextDueDate, todayEpochDay())
     val advanced = item.copy(nextDueDate = nextDue)
     db.recurringItemDao().update(advanced)
-    ReminderScheduler.schedule(context, advanced)
+    runCatching { ReminderScheduler.schedule(context, advanced) }
   }
 
   private fun canPostNotifications(context: Context): Boolean =

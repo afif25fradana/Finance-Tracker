@@ -200,7 +200,7 @@ private fun CategoriesScreen(
   if (adding || editing != null) {
     AddEditCategoryDialog(
       editing = editing,
-      existingNames = sameTypeNames(state, editing?.type ?: TransactionType.EXPENSE, excludeId = editing?.id),
+      existingNamesForType = { type -> sameTypeNames(state, type, excludeId = editing?.id) },
       onDismiss = {
         adding = false
         editingCategoryId = null
@@ -270,7 +270,7 @@ private fun CategoriesScreen(
   }
 }
 
-private fun sameTypeNames(state: CategoriesUiState, type: TransactionType, excludeId: Long?): Set<String> {
+internal fun sameTypeNames(state: CategoriesUiState, type: TransactionType, excludeId: Long?): Set<String> {
   val rows = if (type == TransactionType.EXPENSE) state.expense else state.income
   return rows
     .filter { it.category.id != excludeId }
@@ -354,7 +354,7 @@ private fun CategoryRowItem(
 @Composable
 private fun AddEditCategoryDialog(
   editing: Category?,
-  existingNames: Set<String>,
+  existingNamesForType: (TransactionType) -> Set<String>,
   onDismiss: () -> Unit,
   onSave: (String, TransactionType, Long) -> Unit
 ) {
@@ -367,9 +367,10 @@ private fun AddEditCategoryDialog(
 
   fun attemptSave() {
     val name = nameInput.trim().take(MAX_CATEGORY_NAME_LENGTH)
+    val existingNames = existingNamesForType(typeInput)
     when {
       name.isEmpty() -> error = "Name is required"
-      name.lowercase() in existingNames -> error = "A ${typeLabel(typeInput)} category with this name already exists"
+      name.lowercase() in existingNames -> error = "An ${typeLabel(typeInput)} category with this name already exists"
       else -> onSave(name, typeInput, colorInput)
     }
   }

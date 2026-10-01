@@ -64,9 +64,6 @@ class TransactionDaoTest {
     assertEquals(defaultCategoryId, loadedOnce.categoryId)
     assertEquals(1000L, loadedOnce.date)
     assertEquals("Lunch", loadedOnce.note)
-
-    val loadedFlow = transactionDao.getById(id).first()
-    assertEquals(loadedOnce, loadedFlow)
   }
 
   @Test

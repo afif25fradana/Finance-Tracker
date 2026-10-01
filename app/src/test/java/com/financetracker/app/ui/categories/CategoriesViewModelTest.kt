@@ -156,4 +156,68 @@ class CategoriesViewModelTest {
 
     collectJob.cancel()
   }
+
+  @Test
+  fun add_whenDaoThrows_setsErrorMessage() = runTest(testDispatcher) {
+    val dao = object : TestCategoryDao() {
+      override suspend fun insert(category: Category): Long = throw RuntimeException("DB Disk Full")
+    }
+    val viewModel = CategoriesViewModel(categoryDao = dao)
+    val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+      viewModel.uiState.collect {}
+    }
+    advanceUntilIdle()
+
+    viewModel.add(name = "New Category", type = TransactionType.EXPENSE, color = 0xFF123456)
+    advanceUntilIdle()
+
+    assertEquals("Failed to add category 'New Category'.", viewModel.uiState.value.errorMessage)
+    collectJob.cancel()
+  }
+
+  @Test
+  fun update_whenDaoThrows_setsErrorMessage() = runTest(testDispatcher) {
+    val category = Category(id = 1L, name = "Food", type = TransactionType.EXPENSE, color = 1L, icon = "cart")
+    val dao = object : TestCategoryDao() {
+      override suspend fun update(category: Category) {
+        throw RuntimeException("DB Locked")
+      }
+    }
+    val viewModel = CategoriesViewModel(categoryDao = dao)
+    val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+      viewModel.uiState.collect {}
+    }
+    advanceUntilIdle()
+
+    viewModel.update(category)
+    advanceUntilIdle()
+
+    assertEquals("Failed to update category 'Food'.", viewModel.uiState.value.errorMessage)
+    collectJob.cancel()
+  }
+
+  @Test
+  fun sameTypeNames_evaluatesNamesPerTypeAndExcludesCurrentId() {
+    val expenseCat1 = Category(id = 1L, name = "Groceries", type = TransactionType.EXPENSE, color = 1L, icon = "cart")
+    val expenseCat2 = Category(id = 2L, name = "Dining", type = TransactionType.EXPENSE, color = 2L, icon = "food")
+    val incomeCat1 = Category(id = 3L, name = "Salary", type = TransactionType.INCOME, color = 3L, icon = "cash")
+    val incomeCat2 = Category(id = 4L, name = "Groceries", type = TransactionType.INCOME, color = 4L, icon = "cart")
+
+    val state = CategoriesUiState(
+      expense = listOf(CategoryRow(expenseCat1, 0, 0), CategoryRow(expenseCat2, 0, 0)),
+      income = listOf(CategoryRow(incomeCat1, 0, 0), CategoryRow(incomeCat2, 0, 0))
+    )
+
+    // Expense lookup should only return expense category names
+    val expenseNames = sameTypeNames(state, TransactionType.EXPENSE, excludeId = null)
+    assertEquals(setOf("groceries", "dining"), expenseNames)
+
+    // Income lookup should only return income category names
+    val incomeNames = sameTypeNames(state, TransactionType.INCOME, excludeId = null)
+    assertEquals(setOf("salary", "groceries"), incomeNames)
+
+    // When editing existing category 1, it should be excluded from its own type check
+    val editingExpenseNames = sameTypeNames(state, TransactionType.EXPENSE, excludeId = 1L)
+    assertEquals(setOf("dining"), editingExpenseNames)
+  }
 }

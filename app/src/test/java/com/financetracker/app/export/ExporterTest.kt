@@ -30,7 +30,7 @@ class ExporterTest {
         "\n" +
         ",0,Total Income,,\n" +
         ",50000,Total Expenses,,\n" +
-        ",-50000,Net Balance,,\n",
+        ",'-50000,Net Balance,,\n",
       csv
     )
   }
@@ -80,7 +80,7 @@ new line"
         "\n" +
         ",0,Total Income,,\n" +
         ",1,Total Expenses,,\n" +
-        ",-1,Net Balance,,\n",
+        ",'-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }
@@ -103,7 +103,30 @@ new line"
         "\n" +
         ",0,Total Income,,\n" +
         ",1,Total Expenses,,\n" +
-        ",-1,Net Balance,,\n",
+        ",'-1,Net Balance,,\n",
+      exportToCsv(rows)
+    )
+  }
+
+  @Test
+  fun csv_formulaWithLeadingWhitespace_isGuarded() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-04-01"),
+        amount = 1,
+        type = TransactionType.EXPENSE,
+        category = "Test",
+        note = " =1+1"
+      )
+    )
+
+    assertEquals(
+      "Date,Amount,Category,Type,Note\n" +
+        "2024-04-01,1,Test,expense,' =1+1\n" +
+        "\n" +
+        ",0,Total Income,,\n" +
+        ",1,Total Expenses,,\n" +
+        ",'-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }

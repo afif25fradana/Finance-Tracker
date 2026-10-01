@@ -48,7 +48,6 @@ class DashboardViewModelTest {
   private class FakeTransactionDao(transactions: List<Transaction> = emptyList()) : TransactionDao {
     val flow = MutableStateFlow(transactions)
     override fun getAll(): Flow<List<Transaction>> = flow
-    override fun getById(id: Long): Flow<Transaction?> = MutableStateFlow(null)
     override suspend fun getByIdOnce(id: Long): Transaction? = flow.value.find { it.id == id }
     override suspend fun getBetweenOnce(fromEpochDay: Long, toEpochDay: Long): List<TransactionExport> = emptyList()
     override suspend fun insert(transaction: Transaction): Long = 1L

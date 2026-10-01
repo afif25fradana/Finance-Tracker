@@ -19,10 +19,10 @@ fun epochDayToIso(epochDay: Long): String =
   LocalDate.ofEpochDay(epochDay).toString()
 
 fun epochDayToUtcMillis(epochDay: Long): Long =
-  LocalDate.ofEpochDay(epochDay).atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()
+  Math.multiplyExact(epochDay, 86_400_000L)
 
 fun utcMillisToEpochDay(millis: Long): Long =
-  java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneOffset.UTC).toLocalDate().toEpochDay()
+  Math.floorDiv(millis, 86_400_000L)
 
 fun formatAmountInput(raw: String): String = groupDigits(raw)
 
@@ -36,18 +36,13 @@ const val MAX_CATEGORY_NAME_LENGTH = 36
 const val MAX_NOTE_LENGTH = 100
 const val MAX_SEARCH_QUERY_LENGTH = 50
 private const val MAX_INPUT_AMOUNT = 999_999_999_999L
-private val AMOUNT_REGEX = Regex("""\d{1,$MAX_AMOUNT_DIGITS}""")
-
+ 
 fun addPresetToAmount(current: String, preset: Long): String {
   val base = current.toLongOrNull() ?: 0L
   return (base + preset).coerceAtMost(MAX_INPUT_AMOUNT).toString()
 }
 
-fun parseAmount(text: String): Long? {
-  val t = text.trim()
-  if (t.isEmpty() || !AMOUNT_REGEX.matches(t)) return null
-  return t.toLongOrNull()
-}
+fun parseAmount(text: String): Long? = text.trim().toLongOrNull()
 
 fun formatRupiah(amount: Long): String {
   val sign = if (amount < 0) "-" else ""

@@ -51,7 +51,6 @@ class SavedStateRestorationTest {
 
   private class DummyTransactionDao : TransactionDao {
     override fun getAll(): Flow<List<Transaction>> = MutableStateFlow(emptyList())
-    override fun getById(id: Long): Flow<Transaction?> = MutableStateFlow(null)
     override suspend fun getByIdOnce(id: Long): Transaction? = null
     override suspend fun getBetweenOnce(fromEpochDay: Long, toEpochDay: Long): List<TransactionExport> = emptyList()
     override suspend fun insert(transaction: Transaction): Long = 1L
