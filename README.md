@@ -2,33 +2,19 @@
 
 [![Tests](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml)
 
-A local-first Android expense & income tracker built with Jetpack Compose.
+Finance Tracker is a simple, private, offline-first personal finance app for Android. It helps you track your daily income, expenses, and recurring bills in Indonesian Rupiah without creating an account or sending your data anywhere.
 
-## Installation
+Most budgeting apps require signing up, demand access to SMS or bank APIs, or sync your transactions to third-party cloud servers. Finance Tracker keeps all your financial records strictly on your device in an offline SQLite database. There is no internet permission in the application manifest, no ads, no trackers, and no third-party analytics.
 
-Download and install the latest release: [FinanceTracker-v1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.0.0/FinanceTracker-v1.0.apk).
+## What it can do
 
-### Verification & Checksums
-
-| File | SHA-256 Hash |
-| :--- | :--- |
-| `FinanceTracker-v1.0.apk` | `6bcb966ad0efe7d21ec35244dbb590c0d68eef65c116c95dfe681a15da9310b0` |
-
-To verify in PowerShell:
-```powershell
-Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
-```
-
-## Features
-
-- **Dashboard** — running balance (mask/unmask), current-month income / expense / net vs last month, 5-month cashflow bars, spending-by-category breakdown, spending trend, recent transactions
-- **Add / edit transactions** — expense/income toggle, whole-Rupiah amounts with quick-add presets (`+Rp10.000` … `+Rp500.000`), note, category picker, date picker, delete on edit
-- **History** — month-grouped list with per-month totals, search, and All/Expenses/Income filters
-- **Categories** — editable defaults + custom categories, each with a color and icon (icons render as tinted glyph tiles across every screen)
-- **Recurring reminders** — daily/weekly/monthly/yearly templates that post a notification on the next due date (never auto-creates transactions), re-armed across reboots
-- **CSV / JSON export** — date-range export via the system save dialog with pre-filled filenames
-- **Backup & Restore** — versioned JSON backup of all data via the system save dialog, restorable on a new device or after a reinstall — restore **replaces** all existing data, it does not merge
-- **Single currency** — Indonesian Rupiah stored as whole-number `Long`s (no float math)
+- **Completely offline & private**: Zero internet permissions requested. Your financial data never leaves your phone.
+- **Clear dashboard**: View your running balance (with a quick privacy mask toggle), monthly income vs. expense comparison, 5-month cashflow bars, and spending-by-category breakdown charts.
+- **Fast transaction entry**: Log expenses or income quickly with whole-Rupiah amount presets (+Rp10.000 to +Rp500.000), notes, and custom categories.
+- **Customizable categories**: Manage default and custom categories with distinct colors and icon glyphs.
+- **Bill & recurring reminders**: Schedule recurring reminders (daily, weekly, monthly, yearly) that post a notification when a bill is due. Reminders notify you to log transactions manually—the app never creates unexpected charges or entries automatically.
+- **CSV & JSON export**: Export date-filtered transaction records to CSV (compatible with Excel or Google Sheets) or JSON directly to your device storage.
+- **Full backup & restore**: Export your entire financial history to a single JSON backup file to move to a new device or restore after a reinstall.
 
 ## Screenshots
 
@@ -36,78 +22,82 @@ Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
   <tr>
     <td align="center" width="33%">
       <img src="Asset/screenshots/dashboard.png" width="200" alt="Dashboard"><br>
-      <b>Dashboard</b> — balance, cashflow, category breakdown
+      <b>Dashboard</b><br>Balance, cashflow & category breakdown
     </td>
     <td align="center" width="33%">
       <img src="Asset/screenshots/add.png" width="200" alt="Add transaction"><br>
-      <b>Add</b> — quick income / expense entry
+      <b>Add Transaction</b><br>Quick income / expense entry
     </td>
     <td align="center" width="33%">
       <img src="Asset/screenshots/history.png" width="200" alt="History"><br>
-      <b>History</b> — month-grouped list with per-month totals
+      <b>History</b><br>Month-grouped list with monthly totals
     </td>
   </tr>
   <tr>
     <td align="center" width="33%">
       <img src="Asset/screenshots/categories.png" width="200" alt="Categories"><br>
-      <b>Categories</b> — editable defaults + custom color/icon tiles
+      <b>Categories</b><br>Custom colors and icon glyphs
     </td>
     <td align="center" width="33%">
       <img src="Asset/screenshots/edit-transaction.png" width="200" alt="Edit transaction"><br>
-      <b>Edit Transaction</b> — full form with amount presets
+      <b>Edit Transaction</b><br>Transaction details and amount presets
     </td>
     <td align="center" width="33%">
       <img src="Asset/screenshots/reminders.png" width="200" alt="Recurring reminders"><br>
-      <b>Reminders</b> — recurring templates with next due dates
+      <b>Reminders</b><br>Bill reminders with due date tracking
     </td>
   </tr>
   <tr>
     <td align="center" width="33%">
       <img src="Asset/screenshots/export.png" width="200" alt="Export"><br>
-      <b>Export</b> — date-range CSV and JSON export
+      <b>Export</b><br>Date-range CSV and JSON exports
     </td>
     <td align="center" width="33%">
       <img src="Asset/screenshots/backup.png" width="200" alt="Backup & Restore"><br>
-      <b>Backup</b> — versioned JSON backup and restore
+      <b>Backup & Restore</b><br>Versioned JSON backup and restore
     </td>
     <td align="center" width="33%">
     </td>
   </tr>
 </table>
 
-## Tech stack
+## Installation
 
-- Kotlin + Jetpack Compose (Material 3), single-activity architecture
-- Room (Flow-based DAOs, `@Transaction` reassign-and-delete)
-- Navigation Compose (4-tab bottom navigation + pushed full-screen edit/utility routes)
-- Vico for cashflow bar + trend line charts
-- kotlinx.serialization for the backup JSON format
-- AlarmManager + `BroadcastReceiver` for recurring reminders
-- Unit and instrumented tests covering ViewModels, Room DAOs, export/backup serialization, reminder scheduling, and Compose UI flows
+### Option 1: Download the pre-built APK (Recommended)
 
-## Requirements
+Download the latest release directly to your Android device:
+[FinanceTracker-v1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.0.0/FinanceTracker-v1.0.apk)
 
-- JDK 21+ (or JDK 17+ with Gradle toolchain auto-provisioning; Android Studio's bundled JBR works)
-- Android SDK (minSdk 26, target & compileSdk 36)
-- The Gradle wrapper downloads Gradle 9.3.1 automatically — no manual Gradle install needed
+#### Checksum verification
 
-## Build from source (for developers)
+| File | SHA-256 Hash |
+| :--- | :--- |
+| `FinanceTracker-v1.0.apk` | `6bcb966ad0efe7d21ec35244dbb590c0d68eef65c116c95dfe681a15da9310b0` |
 
-The repo includes a [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html), so no Gradle installation is required.
-
-**From Android Studio:** open the repo root, let Gradle sync, select the `app` run configuration, and Run.
-
-**From the command line:**
-
-```bash
-# macOS / Linux
-./gradlew :app:installDebug
-
-# Windows
-gradlew.bat :app:installDebug
+To verify on Windows (PowerShell):
+```powershell
+Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
 ```
 
-The debug APK is installed directly onto a connected device/emulator. To just compile, use `:app:compileDebugKotlin`; to run the unit tests, use `:app:testDebugUnitTest`; to run the instrumented Compose UI tests on an emulator/device, use `:app:connectedDebugAndroidTest`.
+To verify on macOS or Linux:
+```bash
+sha256sum FinanceTracker-v1.0.apk
+```
+
+### Option 2: Build from source
+
+If you want to build the app yourself or inspect the code, see [TECHNICAL.md](TECHNICAL.md) for build instructions and prerequisites.
+
+## A few things to keep in mind
+
+- **Indonesian Rupiah only**: All amounts are tracked in whole Indonesian Rupiah (`Rp`) as integers. Decimal currency subdivisions (cents) are not used.
+- **Manual logging philosophy**: Reminders notify you at 09:00 on the due date, but they never create transactions on their own. You decide when and what gets logged.
+- **Restore replaces existing data**: Restoring a backup replaces your current database rather than merging records. This keeps your data clean and avoids duplicate entries.
+- **Local-only storage**: Because the app has no internet permissions or cloud sync, your data lives only on your phone. Make sure to export a backup file before resetting your device or switching to a new phone.
+
+## Technical documentation
+
+For technical specifications, codebase architecture, building from source, running the test suite, and quality gates, please read [TECHNICAL.md](TECHNICAL.md).
 
 ## License
 
