@@ -87,7 +87,7 @@ Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
 
 ## Requirements
 
-- JDK 17+ (Android Studio's bundled JBR works)
+- JDK 21+ (or JDK 17+ with Gradle toolchain auto-provisioning; Android Studio's bundled JBR works)
 - Android SDK (minSdk 26, target & compileSdk 36)
 - The Gradle wrapper downloads Gradle 9.3.1 automatically — no manual Gradle install needed
 
@@ -107,7 +107,7 @@ The repo includes a [Gradle wrapper](https://docs.gradle.org/current/userguide/g
 gradlew.bat :app:installDebug
 ```
 
-The debug APK is installed directly onto a connected device/emulator. To just compile, use `:app:compileDebugKotlin`; to run the unit tests, use `:app:testDebugUnitTest`.
+The debug APK is installed directly onto a connected device/emulator. To just compile, use `:app:compileDebugKotlin`; to run the unit tests, use `:app:testDebugUnitTest`; to run the instrumented Compose UI tests on an emulator/device, use `:app:connectedDebugAndroidTest`.
 
 ## License
 
