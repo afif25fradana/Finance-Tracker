@@ -70,7 +70,7 @@ import com.financetracker.app.ui.components.MAX_NOTE_LENGTH
 import com.financetracker.app.ui.components.TypeToggle
 import com.financetracker.app.ui.components.epochDayToDisplay
 import com.financetracker.app.ui.components.epochDayToUtcMillis
-import com.financetracker.app.ui.components.formatAmountInput
+import com.financetracker.app.ui.components.ThousandsSeparatorVisualTransformation
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.components.utcMillisToEpochDay
 import com.financetracker.app.ui.theme.SignalNegative
@@ -239,11 +239,11 @@ private fun AddEditTransactionScreen(
               color = accent
             )
             Spacer(modifier = Modifier.width(6.dp))
-            val formattedAmount = remember(state.amountText) { formatAmountInput(state.amountText) }
             BasicTextField(
-              value = formattedAmount,
+              value = state.amountText,
               onValueChange = onAmountChange,
-                textStyle = TextStyle(
+              visualTransformation = remember { ThousandsSeparatorVisualTransformation() },
+              textStyle = TextStyle(
                   fontFamily = FontFamily.Monospace,
                   fontSize = 28.sp,
                   fontWeight = FontWeight.Bold,
