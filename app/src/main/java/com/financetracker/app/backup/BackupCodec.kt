@@ -4,6 +4,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.decodeFromStream
+import java.io.InputStream
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -43,9 +45,12 @@ object BackupCodec {
     )
   )
 
-  fun decode(text: String): BackupResult {
+  fun decode(text: String): BackupResult = decode(text.byteInputStream(Charsets.UTF_8))
+
+  @OptIn(ExperimentalSerializationApi::class)
+  fun decode(stream: InputStream): BackupResult {
     val root = try {
-      backupJson.parseToJsonElement(text)
+      backupJson.decodeFromStream<JsonElement>(stream)
     } catch (e: SerializationException) {
       return e.toBackupInvalid()
     }

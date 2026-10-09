@@ -1,5 +1,11 @@
 package com.financetracker.app
 
+import androidx.compose.runtime.DisposableEffect
+import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.toRoute
+import androidx.compose.foundation.layout.Box
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,36 +60,51 @@ import com.financetracker.app.ui.theme.TermMuted
 import com.financetracker.app.ui.theme.TermPanel
 import com.financetracker.app.ui.theme.TermPanelAlt
 
+
+@Serializable object DashboardRoute
+@Serializable object HistoryRoute
+@Serializable object AddTransactionRoute
+@Serializable data class EditTransactionRoute(val transactionId: Long)
+@Serializable object CategoriesRoute
+@Serializable object RecurringRoute
+@Serializable object ExportRoute
+@Serializable object BackupRestoreRoute
+
 private enum class TopTab(
-  val route: String,
+  val route: Any,
+  val routeClass: KClass<out Any>,
   val label: String,
   val selectedIcon: ImageVector,
   val unselectedIcon: ImageVector,
   val testTag: String
 ) {
   DASHBOARD(
-    route = "dashboard",
+    route = DashboardRoute,
+    routeClass = DashboardRoute::class,
     label = "Dashboard",
     selectedIcon = Icons.Filled.Dashboard,
     unselectedIcon = Icons.Outlined.Dashboard,
     testTag = "nav_dashboard"
   ),
   ADD(
-    route = "add",
+    route = AddTransactionRoute,
+    routeClass = AddTransactionRoute::class,
     label = "Add",
     selectedIcon = Icons.Filled.AddCircle,
     unselectedIcon = Icons.Outlined.AddCircleOutline,
     testTag = "nav_add"
   ),
   HISTORY(
-    route = "history",
+    route = HistoryRoute,
+    routeClass = HistoryRoute::class,
     label = "History",
     selectedIcon = Icons.AutoMirrored.Filled.ReceiptLong,
     unselectedIcon = Icons.AutoMirrored.Outlined.ReceiptLong,
     testTag = "nav_history"
   ),
   CATEGORIES(
-    route = "categories",
+    route = CategoriesRoute,
+    routeClass = CategoriesRoute::class,
     label = "Categories",
     selectedIcon = Icons.Filled.PieChart,
     unselectedIcon = Icons.Outlined.PieChart,
@@ -91,8 +112,8 @@ private enum class TopTab(
   )
 }
 
-private fun NavHostController.navigateToTab(route: String) {
-  if (currentDestination?.route == TopTab.ADD.route && route != TopTab.ADD.route) {
+private fun NavHostController.navigateToTab(route: Any) {
+  if (currentDestination?.hasRoute(AddTransactionRoute::class) == true && route !is AddTransactionRoute) {
     popBackStack()
   }
   navigate(route) {
@@ -116,10 +137,11 @@ class MainActivity : ComponentActivity() {
           modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background
         ) {
-          val navController = rememberNavController().also { this@MainActivity.navController = it }
+          val navController = rememberNavController()
+          DisposableEffect(navController) { this@MainActivity.navController = navController; onDispose { this@MainActivity.navController = null } }
           val backStackEntry by navController.currentBackStackEntryAsState()
           val currentRoute = backStackEntry?.destination?.route
-          val showBottomBar = TopTab.entries.any { it.route == currentRoute }
+          val showBottomBar = TopTab.entries.any { tab -> backStackEntry?.destination?.hasRoute(tab.routeClass) == true }
 
           Scaffold(
             containerColor = TermBg,
@@ -131,7 +153,7 @@ class MainActivity : ComponentActivity() {
                   modifier = Modifier.testTag("bottom_navigation_bar")
                 ) {
                   TopTab.entries.forEach { tab ->
-                    val selected = currentRoute == tab.route
+                    val selected = backStackEntry?.destination?.hasRoute(tab.routeClass) == true
                     NavigationBarItem(
                       selected = selected,
                       onClick = { navController.navigateToTab(tab.route) },
@@ -165,53 +187,64 @@ class MainActivity : ComponentActivity() {
           ) { innerPadding ->
             NavHost(
               navController = navController,
-              startDestination = TopTab.DASHBOARD.route,
-              modifier = Modifier.padding(innerPadding)
+              startDestination = DashboardRoute,
+              modifier = Modifier.fillMaxSize()
             ) {
-              composable(TopTab.DASHBOARD.route) {
-                DashboardScreen(
-                  onAddTransaction = { navController.navigateToTab(TopTab.ADD.route) },
-                  onHistory = { navController.navigateToTab(TopTab.HISTORY.route) },
-                  onEditTransaction = { id -> navController.navigate("add_transaction/$id") },
-                  onManageReminders = { navController.navigate("recurring") },
-                  onExport = { navController.navigate("export") },
-                  onBackupRestore = { navController.navigate("backup_restore") }
-                )
+              composable<DashboardRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  DashboardScreen(
+                    onAddTransaction = { navController.navigateToTab(AddTransactionRoute) },
+                    onHistory = { navController.navigateToTab(HistoryRoute) },
+                    onEditTransaction = { id -> navController.navigate(EditTransactionRoute(id)) },
+                    onManageReminders = { navController.navigate(RecurringRoute) },
+                    onExport = { navController.navigate(ExportRoute) },
+                    onBackupRestore = { navController.navigate(BackupRestoreRoute) }
+                  )
+                }
               }
-              composable(TopTab.HISTORY.route) {
-                HistoryScreen(
-                  onEditTransaction = { id -> navController.navigate("add_transaction/$id") }
-                )
+              composable<HistoryRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  HistoryScreen(
+                    onEditTransaction = { id -> navController.navigate(EditTransactionRoute(id)) }
+                  )
+                }
               }
-              composable(TopTab.ADD.route) {
-                AddEditTransactionRoute(
-                  transactionId = null,
-                  onBack = { navController.popBackStack() }
-                )
+              composable<AddTransactionRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  AddEditTransactionRoute(
+                    transactionId = null,
+                    onBack = { navController.popBackStack() }
+                  )
+                }
               }
-              composable(
-                route = "add_transaction/{transactionId}",
-                arguments = listOf(
-                  navArgument("transactionId") { type = NavType.LongType }
-                )
-              ) { backStackEntry ->
-                val transactionId = backStackEntry.arguments?.getLong("transactionId")
-                AddEditTransactionRoute(
-                  transactionId = transactionId,
-                  onBack = { navController.popBackStack() }
-                )
+              composable<EditTransactionRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<EditTransactionRoute>()
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  AddEditTransactionRoute(
+                    transactionId = route.transactionId,
+                    onBack = { navController.popBackStack() }
+                  )
+                }
               }
-              composable(TopTab.CATEGORIES.route) {
-                CategoriesRoute()
+              composable<CategoriesRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  CategoriesRoute()
+                }
               }
-              composable("recurring") {
-                RecurringRoute(onBack = { navController.popBackStack() })
+              composable<RecurringRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  RecurringRoute(onBack = { navController.popBackStack() })
+                }
               }
-              composable("export") {
-                ExportRoute(onBack = { navController.popBackStack() })
+              composable<ExportRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  ExportRoute(onBack = { navController.popBackStack() })
+                }
               }
-              composable("backup_restore") {
-                BackupRestoreRoute(onBack = { navController.popBackStack() })
+              composable<BackupRestoreRoute> {
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                  BackupRestoreRoute(onBack = { navController.popBackStack() })
+                }
               }
             }
           }

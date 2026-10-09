@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -18,6 +19,7 @@ import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -41,6 +43,10 @@ class ReminderReceiver @JvmOverloads constructor(
         lastJob = receiverScope.launch {
           try {
             onReminderFired(context.applicationContext, itemId)
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Throwable) {
+            Log.e("ReminderReceiver", "Error processing reminder $itemId", e)
           } finally {
             pendingResult?.finish()
           }
@@ -55,6 +61,10 @@ class ReminderReceiver @JvmOverloads constructor(
               .recurringItemDao()
               .getAllOnce()
             runCatching { ReminderScheduler.rescheduleAll(context.applicationContext, items) }
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Throwable) {
+            Log.e("ReminderReceiver", "Error processing boot completed", e)
           } finally {
             pendingResult?.finish()
           }

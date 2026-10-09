@@ -31,15 +31,14 @@ class RecurringViewModel(
   context: Context,
   private val recurringItemDao: RecurringItemDao,
   categoryDao: CategoryDao,
-  private val scheduleReminder: (Context, RecurringItem) -> Unit = { ctx, item ->
-    ReminderScheduler.schedule(ctx, item)
-  },
-  private val cancelReminder: (Context, Long) -> Unit = { ctx, id ->
-    ReminderScheduler.cancel(ctx, id)
-  }
+  scheduleReminder: ((Context, RecurringItem) -> Unit)? = null,
+  cancelReminder: ((Context, Long) -> Unit)? = null
 ) : ViewModel() {
-
   private val appContext = context.applicationContext
+  private val scheduleReminder: (Context, RecurringItem) -> Unit =
+    scheduleReminder ?: { ctx, item -> ReminderScheduler.schedule(ctx.applicationContext, item) }
+  private val cancelReminder: (Context, Long) -> Unit =
+    cancelReminder ?: { ctx, id -> ReminderScheduler.cancel(ctx.applicationContext, id) }
 
   val uiState: StateFlow<RecurringUiState> =
     combine(

@@ -44,22 +44,20 @@ class BackupRestoreViewModel(
   context: Context,
   private val backupDao: BackupDao,
   private val savedStateHandle: SavedStateHandle? = null,
-  private val restorer: BackupRestorer = BackupRestorer(
-    backupDao = backupDao,
-    rescheduleReminders = { items ->
-      ReminderScheduler.rescheduleAll(context.applicationContext, items)
-    },
-    cancelReminders = { ids ->
-      ReminderScheduler.cancelAll(context.applicationContext, ids)
-    }
-  ),
-  private val openInputStream: (Uri) -> InputStream? = { uri ->
-    context.applicationContext.contentResolver.openInputStream(uri)
-  },
-  private val openOutputStream: (Uri) -> OutputStream? = { uri ->
-    context.applicationContext.contentResolver.openOutputStream(uri)
-  }
+  restorer: BackupRestorer? = null,
+  openInputStream: ((Uri) -> InputStream?)? = null,
+  openOutputStream: ((Uri) -> OutputStream?)? = null
 ) : ViewModel() {
+  private val appContext = context.applicationContext
+  private val restorer: BackupRestorer = restorer ?: BackupRestorer(
+    backupDao = backupDao,
+    rescheduleReminders = { items -> ReminderScheduler.rescheduleAll(appContext, items) },
+    cancelReminders = { ids -> ReminderScheduler.cancelAll(appContext, ids) }
+  )
+  private val openInputStream: (Uri) -> InputStream? =
+    openInputStream ?: { uri -> appContext.contentResolver.openInputStream(uri) }
+  private val openOutputStream: (Uri) -> OutputStream? =
+    openOutputStream ?: { uri -> appContext.contentResolver.openOutputStream(uri) }
 
   companion object {
     const val MAX_BACKUP_BYTES = 10 * 1024 * 1024
@@ -67,7 +65,7 @@ class BackupRestoreViewModel(
     private const val KEY_IS_ERROR = "backup_is_error"
   }
 
-  private val appContext = context.applicationContext
+  
 
   private val _uiState = MutableStateFlow(
     BackupRestoreUiState(
@@ -128,23 +126,31 @@ class BackupRestoreViewModel(
     viewModelScope.launch {
       _uiState.update { it.copy(isWorking = true, message = null) }
       try {
-        val text = withContext(Dispatchers.IO) {
+        val result = withContext(Dispatchers.IO) {
           openInputStream(uri)?.use { stream ->
-            val buffer = ByteArray(8192)
-            val output = ByteArrayOutputStream()
-            var totalBytes = 0
-            var read: Int
-            while (stream.read(buffer).also { read = it } != -1) {
-              totalBytes += read
-              if (totalBytes > MAX_BACKUP_BYTES) {
-                throw IllegalStateException("Selected file exceeds maximum backup size of 10 MB.")
+            val boundedStream = object : java.io.InputStream() {
+              private var total = 0
+              override fun read(): Int {
+                val r = stream.read()
+                if (r != -1) {
+                  total++
+                  if (total > MAX_BACKUP_BYTES) throw IllegalStateException("Selected file exceeds maximum backup size of 10 MB.")
+                }
+                return r
               }
-              output.write(buffer, 0, read)
+              override fun read(b: ByteArray, off: Int, len: Int): Int {
+                val r = stream.read(b, off, len)
+                if (r != -1) {
+                  total += r
+                  if (total > MAX_BACKUP_BYTES) throw IllegalStateException("Selected file exceeds maximum backup size of 10 MB.")
+                }
+                return r
+              }
             }
-            output.toByteArray().toString(Charsets.UTF_8)
+            restorer.validateFromStream(boundedStream)
           } ?: throw IllegalStateException("Could not open the selected file.")
         }
-        when (val result = restorer.validateFromText(text)) {
+        when (result) {
           is BackupResult.Valid ->
             _uiState.update { it.copy(isWorking = false, pendingRestore = result.file) }
           is BackupResult.Invalid -> {
@@ -172,7 +178,7 @@ class BackupRestoreViewModel(
     if (_uiState.value.isWorking) return
     viewModelScope.launch {
       _uiState.update { it.copy(isWorking = true, pendingRestore = null, message = null) }
-      when (val result = withContext(Dispatchers.IO + NonCancellable) { restorer.restore(file) }) {
+      when (val result = withContext(Dispatchers.IO) { restorer.restore(file) }) {
         is BackupResult.Valid -> {
           val msg = "Restore completed. ${file.transactions.size} transactions restored."
           savedStateHandle?.set(KEY_MESSAGE, msg)

@@ -4,6 +4,7 @@ import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.data.entity.Transaction
+import java.io.InputStream
 import kotlinx.coroutines.CancellationException
 
 class BackupRestorer(
@@ -13,7 +14,10 @@ class BackupRestorer(
 ) {
 
   fun validateFromText(text: String): BackupResult =
-    when (val decoded = BackupCodec.decode(text)) {
+    validateFromStream(text.byteInputStream(Charsets.UTF_8))
+
+  fun validateFromStream(stream: InputStream): BackupResult =
+    when (val decoded = BackupCodec.decode(stream)) {
       is BackupResult.Invalid -> decoded
       is BackupResult.Valid -> BackupValidator.validate(decoded.file)
     }

@@ -109,11 +109,17 @@ fun AddEditTransactionRoute(
   val deleted by viewModel.deleted.collectAsStateWithLifecycle()
 
   LaunchedEffect(saved) {
-    if (saved) onBack()
+    if (saved) {
+      viewModel.onSaveHandled()
+      onBack()
+    }
   }
 
   LaunchedEffect(deleted) {
-    if (deleted) onBack()
+    if (deleted) {
+      viewModel.onDeleteHandled()
+      onBack()
+    }
   }
 
   AddEditTransactionScreen(

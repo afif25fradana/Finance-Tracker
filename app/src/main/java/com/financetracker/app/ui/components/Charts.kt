@@ -100,12 +100,12 @@ fun LegendDot(color: Color, label: String, modifier: Modifier = Modifier) {
 @Composable
 fun CashflowChart(
   data: List<CashflowPoint>,
+  modelProducer: CartesianChartModelProducer,
   modifier: Modifier = Modifier
 ) {
-  val modelProducer = remember { CartesianChartModelProducer() }
   val months = data.map { it.label }
 
-  LaunchedEffect(data) {
+  LaunchedEffect(data, modelProducer) {
     modelProducer.runTransaction {
       columnModel {
         series(x = List(data.size) { it }, y = data.map { it.income.toFloat() }, key = "income")
@@ -117,7 +117,7 @@ fun CashflowChart(
 
   val incomeColumn = rememberLineComponent(fill = Fill(SignalPositive), thickness = 10.dp)
   val expenseColumn = rememberLineComponent(fill = Fill(SignalNegative), thickness = 10.dp)
-  val columnProvider = ColumnCartesianLayer.ColumnProvider.series(incomeColumn, expenseColumn)
+  val columnProvider = remember(incomeColumn, expenseColumn) { ColumnCartesianLayer.ColumnProvider.series(incomeColumn, expenseColumn) }
   val layer = rememberColumnCartesianLayer(columnProvider = columnProvider)
 
   ChartCard(
@@ -152,12 +152,12 @@ fun CashflowChart(
 @Composable
 fun TrendLineChart(
   data: List<TrendPoint>,
+  modelProducer: CartesianChartModelProducer,
   modifier: Modifier = Modifier
 ) {
-  val modelProducer = remember { CartesianChartModelProducer() }
   val months = data.map { it.label }
 
-  LaunchedEffect(data) {
+  LaunchedEffect(data, modelProducer) {
     modelProducer.runTransaction {
       lineModel {
         series(x = List(data.size) { it }, y = data.map { it.amount.toFloat() }, key = "expense")
@@ -171,7 +171,7 @@ fun TrendLineChart(
     stroke = LineCartesianLayer.LineStroke.Continuous(thickness = 2.dp)
   )
   val layer = rememberLineCartesianLayer(
-    lineProvider = LineCartesianLayer.LineProvider.series(line)
+    lineProvider = remember(line) { LineCartesianLayer.LineProvider.series(line) }
   )
 
   ChartCard(

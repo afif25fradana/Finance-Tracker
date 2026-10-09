@@ -12,6 +12,7 @@ import com.financetracker.app.ui.components.epochDayToIso
 import com.financetracker.app.ui.components.todayEpochDay
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,10 +41,11 @@ class ExportViewModel(
   context: Context,
   private val transactionDao: TransactionDao,
   private val savedStateHandle: SavedStateHandle? = null,
-  private val openOutputStream: (Uri) -> OutputStream? = { uri ->
-    context.applicationContext.contentResolver.openOutputStream(uri)
-  }
+  openOutputStream: ((Uri) -> OutputStream?)? = null
 ) : ViewModel() {
+  private val appContext = context.applicationContext
+  private val openOutputStream: (Uri) -> OutputStream? =
+    openOutputStream ?: { uri -> appContext.contentResolver.openOutputStream(uri) }
 
   companion object {
     private const val KEY_FROM = "export_from"
@@ -62,23 +64,23 @@ class ExportViewModel(
 
   fun onFromChange(epochDay: Long) {
     savedStateHandle?.set(KEY_FROM, epochDay)
-    _uiState.value = _uiState.value.copy(fromEpochDay = epochDay, message = null)
+    _uiState.update { it.copy(fromEpochDay = epochDay, message = null) }
   }
 
   fun onToChange(epochDay: Long) {
     savedStateHandle?.set(KEY_TO, epochDay)
-    _uiState.value = _uiState.value.copy(toEpochDay = epochDay, message = null)
+    _uiState.update { it.copy(toEpochDay = epochDay, message = null) }
   }
 
   fun onFormatChange(format: ExportFormat) {
     savedStateHandle?.set(KEY_FORMAT, format.name)
-    _uiState.value = _uiState.value.copy(format = format, message = null)
+    _uiState.update { it.copy(format = format, message = null) }
   }
 
   fun export(uri: Uri) {
     val state = _uiState.value
     if (state.fromEpochDay > state.toEpochDay) {
-      _uiState.value = state.copy(message = "From date must be on or before To date.", isError = true)
+      _uiState.update { state.copy(message = "From date must be on or before To date.", isError = true) }
       return
     }
     viewModelScope.launch {
@@ -94,11 +96,11 @@ class ExportViewModel(
           rows
         }
         val noun = if (rows.size == 1) "transaction" else "transactions"
-        _uiState.value = _uiState.value.copy(message = "Exported ${rows.size} $noun.", isError = false)
+        _uiState.update { it.copy(message = "Exported ${rows.size} $noun.", isError = false) }
       } catch (e: CancellationException) {
         throw e
       } catch (e: Exception) {
-        _uiState.value = _uiState.value.copy(message = "Export failed. Could not write to destination.", isError = true)
+        _uiState.update { it.copy(message = "Export failed. Could not write to destination.", isError = true) }
       }
     }
   }

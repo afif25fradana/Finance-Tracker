@@ -76,9 +76,29 @@ class AddEditTransactionViewModel(
   private var saving = false
 
   init {
-    if (transactionId != null && !isRestored) loadForEdit()
     savedStateHandle?.set(KEY_RESTORED, true)
     viewModelScope.launch {
+      if (transactionId != null && !isRestored) {
+        val tx = transactionDao.getByIdOnce(transactionId)
+        if (tx != null) {
+          savedStateHandle?.set(KEY_TYPE, tx.type.name)
+          savedStateHandle?.set(KEY_AMOUNT, tx.amount.toString())
+          savedStateHandle?.set(KEY_NOTE, tx.note)
+          savedStateHandle?.set(KEY_CATEGORY_ID, tx.categoryId)
+          savedStateHandle?.set(KEY_DATE, tx.date)
+          _uiState.update {
+            it.copy(
+              transactionType = tx.type,
+              amountText = tx.amount.toString(),
+              note = tx.note,
+              selectedCategoryId = tx.categoryId,
+              dateEpochDay = tx.date,
+              isEditing = true,
+              error = null
+            )
+          }
+        }
+      }
       categoryDao.getAll().collect { categories ->
         _uiState.update { state ->
           val validIds = categories.filter { it.type == state.transactionType }.map { it.id }
@@ -94,29 +114,7 @@ class AddEditTransactionViewModel(
     }
   }
 
-  private fun loadForEdit() {
-    viewModelScope.launch {
-      val tx = transactionDao.getByIdOnce(transactionId!!)
-      if (tx != null) {
-        savedStateHandle?.set(KEY_TYPE, tx.type.name)
-        savedStateHandle?.set(KEY_AMOUNT, tx.amount.toString())
-        savedStateHandle?.set(KEY_NOTE, tx.note)
-        savedStateHandle?.set(KEY_CATEGORY_ID, tx.categoryId)
-        savedStateHandle?.set(KEY_DATE, tx.date)
-        _uiState.update {
-          it.copy(
-            transactionType = tx.type,
-            amountText = tx.amount.toString(),
-            note = tx.note,
-            selectedCategoryId = tx.categoryId,
-            dateEpochDay = tx.date,
-            isEditing = true,
-            error = null
-          )
-        }
-      }
-    }
-  }
+
 
   fun onTypeSelected(type: TransactionType) {
     savedStateHandle?.set(KEY_TYPE, type.name)
@@ -192,6 +190,9 @@ class AddEditTransactionViewModel(
       }
     }
   }
+
+  fun onSaveHandled() { _saved.value = false }
+  fun onDeleteHandled() { _deleted.value = false }
 
   fun delete() {
     val id = transactionId ?: return

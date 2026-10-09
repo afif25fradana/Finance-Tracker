@@ -51,6 +51,7 @@ import com.financetracker.app.ui.components.CategoryIconTile
 import com.financetracker.app.ui.components.EmptyState
 import com.financetracker.app.ui.components.TransactionRowItem
 import com.financetracker.app.ui.components.TrendLineChart
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.financetracker.app.ui.components.formatRupiah
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
@@ -84,6 +85,8 @@ fun DashboardScreen(
   )
   val state by viewModel.uiState.collectAsStateWithLifecycle()
   var balanceVisible by rememberSaveable { mutableStateOf(true) }
+  val cashflowModelProducer = remember { CartesianChartModelProducer() }
+  val trendModelProducer = remember { CartesianChartModelProducer() }
 
   LazyColumn(
     modifier = Modifier
@@ -136,7 +139,7 @@ fun DashboardScreen(
 
     if (state.cashflow.any { it.income > 0 || it.expense > 0 }) {
       item {
-        CashflowChart(data = state.cashflow)
+        CashflowChart(data = state.cashflow, modelProducer = cashflowModelProducer)
       }
     }
 
@@ -148,7 +151,7 @@ fun DashboardScreen(
 
     if (state.trend.any { it.amount > 0 }) {
       item {
-        TrendLineChart(data = state.trend)
+        TrendLineChart(data = state.trend, modelProducer = trendModelProducer)
       }
     }
 

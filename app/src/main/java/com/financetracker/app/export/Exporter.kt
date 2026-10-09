@@ -4,7 +4,7 @@ import com.financetracker.app.data.dao.TransactionExport
 import com.financetracker.app.data.entity.TransactionType
 import com.financetracker.app.ui.components.epochDayToIso
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private val EXPORT_HEADER = listOf("Date", "Amount", "Category", "Type", "Note")
@@ -45,7 +45,7 @@ fun exportToCsv(rows: List<TransactionExport>): String = buildString {
 }
 
 fun exportToJson(rows: List<TransactionExport>): String =
-  Json.encodeToString(EXPORT_ROW_LIST, rows.map { it.toExportRow() })
+  Json.encodeToString(rows.map { it.toExportRow() })
 
 @Serializable
 private data class ExportJsonRow(
@@ -55,8 +55,6 @@ private data class ExportJsonRow(
   val type: String,
   val note: String
 )
-
-private val EXPORT_ROW_LIST = ListSerializer(ExportJsonRow.serializer())
 
 private fun TransactionExport.toExportRow(): ExportJsonRow =
   ExportJsonRow(
