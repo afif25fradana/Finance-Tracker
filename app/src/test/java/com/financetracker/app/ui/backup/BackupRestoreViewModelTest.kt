@@ -285,4 +285,34 @@ class BackupRestoreViewModelTest {
     val remainingAlarm = shadowAlarmManager.scheduledAlarms.first()
     assertEquals(100, Shadows.shadowOf(remainingAlarm.operation).requestCode)
   }
+
+  @Test
+  fun onRestoreFilePicked_whenExceedsMaxSize_surfacesError() = runTest(testDispatcher) {
+    val oversizedStream = object : java.io.InputStream() {
+      private var bytesRead = 0
+      override fun read(): Int {
+        return if (bytesRead++ < BackupRestoreViewModel.MAX_BACKUP_BYTES + 2) 'a'.code else -1
+      }
+      override fun read(b: ByteArray, off: Int, len: Int): Int {
+        if (bytesRead >= BackupRestoreViewModel.MAX_BACKUP_BYTES + 2) return -1
+        val toRead = minOf(len, BackupRestoreViewModel.MAX_BACKUP_BYTES + 2 - bytesRead)
+        java.util.Arrays.fill(b, off, off + toRead, 'a'.code.toByte())
+        bytesRead += toRead
+        return toRead
+      }
+    }
+
+    val viewModel = BackupRestoreViewModel(
+      context = dummyContext,
+      backupDao = FakeBackupDao(),
+      openInputStream = { oversizedStream }
+    )
+
+    viewModel.onRestoreFilePicked(dummyUri)
+    val errorState = viewModel.uiState.first { !it.isWorking && it.message != null }
+
+    assertTrue(errorState.isError)
+    assertNull(errorState.pendingRestore)
+    assertNotNull(errorState.message)
+  }
 }

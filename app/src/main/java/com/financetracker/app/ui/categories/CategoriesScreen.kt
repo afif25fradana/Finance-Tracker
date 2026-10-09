@@ -264,7 +264,7 @@ private fun CategoriesScreen(
           Text("OK", color = TermText)
         }
       },
-      title = { Text("Delete Failed") },
+      title = { Text("Operation Failed") },
       text = { Text(state.errorMessage) }
     )
   }
@@ -399,7 +399,10 @@ private fun AddEditCategoryDialog(
       )
     },
     text = {
-      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+      Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+      ) {
         Text(text = "Name", style = MaterialTheme.typography.labelSmall, color = TermMuted)
         Surface(
           shape = RoundedCornerShape(2.dp),
@@ -450,23 +453,28 @@ private fun AddEditCategoryDialog(
         ) {
           CATEGORY_PALETTE.forEach { colorLong ->
             val selected = colorInput == colorLong
-            Surface(
-              shape = RoundedCornerShape(1.dp),
-              color = if (selected) TermPanelAlt else TermBg,
-              border = BorderStroke(1.dp, if (selected) SignalPositive else TermBorder),
+            Box(
               modifier = Modifier
-                .size(24.dp)
+                .size(48.dp)
                 .clickable {
                   colorInput = colorLong
                   error = null
-                }
+                },
+              contentAlignment = Alignment.Center
             ) {
-              Box(contentAlignment = Alignment.Center) {
-                Surface(
-                  shape = RoundedCornerShape(1.dp),
-                  color = Color(colorLong),
-                  modifier = Modifier.size(12.dp)
-                ) {}
+              Surface(
+                shape = RoundedCornerShape(1.dp),
+                color = if (selected) TermPanelAlt else TermBg,
+                border = BorderStroke(1.dp, if (selected) SignalPositive else TermBorder),
+                modifier = Modifier.size(24.dp)
+              ) {
+                Box(contentAlignment = Alignment.Center) {
+                  Surface(
+                    shape = RoundedCornerShape(1.dp),
+                    color = Color(colorLong),
+                    modifier = Modifier.size(12.dp)
+                  ) {}
+                }
               }
             }
           }

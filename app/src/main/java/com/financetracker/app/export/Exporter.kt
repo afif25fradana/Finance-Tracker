@@ -73,7 +73,11 @@ private fun typeLabel(type: TransactionType): String =
 // RFC 4180: quote when the field contains a delimiter, quote, CR or LF; double embedded quotes.
 private fun csvEscape(value: String): String {
   val trimmed = value.trimStart()
-  val isFormula = trimmed.isNotEmpty() && (trimmed[0] in "=+-@" || value.startsWith("\t") || value.startsWith("\r"))
+  val isFormula = trimmed.isNotEmpty() && (
+    trimmed[0] == '=' || trimmed[0] == '@' ||
+    value.startsWith("\t") || value.startsWith("\r") ||
+    ((trimmed[0] == '+' || trimmed[0] == '-') && trimmed.length > 1 && !trimmed[1].isDigit())
+  )
   val guarded = if (isFormula) "'$value" else value
   val needsQuoting = guarded.any { it == ',' || it == '"' || it == '\n' || it == '\r' }
   return if (needsQuoting) "\"${guarded.replace("\"", "\"\"")}\"" else guarded

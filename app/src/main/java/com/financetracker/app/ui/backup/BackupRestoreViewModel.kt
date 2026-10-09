@@ -15,6 +15,7 @@ import com.financetracker.app.backup.BackupResult
 import com.financetracker.app.backup.toBackup
 import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.reminder.ReminderScheduler
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant
@@ -61,6 +62,7 @@ class BackupRestoreViewModel(
 ) : ViewModel() {
 
   companion object {
+    const val MAX_BACKUP_BYTES = 10 * 1024 * 1024
     private const val KEY_MESSAGE = "backup_message"
     private const val KEY_IS_ERROR = "backup_is_error"
   }
@@ -127,8 +129,20 @@ class BackupRestoreViewModel(
       _uiState.update { it.copy(isWorking = true, message = null) }
       try {
         val text = withContext(Dispatchers.IO) {
-          openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-            ?: throw IllegalStateException("Could not open the selected file.")
+          openInputStream(uri)?.use { stream ->
+            val buffer = ByteArray(8192)
+            val output = ByteArrayOutputStream()
+            var totalBytes = 0
+            var read: Int
+            while (stream.read(buffer).also { read = it } != -1) {
+              totalBytes += read
+              if (totalBytes > MAX_BACKUP_BYTES) {
+                throw IllegalStateException("Selected file exceeds maximum backup size of 10 MB.")
+              }
+              output.write(buffer, 0, read)
+            }
+            output.toByteArray().toString(Charsets.UTF_8)
+          } ?: throw IllegalStateException("Could not open the selected file.")
         }
         when (val result = restorer.validateFromText(text)) {
           is BackupResult.Valid ->

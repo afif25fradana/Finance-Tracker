@@ -22,7 +22,7 @@ Finance Tracker follows a single-activity architecture built with modern Android
 
 - **Presentation**: Jetpack Compose (Material 3) with unidirectional data flow (UDF). Screens observe immutable UI state flows from ViewModels.
 - **Local Persistence**: Room SQLite database with Flow-based DAOs and transactional operations.
-- **Navigation**: Navigation Compose with a 4-tab bottom navigation bar (`Dashboard`, `History`, `Reminders`, `Categories`) and pushed sub-routes for entry and export.
+- **Navigation**: Navigation Compose with a 4-tab bottom navigation bar (`Dashboard`, `Add`, `History`, `Categories`) and pushed sub-routes for reminders, export, and backup.
 - **Charts**: Vico library for cashflow bar charts and spending trend lines.
 - **Serialization**: `kotlinx.serialization` for backup file parsing and generation.
 - **Reminders**: Android `AlarmManager` with `BroadcastReceiver` to post notifications on scheduled due dates across device reboots.

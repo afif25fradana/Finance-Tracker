@@ -179,7 +179,7 @@ private fun RecurringScreen(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-          IconButton(onClick = onBack, modifier = Modifier.size(28.dp)) {
+          IconButton(onClick = onBack) {
             Icon(
               imageVector = Icons.AutoMirrored.Filled.ArrowBack,
               contentDescription = "Back",
@@ -337,7 +337,7 @@ private fun RecurringRowItem(
         fontWeight = FontWeight.Bold,
         color = if (category?.type == TransactionType.INCOME) SignalPositive else TermText
       )
-      IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+      IconButton(onClick = onEdit) {
         Icon(
           imageVector = Icons.Default.Edit,
           contentDescription = "Edit",
@@ -345,7 +345,7 @@ private fun RecurringRowItem(
           modifier = Modifier.size(14.dp)
         )
       }
-      IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+      IconButton(onClick = onDelete) {
         Icon(
           imageVector = Icons.Default.Delete,
           contentDescription = "Delete",

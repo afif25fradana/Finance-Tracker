@@ -155,4 +155,32 @@ class BackupValidatorTest {
 
     assertEquals("categories[0].name", r.field)
   }
+
+  @Test
+  fun validate_transactionDateNegative_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(transactions = listOf(transaction().copy(date = -1L)))))
+
+    assertEquals("transactions[0].date", r.field)
+  }
+
+  @Test
+  fun validate_transactionDateTooLarge_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(transactions = listOf(transaction().copy(date = 730_501L)))))
+
+    assertEquals("transactions[0].date", r.field)
+  }
+
+  @Test
+  fun validate_recurringNextDueDateNegative_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(recurringItems = listOf(recurring().copy(nextDueDate = -1L)))))
+
+    assertEquals("recurringItems[0].nextDueDate", r.field)
+  }
+
+  @Test
+  fun validate_recurringNextDueDateTooLarge_isInvalid() {
+    val r = invalid(BackupValidator.validate(file(recurringItems = listOf(recurring().copy(nextDueDate = 730_501L)))))
+
+    assertEquals("recurringItems[0].nextDueDate", r.field)
+  }
 }

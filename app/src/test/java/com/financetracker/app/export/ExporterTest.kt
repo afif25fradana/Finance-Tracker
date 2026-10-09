@@ -30,7 +30,7 @@ class ExporterTest {
         "\n" +
         ",0,Total Income,,\n" +
         ",50000,Total Expenses,,\n" +
-        ",'-50000,Net Balance,,\n",
+        ",-50000,Net Balance,,\n",
       csv
     )
   }
@@ -80,7 +80,7 @@ new line"
         "\n" +
         ",0,Total Income,,\n" +
         ",1,Total Expenses,,\n" +
-        ",'-1,Net Balance,,\n",
+        ",-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }
@@ -103,7 +103,7 @@ new line"
         "\n" +
         ",0,Total Income,,\n" +
         ",1,Total Expenses,,\n" +
-        ",'-1,Net Balance,,\n",
+        ",-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }
@@ -126,7 +126,7 @@ new line"
         "\n" +
         ",0,Total Income,,\n" +
         ",1,Total Expenses,,\n" +
-        ",'-1,Net Balance,,\n",
+        ",-1,Net Balance,,\n",
       exportToCsv(rows)
     )
   }
@@ -197,5 +197,40 @@ new line"
   @Test
   fun json_emptyRows_isEmptyArray() {
     assertEquals("[]", exportToJson(emptyList()))
+  }
+
+  @Test
+  fun csv_leadingSignFollowedByDigit_isNotGuarded() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-04-01"),
+        amount = 1,
+        type = TransactionType.INCOME,
+        category = "Test",
+        note = "-50 bonus"
+      )
+    )
+
+    val csv = exportToCsv(rows)
+    // Note should not be guarded with apostrophe since '-' is followed by digit '5'
+    val noteLine = csv.lines()[1]
+    assertEquals("2024-04-01,1,Test,income,-50 bonus", noteLine)
+  }
+
+  @Test
+  fun csv_leadingSignFollowedByNonDigit_isGuarded() {
+    val rows = listOf(
+      TransactionExport(
+        date = day("2024-04-01"),
+        amount = 1,
+        type = TransactionType.INCOME,
+        category = "Test",
+        note = "-SOMETHING()"
+      )
+    )
+
+    val csv = exportToCsv(rows)
+    val noteLine = csv.lines()[1]
+    assertEquals("2024-04-01,1,Test,income,'-SOMETHING()", noteLine)
   }
 }

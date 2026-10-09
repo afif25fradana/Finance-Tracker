@@ -1,6 +1,7 @@
 package com.financetracker.app.ui.recurring
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.financetracker.app.data.dao.CategoryDao
@@ -9,6 +10,7 @@ import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringFrequency
 import com.financetracker.app.data.entity.RecurringItem
 import com.financetracker.app.reminder.ReminderScheduler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -61,7 +63,13 @@ class RecurringViewModel(
           nextDueDate = nextDueDate
         )
       )
-      scheduleReminder(appContext, RecurringItem(id, categoryId, amount, frequency, nextDueDate))
+      try {
+        scheduleReminder(appContext, RecurringItem(id, categoryId, amount, frequency, nextDueDate))
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        Log.w("RecurringViewModel", "Failed to schedule alarm", e)
+      }
     }
   }
 
@@ -74,14 +82,26 @@ class RecurringViewModel(
     )
     viewModelScope.launch {
       recurringItemDao.update(updated)
-      scheduleReminder(appContext, updated)
+      try {
+        scheduleReminder(appContext, updated)
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        Log.w("RecurringViewModel", "Failed to schedule alarm", e)
+      }
     }
   }
 
   fun delete(item: RecurringItem) {
     viewModelScope.launch {
       recurringItemDao.delete(item)
-      cancelReminder(appContext, item.id)
+      try {
+        cancelReminder(appContext, item.id)
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        Log.w("RecurringViewModel", "Failed to cancel alarm", e)
+      }
     }
   }
 }

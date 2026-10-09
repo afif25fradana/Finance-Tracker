@@ -119,7 +119,7 @@ private fun ExportScreen(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
       ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(28.dp)) {
+        IconButton(onClick = onBack) {
           Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",

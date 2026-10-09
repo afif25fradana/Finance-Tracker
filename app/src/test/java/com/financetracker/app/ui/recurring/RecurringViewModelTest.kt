@@ -240,4 +240,28 @@ class RecurringViewModelTest {
 
     assertTrue(shadowAlarmManager.scheduledAlarms.isEmpty())
   }
+
+  @Test
+  fun add_whenScheduleReminderThrowsException_doesNotCrash() = runTest(testDispatcher) {
+    val recDao = FakeRecurringItemDao()
+    val catDao = FakeCategoryDao()
+
+    val viewModel = RecurringViewModel(
+      context = dummyContext,
+      recurringItemDao = recDao,
+      categoryDao = catDao,
+      scheduleReminder = { _, _ -> throw RuntimeException("AlarmManager failed") },
+      cancelReminder = { _, _ -> }
+    )
+
+    viewModel.add(
+      amount = 500_000L,
+      categoryId = 2L,
+      frequency = RecurringFrequency.MONTHLY,
+      nextDueDate = 20100L
+    )
+    advanceUntilIdle()
+
+    assertEquals(1, recDao.inserted.size)
+  }
 }

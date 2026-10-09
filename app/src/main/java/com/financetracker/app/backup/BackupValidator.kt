@@ -9,6 +9,7 @@ object BackupValidator {
 
   private val TRANSACTION_TYPES = TransactionType.entries.map { it.name }.toSet()
   private val FREQUENCIES = RecurringFrequency.entries.map { it.name }.toSet()
+  private val VALID_EPOCH_DAYS = 0L..730_500L
 
   fun validate(file: BackupFile): BackupResult {
     if (file.schemaVersion != BACKUP_SCHEMA_VERSION) {
@@ -53,6 +54,12 @@ object BackupValidator {
       if (tx.amount <= 0) {
         return BackupResult.Invalid("transactions[$index].amount", "Amount must be positive; found ${tx.amount}.")
       }
+      if (tx.date !in VALID_EPOCH_DAYS) {
+        return BackupResult.Invalid(
+          "transactions[$index].date",
+          "Date must be between 0 and 730500 epoch days; found ${tx.date}."
+        )
+      }
       if (tx.note.length > MAX_NOTE_LENGTH) {
         return BackupResult.Invalid(
           "transactions[$index].note",
@@ -74,6 +81,12 @@ object BackupValidator {
     file.recurringItems.forEachIndexed { index, item ->
       if (item.amount <= 0) {
         return BackupResult.Invalid("recurringItems[$index].amount", "Amount must be positive; found ${item.amount}.")
+      }
+      if (item.nextDueDate !in VALID_EPOCH_DAYS) {
+        return BackupResult.Invalid(
+          "recurringItems[$index].nextDueDate",
+          "Next due date must be between 0 and 730500 epoch days; found ${item.nextDueDate}."
+        )
       }
       if (item.frequency !in FREQUENCIES) {
         return BackupResult.Invalid(
