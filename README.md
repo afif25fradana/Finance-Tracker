@@ -66,22 +66,22 @@ Most budgeting apps require signing up, demand access to SMS or bank APIs, or sy
 ### Option 1: Download the pre-built APK (Recommended)
 
 Download the latest release directly to your Android device:
-[FinanceTracker-v1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.0.0/FinanceTracker-v1.0.apk)
+[FinanceTracker-v1.1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.1.0/FinanceTracker-v1.1.0.apk)
 
 #### Checksum verification
 
 | File | SHA-256 Hash |
 | :--- | :--- |
-| `FinanceTracker-v1.0.apk` | `6bcb966ad0efe7d21ec35244dbb590c0d68eef65c116c95dfe681a15da9310b0` |
+| `FinanceTracker-v1.1.0.apk` | `e9d26deef831b48afde0727a86fed7ad5077ef69d90b00194db34944fcbe9655` |
 
 To verify on Windows (PowerShell):
 ```powershell
-Get-FileHash FinanceTracker-v1.0.apk -Algorithm SHA256
+Get-FileHash FinanceTracker-v1.1.0.apk -Algorithm SHA256
 ```
 
 To verify on macOS or Linux:
 ```bash
-sha256sum FinanceTracker-v1.0.apk
+sha256sum FinanceTracker-v1.1.0.apk
 ```
 
 ### Option 2: Build from source
