@@ -38,7 +38,6 @@ class CategoriesInstrumentationTest {
 
   @Test
   fun categoriesScreen_displaysDefaultCategoriesAndPersistsNewCategory() {
-    // 1. Navigate to Categories tab
     composeTestRule.onNodeWithTag("nav_categories").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_categories").assertIsSelected()
@@ -46,29 +45,23 @@ class CategoriesInstrumentationTest {
       assertEquals("categories", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 2. Confirm initial 9 default categories are rendered in the list
     expectedDefaultCategories.forEach { name ->
       composeTestRule.onNodeWithText(name).performScrollTo().assertIsDisplayed()
     }
 
-    // 3. Scroll back to top and tap "Add Category"
     composeTestRule.onNodeWithText("Add Category").performScrollTo().performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("New Category").assertIsDisplayed()
 
-    // 4. Fill category name inside the dialog
     composeTestRule.onNode(hasSetTextAction()).performTextInput("Freelance Consulting")
     composeTestRule.waitForIdle()
 
-    // 5. Select Income type inside the dialog (disambiguating from non-clickable section header)
     composeTestRule.onNode(hasText("Income") and hasClickAction()).performClick()
     composeTestRule.waitForIdle()
 
-    // 6. Tap Save in the dialog
     composeTestRule.onNodeWithText("Save").performClick()
     composeTestRule.waitForIdle()
 
-    // 7. Assert the newly added category appears in the Room-backed list
     composeTestRule.onNodeWithText("Freelance Consulting").performScrollTo().assertIsDisplayed()
   }
 }

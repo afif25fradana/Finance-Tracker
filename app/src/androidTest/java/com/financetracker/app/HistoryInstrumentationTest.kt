@@ -43,11 +43,9 @@ class HistoryInstrumentationTest {
 
   @Test
   fun historyScreen_filtersTransactionsBySearchQueryAndRestoresOnClear() {
-    // 1. Seed two distinguishable transactions via the Add flow
     addTransaction("+Rp25.000", "Dining & Cafes", "Coffee at cafe")
     addTransaction("+Rp50.000", "Transport & Fuel", "Monthly subway pass")
 
-    // 2. Navigate to History tab
     composeTestRule.onNodeWithTag("nav_history").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_history").assertIsSelected()
@@ -55,20 +53,16 @@ class HistoryInstrumentationTest {
       assertEquals("history", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 3. Confirm both transactions are visible in the unfiltered list
     composeTestRule.onNodeWithText("Coffee at cafe").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithText("Monthly subway pass").performScrollTo().assertIsDisplayed()
 
-    // 4. Enter search query "Coffee"
     composeTestRule.onNode(hasSetTextAction()).performTextInput("Coffee")
     composeTestRule.waitForIdle()
     closeSoftKeyboard()
 
-    // 5. Assert only the matching transaction is displayed
     composeTestRule.onNodeWithText("Coffee at cafe").assertIsDisplayed()
     composeTestRule.onNodeWithText("Monthly subway pass").assertDoesNotExist()
 
-    // 6. Clear search query and confirm all transactions reappear
     composeTestRule.onNodeWithContentDescription("Clear").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Coffee at cafe").performScrollTo().assertIsDisplayed()

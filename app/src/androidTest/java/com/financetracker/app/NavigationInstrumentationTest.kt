@@ -23,7 +23,6 @@ class NavigationInstrumentationTest {
 
   @Test
   fun bottomNavigation_switchesAllTabsAndUpdatesCurrentRoute() {
-    // 1. Initial launch state is Dashboard
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("nav_dashboard").assertIsSelected()
     composeTestRule.onNodeWithText("Finance Tracker").assertIsDisplayed()
@@ -31,7 +30,6 @@ class NavigationInstrumentationTest {
       assertEquals("dashboard", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 2. Switch to History
     composeTestRule.onNodeWithTag("nav_history").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_history").assertIsSelected()
@@ -40,7 +38,6 @@ class NavigationInstrumentationTest {
       assertEquals("history", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 3. Switch to Categories
     composeTestRule.onNodeWithTag("nav_categories").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_categories").assertIsSelected()
@@ -49,7 +46,6 @@ class NavigationInstrumentationTest {
       assertEquals("categories", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 4. Switch to Add
     composeTestRule.onNodeWithTag("nav_add").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_add").assertIsSelected()
@@ -58,7 +54,6 @@ class NavigationInstrumentationTest {
       assertEquals("add", it.navController?.currentBackStackEntry?.destination?.route)
     }
 
-    // 5. Return to Dashboard
     composeTestRule.onNodeWithTag("nav_dashboard").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("nav_dashboard").assertIsSelected()
@@ -70,7 +65,6 @@ class NavigationInstrumentationTest {
 
   @Test
   fun subRoutes_navigateFromDashboardAndBackPressRestoresDashboard() {
-    // 1. Navigate to Reminders sub-route
     composeTestRule.onNodeWithText("Reminders").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertDoesNotExist()
@@ -82,7 +76,6 @@ class NavigationInstrumentationTest {
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertIsDisplayed()
     composeTestRule.onNodeWithText("Finance Tracker").assertIsDisplayed()
 
-    // 2. Navigate to Export sub-route
     composeTestRule.onNodeWithText("Export").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertDoesNotExist()
@@ -93,7 +86,6 @@ class NavigationInstrumentationTest {
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertIsDisplayed()
 
-    // 3. Navigate to Backup & Restore sub-route
     composeTestRule.onNodeWithText("Backup").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("bottom_navigation_bar").assertDoesNotExist()
@@ -107,25 +99,20 @@ class NavigationInstrumentationTest {
 
   @Test
   fun addTab_leavingMidEntryDiscardsDraftForm() {
-    // Navigate to Add
     composeTestRule.onNodeWithTag("nav_add").performClick()
     composeTestRule.waitForIdle()
 
-    // Enter draft amount
     composeTestRule.onNodeWithText("+Rp50.000").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("50.000").assertIsDisplayed()
 
-    // Navigate away to History tab
     composeTestRule.onNodeWithTag("nav_history").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Search transactions...").assertIsDisplayed()
 
-    // Navigate back to Add tab
     composeTestRule.onNodeWithTag("nav_add").performClick()
     composeTestRule.waitForIdle()
 
-    // Draft amount must be discarded per design (reset to placeholder 0)
     composeTestRule.onAllNodesWithText("50.000").assertCountEquals(0)
     composeTestRule.onNodeWithText("0").assertIsDisplayed()
   }

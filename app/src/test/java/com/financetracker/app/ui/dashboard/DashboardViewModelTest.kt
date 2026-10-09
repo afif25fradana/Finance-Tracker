@@ -113,13 +113,11 @@ class DashboardViewModelTest {
     assertEquals(300_000L, state.categories[1].amount)
     assertEquals(0.2f, state.categories[1].fraction, 0.001f)
 
-    // Cashflow and Trend have 5 months
+    // Cashflow has 5 months
     assertEquals(5, state.cashflow.size)
-    assertEquals(5, state.trend.size)
     val currentCashflow = state.cashflow.last()
     assertEquals(5_000_000L, currentCashflow.income)
     assertEquals(1_500_000L, currentCashflow.expense)
-    assertEquals(1_500_000L, state.trend.last().amount)
 
     // Recent transactions (capped at 5, mapped to Category name)
     assertEquals(5, state.recent.size)
@@ -144,8 +142,6 @@ class DashboardViewModelTest {
     assertTrue(state.categories.isEmpty())
     assertTrue(state.recent.isEmpty())
     assertEquals(5, state.cashflow.size)
-    assertEquals(5, state.trend.size)
     assertTrue(state.cashflow.all { it.income == 0L && it.expense == 0L })
-    assertTrue(state.trend.all { it.amount == 0L })
   }
 }

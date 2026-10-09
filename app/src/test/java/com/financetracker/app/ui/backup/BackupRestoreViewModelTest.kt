@@ -151,12 +151,10 @@ class BackupRestoreViewModelTest {
       openInputStream = { ByteArrayInputStream(validJson.toByteArray(Charsets.UTF_8)) }
     )
 
-    // Pick file to set pendingRestore
     viewModel.onRestoreFilePicked(dummyUri)
     val pickedState = viewModel.uiState.first { !it.isWorking && it.pendingRestore != null }
     assertNotNull(pickedState.pendingRestore)
 
-    // Confirm restore
     viewModel.confirmRestore()
     val restoredState = viewModel.uiState.first { !it.isWorking && it.message != null }
 
@@ -207,7 +205,6 @@ class BackupRestoreViewModelTest {
     val pickedState = viewModel.uiState.first { !it.isWorking && it.pendingRestore != null }
     assertNotNull(pickedState.pendingRestore)
 
-    // Launch confirmRestore and verify NonCancellable protection
     viewModel.confirmRestore()
     val restoredState = viewModel.uiState.first { !it.isWorking && it.message != null }
 
@@ -270,7 +267,6 @@ class BackupRestoreViewModelTest {
       context = context,
       backupDao = dao,
       openInputStream = { ByteArrayInputStream(validJson.toByteArray(Charsets.UTF_8)) }
-      // uses default restorer!
     )
 
     viewModel.onRestoreFilePicked(dummyUri)

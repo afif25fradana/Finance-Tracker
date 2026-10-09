@@ -15,7 +15,6 @@ import com.financetracker.app.backup.BackupResult
 import com.financetracker.app.backup.toBackup
 import com.financetracker.app.data.dao.BackupDao
 import com.financetracker.app.reminder.ReminderScheduler
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant

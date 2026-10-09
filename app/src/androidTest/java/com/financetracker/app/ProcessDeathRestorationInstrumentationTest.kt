@@ -24,28 +24,23 @@ class ProcessDeathRestorationInstrumentationTest {
 
   @Test
   fun addEditTransaction_stateMutatesSavedStateHandle() {
-    // 1. Navigate to Add tab
     composeTestRule.onNodeWithTag("nav_add").performClick()
     composeTestRule.waitForIdle()
 
     composeTestRule.onNodeWithText("New Transaction").assertIsDisplayed()
 
-    // 2. Select Income transaction type
     composeTestRule.onNodeWithText("Income").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Salary & Income").assertIsDisplayed()
 
-    // 3. Add 50.000 via quick-add preset
     composeTestRule.onNodeWithText("+Rp50.000").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("50.000").assertIsDisplayed()
 
-    // 4. Enter note in the Note text field
     composeTestRule.onAllNodes(hasSetTextAction())[1].performTextInput("SavedState death roundtrip")
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("SavedState death roundtrip").assertIsDisplayed()
 
-    // 5. Retrieve AddEditTransactionViewModel from NavBackStackEntry via MainActivity.navController
     composeTestRule.activityRule.scenario.onActivity { activity ->
       val navController = activity.navController
       assertNotNull("NavController should not be null", navController)
@@ -58,7 +53,6 @@ class ProcessDeathRestorationInstrumentationTest {
       val savedStateHandle = viewModel.savedStateHandle
       assertNotNull("SavedStateHandle should not be null", savedStateHandle)
 
-      // Assert against verbatim key constants from AddEditTransactionViewModel
       assertEquals("INCOME", savedStateHandle?.get<String>(AddEditTransactionViewModel.KEY_TYPE))
       // Raw digits stored by onQuickAdd, not display-formatted string
       assertEquals("50000", savedStateHandle?.get<String>(AddEditTransactionViewModel.KEY_AMOUNT))

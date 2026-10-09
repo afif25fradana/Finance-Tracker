@@ -79,11 +79,9 @@ class HistoryViewModelTest {
 
     val viewModel = HistoryViewModel(txDao, catDao, savedState)
 
-    // Initial state without filter
     val initial = viewModel.uiState.first { it.totalCount == 3 }
     assertEquals(3, initial.months.flatMap { it.rows }.size)
 
-    // Search by note substring: "fruit"
     viewModel.onSearchQueryChange("fruit")
     advanceUntilIdle()
     val fruitMatch = viewModel.uiState.first { it.searchQuery == "fruit" }
@@ -91,7 +89,6 @@ class HistoryViewModelTest {
     assertEquals(1, fruitRows.size)
     assertEquals(1L, fruitRows.first().id)
 
-    // Search by category name substring: "sal"
     viewModel.onSearchQueryChange("sal")
     advanceUntilIdle()
     val catMatch = viewModel.uiState.first { it.searchQuery == "sal" }
@@ -99,7 +96,6 @@ class HistoryViewModelTest {
     assertEquals(1, catRows.size)
     assertEquals(3L, catRows.first().id)
 
-    // Search query with no match
     viewModel.onSearchQueryChange("nonexistent")
     advanceUntilIdle()
     val noMatch = viewModel.uiState.first { it.searchQuery == "nonexistent" }
@@ -117,7 +113,6 @@ class HistoryViewModelTest {
     val catDao = FakeCategoryDao(listOf(cat))
     val viewModel = HistoryViewModel(txDao, catDao)
 
-    // Filter by INCOME
     viewModel.onTypeFilterChange(TransactionType.INCOME)
     advanceUntilIdle()
     val incomeState = viewModel.uiState.first { it.typeFilter == TransactionType.INCOME }
@@ -125,7 +120,6 @@ class HistoryViewModelTest {
     assertEquals(1, incomeRows.size)
     assertEquals(TransactionType.INCOME, incomeRows.first().type)
 
-    // Filter by EXPENSE
     viewModel.onTypeFilterChange(TransactionType.EXPENSE)
     advanceUntilIdle()
     val expenseState = viewModel.uiState.first { it.typeFilter == TransactionType.EXPENSE }
@@ -133,7 +127,6 @@ class HistoryViewModelTest {
     assertEquals(1, expenseRows.size)
     assertEquals(TransactionType.EXPENSE, expenseRows.first().type)
 
-    // Clear filter
     viewModel.onTypeFilterChange(null)
     advanceUntilIdle()
     val allState = viewModel.uiState.first { it.typeFilter == null }
@@ -154,13 +147,11 @@ class HistoryViewModelTest {
     val state = viewModel.uiState.first { it.totalCount == 2 }
     assertEquals(2, state.months.size)
 
-    // First month should be September 2026
     val firstMonth = state.months[0]
     assertEquals(0L, firstMonth.income)
     assertEquals(100_000L, firstMonth.expense)
     assertEquals(1, firstMonth.rows.size)
 
-    // Second month should be August 2026
     val secondMonth = state.months[1]
     assertEquals(200_000L, secondMonth.income)
     assertEquals(0L, secondMonth.expense)

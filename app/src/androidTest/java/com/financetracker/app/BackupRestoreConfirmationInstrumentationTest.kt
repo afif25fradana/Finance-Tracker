@@ -33,11 +33,9 @@ class BackupRestoreConfirmationInstrumentationTest {
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     val db = AppDatabase.getInstance(context)
 
-    // 1. Record pre-test database baseline row counts
     val initialCategoriesCount = runBlocking { db.backupDao().getAllCategoriesOnce().size }
     val initialTransactionsCount = runBlocking { db.backupDao().getAllTransactionsOnce().size }
 
-    // 2. Prepare a valid test backup JSON file in cacheDir
     val backupJson = BackupCodec.encode(
       appVersion = "1.0",
       currency = "IDR",
@@ -67,12 +65,10 @@ class BackupRestoreConfirmationInstrumentationTest {
     val testBackupFile = File(context.cacheDir, "test_restore_confirmation.json")
     testBackupFile.writeText(backupJson)
 
-    // 3. Navigate from Dashboard to Backup & Restore screen
     composeTestRule.onNodeWithText("Backup").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Backup & Restore").assertIsDisplayed()
 
-    // 4. Trigger restore file picked via BackupRestoreViewModel
     composeTestRule.activityRule.scenario.onActivity { activity ->
       val navController = activity.navController
       assertNotNull("NavController should not be null", navController)
@@ -85,7 +81,6 @@ class BackupRestoreConfirmationInstrumentationTest {
     }
     composeTestRule.waitForIdle()
 
-    // 5. Verify the destructive-replacement warning dialog appears with dynamically parsed counts
     composeTestRule.onNodeWithText("Restore backup?").assertIsDisplayed()
     composeTestRule.onNodeWithText(
       "1 categories, 1 transactions, 0 recurring items",
@@ -94,20 +89,16 @@ class BackupRestoreConfirmationInstrumentationTest {
     composeTestRule.onNodeWithText("Restore").assertIsDisplayed()
     composeTestRule.onNodeWithText("Cancel").assertIsDisplayed()
 
-    // 6. Safely cancel the restore
     composeTestRule.onNodeWithText("Cancel").performClick()
     composeTestRule.waitForIdle()
 
-    // 7. Verify the dialog is dismissed
     composeTestRule.onNodeWithText("Restore backup?").assertDoesNotExist()
 
-    // 8. Verify database is completely untouched (counts identical to baseline)
     val postCancelCategoriesCount = runBlocking { db.backupDao().getAllCategoriesOnce().size }
     val postCancelTransactionsCount = runBlocking { db.backupDao().getAllTransactionsOnce().size }
     assertEquals("Category count must be unchanged after cancel", initialCategoriesCount, postCancelCategoriesCount)
     assertEquals("Transaction count must be unchanged after cancel", initialTransactionsCount, postCancelTransactionsCount)
 
-    // Clean up temporary file
     testBackupFile.delete()
   }
 }

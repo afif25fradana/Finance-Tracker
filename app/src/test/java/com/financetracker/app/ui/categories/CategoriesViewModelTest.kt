@@ -83,17 +83,14 @@ class CategoriesViewModelTest {
     }
     advanceUntilIdle()
 
-    // Trigger delete which causes SQLiteConstraintException
     viewModel.delete(category, reassignTo = null)
     advanceUntilIdle()
 
-    // Verify exception was caught and error message surfaced in UI state
     val errorMessage = viewModel.uiState.value.errorMessage
     assertNotNull("Expected errorMessage to be set when delete fails with SQLiteConstraintException", errorMessage)
     assertTrue("Error message should mention category name", errorMessage!!.contains("Utilities"))
     assertTrue("Error message should explain references", errorMessage.contains("referenced by existing"))
 
-    // Verify clearError resets the message
     viewModel.clearError()
     advanceUntilIdle()
     assertNull("Expected errorMessage to be cleared", viewModel.uiState.value.errorMessage)
@@ -208,15 +205,12 @@ class CategoriesViewModelTest {
       income = listOf(CategoryRow(incomeCat1, 0, 0), CategoryRow(incomeCat2, 0, 0))
     )
 
-    // Expense lookup should only return expense category names
     val expenseNames = sameTypeNames(state, TransactionType.EXPENSE, excludeId = null)
     assertEquals(setOf("groceries", "dining"), expenseNames)
 
-    // Income lookup should only return income category names
     val incomeNames = sameTypeNames(state, TransactionType.INCOME, excludeId = null)
     assertEquals(setOf("salary", "groceries"), incomeNames)
 
-    // When editing existing category 1, it should be excluded from its own type check
     val editingExpenseNames = sameTypeNames(state, TransactionType.EXPENSE, excludeId = 1L)
     assertEquals(setOf("dining"), editingExpenseNames)
   }

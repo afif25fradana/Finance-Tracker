@@ -149,9 +149,9 @@ fun DashboardScreen(
       }
     }
 
-    if (state.trend.any { it.amount > 0 }) {
+    if (state.cashflow.any { it.expense > 0 }) {
       item {
-        TrendLineChart(data = state.trend, modelProducer = trendModelProducer)
+        TrendLineChart(data = state.cashflow, modelProducer = trendModelProducer)
       }
     }
 

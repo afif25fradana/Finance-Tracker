@@ -1,6 +1,6 @@
-# Finance Tracker — Technical Documentation & Architecture
+# Finance Tracker: Architecture and Development
 
-This document covers technical specifications, architecture decisions, build steps, test runner usage, and security considerations for developers and contributors.
+Technical documentation covering architecture, build setup, testing, and security.
 
 ---
 
@@ -18,14 +18,14 @@ This document covers technical specifications, architecture decisions, build ste
 
 ## Architecture & Codebase Layout
 
-Finance Tracker follows a single-activity architecture built with modern Android Jetpack libraries. Presentation, business logic, and local storage layers are strictly separated:
+Finance Tracker follows a single-activity architecture built with Android Jetpack libraries:
 
-- **Presentation**: Jetpack Compose (Material 3) with unidirectional data flow (UDF). Screens observe immutable UI state flows from ViewModels.
-- **Local Persistence**: Room SQLite database with Flow-based DAOs and transactional operations.
-- **Navigation**: Navigation Compose with a 4-tab bottom navigation bar (`Dashboard`, `Add`, `History`, `Categories`) and pushed sub-routes for reminders, export, and backup.
-- **Charts**: Vico library for cashflow bar charts and spending trend lines.
-- **Serialization**: `kotlinx.serialization` for backup file parsing and generation.
-- **Reminders**: Android `AlarmManager` with `BroadcastReceiver` to post notifications on scheduled due dates across device reboots.
+- Presentation: Jetpack Compose (Material 3) with unidirectional data flow (UDF). Screens observe immutable UI state flows from ViewModels.
+- Persistence: Room SQLite database with Flow-based DAOs and transactional operations.
+- Navigation: Navigation Compose with a four-tab bottom navigation bar (`Dashboard`, `Add`, `History`, `Categories`) and sub-routes for reminders, export, and backup.
+- Charts: Vico for cashflow bars and spending trend lines.
+- Serialization: Kotlinx Serialization for JSON backup files.
+- Reminders: `AlarmManager` with `BroadcastReceiver` to post notifications on scheduled due dates across device reboots.
 
 ```
 Finance-Track/
@@ -68,7 +68,7 @@ Finance-Track/
 │   │   │   │       ├── recurring/                # Recurring bill reminders screen
 │   │   │   │       └── theme/                    # Material 3 theme and color tokens
 │   │   │   └── res/                              # Drawables, mipmaps, and app resources
-│   │   ├── test/                                 # Unit tests (134 tests across 22 test suites)
+│   │   ├── test/                                 # Unit test suites covering ViewModels, DAOs, and utilities
 │   │   └── androidTest/                          # Compose UI and Room instrumentation tests
 │   └── build.gradle.kts                          # Module build script and dependency declarations
 ├── gradle/
@@ -81,7 +81,7 @@ Finance-Track/
 
 ## Prerequisites & Toolchain
 
-- **JDK**: Java Development Kit 21 or higher (or JDK 17 with Gradle toolchain auto-provisioning; Android Studio's bundled JBR 17/21 works out of the box).
+- **JDK**: Java Development Kit 21 or higher (Android Studio bundled JBR works out of the box).
 - **Android SDK**:
   - `minSdk`: 26 (Android 8.0 Oreo)
   - `targetSdk`: 36 (Android 16)
@@ -111,7 +111,7 @@ To assemble the debug APK:
 .\gradlew.bat :app:assembleDebug
 ```
 
-The resulting APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
+Gradle outputs the APK to `app/build/outputs/apk/debug/app-debug.apk`.
 
 To install directly onto an active device or running emulator:
 
@@ -129,7 +129,7 @@ To install directly onto an active device or running emulator:
 
 ### Unit Test Suite
 
-The project includes 134 local unit tests covering ViewModels, Room DAOs, backup encoding and validation, reminder calculation, and currency formatters:
+Run the unit test suite covering ViewModels, Room DAOs, backup encoding, reminders, and formatters (see the CI badge above for latest status):
 
 ```bash
 # macOS / Linux
@@ -153,7 +153,7 @@ Android Lint checks are configured to catch potential API and resource issues. T
 
 ### Instrumented Compose UI Tests
 
-UI interactions, state restoration across configuration changes, and end-to-end user flows are tested via instrumented tests on an emulator or physical device (API 26+):
+Instrumented tests cover UI interactions, process death restoration, and database queries on an emulator or device (API 26+):
 
 ```bash
 # macOS / Linux
@@ -167,11 +167,11 @@ UI interactions, state restoration across configuration changes, and end-to-end 
 
 ## Data Integrity & Security Safeguards
 
-- **Zero Network Permissions**: The app does not declare `android.permission.INTERNET`. No network sockets can be opened, ensuring complete offline data privacy.
-- **Backup Payload Validation**: `BackupValidator` validates all JSON backup payloads before SQLite insertion, enforcing positive amounts (`amount > 0`), valid category associations, non-empty names, and string length boundaries (`MAX_NOTE_LENGTH = 100`, `MAX_CATEGORY_NAME_LENGTH = 36`).
-- **CSV Formula Injection Defense**: In `Exporter.kt`, fields starting with formula characters (`=`, `+`, `-`, `@`) or tab characters are prefixed with a single quote (`'`), preventing spreadsheet formula execution upon opening exported CSVs in Microsoft Excel or Google Sheets.
-- **UI Error Sanitization**: Error dialogs surface sanitized user-friendly descriptions rather than raw database file paths or internal exceptions.
-- **Lifecycle & Cancellation Safety**: ViewModel coroutines catch and rethrow `CancellationException` to avoid swallowing structured concurrency cancellations, while ensuring saving state flags reset properly on failures to prevent UI deadlocks.
+- Zero network permissions: The manifest omits `android.permission.INTERNET`. The app cannot open network sockets.
+- Backup validation: `BackupValidator` checks all JSON payloads before database insertion, enforcing positive amounts (`amount > 0`), valid category associations, non-empty names, and field length limits (`MAX_NOTE_LENGTH = 100`, `MAX_CATEGORY_NAME_LENGTH = 36`).
+- CSV formula injection protection: In `Exporter.kt`, values starting with formula characters (`=`, `+`, `-`, `@`) or tab characters are prefixed with a single quote (`'`) to neutralize spreadsheet formula execution.
+- User-facing error handling: Error dialogs show sanitized messages rather than raw database paths or stack traces.
+- Coroutine lifecycle safety: ViewModel coroutines rethrow `CancellationException` to preserve structured concurrency and reset in-flight state flags on failures.
 
 ---
 

@@ -8,13 +8,13 @@ Most budgeting apps require signing up, demand access to SMS or bank APIs, or sy
 
 ## What it can do
 
-- **Completely offline & private**: Zero internet permissions requested. Your financial data never leaves your phone.
-- **Clear dashboard**: View your running balance (with a quick privacy mask toggle), monthly income vs. expense comparison, 5-month cashflow bars, and spending-by-category breakdown charts.
-- **Fast transaction entry**: Log expenses or income quickly with whole-Rupiah amount presets (+Rp10.000 to +Rp500.000), notes, and custom categories.
-- **Customizable categories**: Manage default and custom categories with distinct colors and icon glyphs.
-- **Bill & recurring reminders**: Schedule recurring reminders (daily, weekly, monthly, yearly) that post a notification when a bill is due. Reminders notify you to log transactions manually—the app never creates unexpected charges or entries automatically.
-- **CSV & JSON export**: Export date-filtered transaction records to CSV (compatible with Excel or Google Sheets) or JSON directly to your device storage.
-- **Full backup & restore**: Export your entire financial history to a single JSON backup file to move to a new device or restore after a reinstall.
+- Works offline with zero internet permissions requested.
+- Running balance with privacy mask, monthly income vs. expense summary, 5-month cashflow bars, and category breakdown.
+- Quick transaction entry with Rupiah presets (+Rp10.000 to +Rp500.000) and notes.
+- Custom categories with color tags and icons.
+- Recurring reminders (daily, weekly, monthly, yearly) that notify you at 09:00 on due dates to log bills manually; the app never creates entries automatically.
+- Date-filtered CSV and JSON export for spreadsheets or external backups.
+- Single-file JSON backup and restore.
 
 ## Screenshots
 
@@ -90,10 +90,10 @@ If you want to build the app yourself or inspect the code, see [TECHNICAL.md](TE
 
 ## A few things to keep in mind
 
-- **Indonesian Rupiah only**: All amounts are tracked in whole Indonesian Rupiah (`Rp`) as integers. Decimal currency subdivisions (cents) are not used.
-- **Manual logging philosophy**: Reminders notify you at 09:00 on the due date, but they never create transactions on their own. You decide when and what gets logged.
-- **Restore replaces existing data**: Restoring a backup replaces your current database rather than merging records. This keeps your data clean and avoids duplicate entries.
-- **Local-only storage**: Because the app has no internet permissions or cloud sync, your data lives only on your phone. Make sure to export a backup file before resetting your device or switching to a new phone.
+- All amounts are tracked in whole Indonesian Rupiah (`Rp`) without decimal subdivisions.
+- Reminders notify you at 09:00 on the due date without auto-logging charges. You decide when to log.
+- Restoring a backup replaces the current database rather than merging records.
+- All data stays on device; export a backup before wiping or switching phones.
 
 ## Technical documentation
 

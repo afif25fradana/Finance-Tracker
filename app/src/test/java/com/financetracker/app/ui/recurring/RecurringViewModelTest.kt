@@ -217,7 +217,6 @@ class RecurringViewModelTest {
       context = context,
       recurringItemDao = recDao,
       categoryDao = catDao
-      // uses default scheduleReminder and cancelReminder lambdas
     )
 
     viewModel.add(

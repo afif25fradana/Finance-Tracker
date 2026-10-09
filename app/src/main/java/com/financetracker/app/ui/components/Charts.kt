@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.financetracker.app.ui.dashboard.CashflowPoint
-import com.financetracker.app.ui.dashboard.TrendPoint
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBorder
@@ -151,7 +150,7 @@ fun CashflowChart(
 
 @Composable
 fun TrendLineChart(
-  data: List<TrendPoint>,
+  data: List<CashflowPoint>,
   modelProducer: CartesianChartModelProducer,
   modifier: Modifier = Modifier
 ) {
@@ -160,7 +159,7 @@ fun TrendLineChart(
   LaunchedEffect(data, modelProducer) {
     modelProducer.runTransaction {
       lineModel {
-        series(x = List(data.size) { it }, y = data.map { it.amount.toFloat() }, key = "expense")
+        series(x = List(data.size) { it }, y = data.map { it.expense.toFloat() }, key = "expense")
       }
       extras { it[monthLabelsKey] = months }
     }

@@ -35,11 +35,6 @@ data class CategorySlice(
   val fraction: Float
 )
 
-data class TrendPoint(
-  val label: String,
-  val amount: Long
-)
-
 data class DashboardUiState(
   val monthLabel: String = "",
   val balance: Long = 0,
@@ -49,7 +44,6 @@ data class DashboardUiState(
   val netDeltaPercent: Float? = null,
   val cashflow: List<CashflowPoint> = emptyList(),
   val categories: List<CategorySlice> = emptyList(),
-  val trend: List<TrendPoint> = emptyList(),
   val recent: List<TransactionRow> = emptyList()
 )
 
@@ -89,13 +83,6 @@ class DashboardViewModel(
           label = m.atDay(1).format(MONTH_LABEL),
           income = sumIn(m, TransactionType.INCOME),
           expense = sumIn(m, TransactionType.EXPENSE)
-        )
-      }
-
-      val trend = months.map { m ->
-        TrendPoint(
-          label = m.atDay(1).format(MONTH_LABEL),
-          amount = sumIn(m, TransactionType.EXPENSE)
         )
       }
 
@@ -142,7 +129,6 @@ class DashboardViewModel(
         netDeltaPercent = delta,
         cashflow = cashflow,
         categories = categories,
-        trend = trend,
         recent = recent
       )
     }.flowOn(Dispatchers.Default)

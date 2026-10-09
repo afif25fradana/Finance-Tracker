@@ -74,7 +74,6 @@ class AppDatabaseTest {
     val dbName = "migration_test.db"
     context.deleteDatabase(dbName)
 
-    // 1. Create a version 1 database using raw SQLite helper
     val helper = androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory().create(
       androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.builder(context)
         .name(dbName)
@@ -135,14 +134,12 @@ class AppDatabaseTest {
     v1Db.close()
     helper.close()
 
-    // 2. Open via Room at version 2 with MIGRATION_1_2
     val migratedDb = androidx.room.Room.databaseBuilder(context, AppDatabase::class.java, dbName)
       .addMigrations(AppDatabase.MIGRATION_1_2)
       .allowMainThreadQueries()
       .build()
     db = migratedDb
 
-    // 3. Verify all existing rows survive untouched
     val txs = migratedDb.transactionDao().getAll().first()
     assertEquals(2, txs.size)
     assertEquals(101L, txs[0].id)
@@ -155,7 +152,6 @@ class AppDatabaseTest {
     assertEquals(20720L, txs[1].date)
     assertEquals("Lunch", txs[1].note)
 
-    // 4. Verify index exists in sqlite_master
     val cursor = migratedDb.openHelper.writableDatabase.query(
       "SELECT name, sql FROM sqlite_master WHERE type = 'index' AND name = 'index_transactions_date_id'"
     )
@@ -178,7 +174,6 @@ class AppDatabaseTest {
 
     val rawDb = database.openHelper.writableDatabase
 
-    // 1. Verify getAll() query plan uses composite index
     val cursorGetAll = rawDb.query("EXPLAIN QUERY PLAN SELECT * FROM transactions ORDER BY date DESC, id DESC")
     val getAllPlan = buildList {
       cursorGetAll.use {
@@ -197,7 +192,6 @@ class AppDatabaseTest {
       getAllPlan.none { it.contains("USE TEMP B-TREE") }
     )
 
-    // 2. Verify getBetweenOnce() export query plan uses composite index
     val cursorBetween = rawDb.query(
       """
       EXPLAIN QUERY PLAN

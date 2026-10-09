@@ -46,7 +46,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.financetracker.app.data.AppDatabase
-import com.financetracker.app.ui.components.CreateDocumentWithName
 import com.financetracker.app.ui.theme.SignalNegative
 import com.financetracker.app.ui.theme.SignalPositive
 import com.financetracker.app.ui.theme.TermBg
@@ -93,7 +92,7 @@ private fun BackupRestoreScreen(
   onConfirmRestore: () -> Unit,
   onCancelRestore: () -> Unit
 ) {
-  val saveLauncher = rememberLauncherForActivityResult(CreateDocumentWithName()) { uri ->
+  val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
     if (uri != null) onCreateBackup(uri)
   }
   val openLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -139,9 +138,7 @@ private fun BackupRestoreScreen(
         accent = SignalPositive,
         enabled = !state.isWorking,
         onClick = {
-          saveLauncher.launch(
-            CreateDocumentWithName.Request(fileName = suggestedFileName(), mimeType = "application/json")
-          )
+          saveLauncher.launch(suggestedFileName())
         }
       )
     }

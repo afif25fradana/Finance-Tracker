@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 
 private val DEFAULT_CATEGORY_ICON: ImageVector = Icons.Default.ShoppingCart
 
-// Mirrors the icon assignments from the original design mockup.
 fun iconKeyToVector(key: String): ImageVector = when (key) {
   "payments" -> Icons.Default.Payments
   "home" -> Icons.Default.Home
@@ -40,7 +39,6 @@ fun iconKeyToVector(key: String): ImageVector = when (key) {
   else -> DEFAULT_CATEGORY_ICON
 }
 
-// Category glyph inside a rounded container with a low-opacity category-color halo.
 @Composable
 fun CategoryIconTile(
   iconKey: String,
