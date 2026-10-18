@@ -68,7 +68,7 @@ private fun TransactionExport.toExportRow(): ExportJsonRow =
 private fun typeLabel(type: TransactionType): String =
   if (type == TransactionType.INCOME) "income" else "expense"
 
-// RFC 4180: quote when the field contains a delimiter, quote, CR or LF; double embedded quotes.
+// Quotes RFC 4180 delimiters and prefixes formula tokens (=, @, +, -) with a single quote to block DDE injection.
 private fun csvEscape(value: String): String {
   val trimmed = value.trimStart()
   val isFormula = trimmed.isNotEmpty() && (

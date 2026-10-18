@@ -3,6 +3,7 @@ package com.financetracker.app.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+// Aliased to prevent KSP compiler collision between Room's @Transaction annotation and Transaction entity.
 import androidx.room.Transaction as RoomTransaction
 import com.financetracker.app.data.entity.Category
 import com.financetracker.app.data.entity.RecurringItem
@@ -43,6 +44,7 @@ abstract class BackupDao {
     recurringItems: List<RecurringItem>,
     transactions: List<Transaction>
   ) {
+    // SQLite FK RESTRICT requires child-first deletion and parent-first insertion.
     clearTransactions()
     clearRecurring()
     clearCategories()

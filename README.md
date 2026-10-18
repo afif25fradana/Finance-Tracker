@@ -1,20 +1,18 @@
 # Finance Tracker
 
 [![Tests](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/afif25fradana/Finance-Tracker/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Finance Tracker is a simple, private, offline-first personal finance app for Android. It helps you track your daily income, expenses, and recurring bills in Indonesian Rupiah without creating an account or sending your data anywhere.
+Finance Tracker is a private, offline-first personal finance app for Android built with Jetpack Compose and Room. It tracks daily income, expenses, and recurring bills in whole Indonesian Rupiah without requiring account registration, internet permissions, or cloud data synchronization.
 
-Most budgeting apps require signing up, demand access to SMS or bank APIs, or sync your transactions to third-party cloud servers. Finance Tracker keeps all your financial records strictly on your device in an offline SQLite database. There is no internet permission in the application manifest, no ads, no trackers, and no third-party analytics.
+## Features
 
-## What it can do
-
-- Works offline with zero internet permissions requested.
-- Running balance with privacy mask, monthly income vs. expense summary, 5-month cashflow bars, and category breakdown.
-- Quick transaction entry with Rupiah presets (+Rp10.000 to +Rp500.000) and notes.
-- Custom categories with color tags and icons.
-- Recurring reminders (daily, weekly, monthly, yearly) that notify you at 09:00 on due dates to log bills manually; the app never creates entries automatically.
-- Date-filtered CSV and JSON export for spreadsheets or external backups.
-- Single-file JSON backup and restore.
+- **Offline-First Privacy**: The application manifest omits `android.permission.INTERNET`. All financial records remain strictly on-device in a local SQLite database with zero ads, trackers, or remote telemetry.
+- **Rupiah Monetary Precision**: Ledger amounts are calculated and stored as whole 64-bit integers (`Long`) with zero floating-point accumulation errors.
+- **Quick Transaction Capture**: Fast entry interface with Rupiah preset chips (+Rp10.000 to +Rp500.000) and custom transaction notes.
+- **Visual Analytics**: Interactive 5-month cashflow bars, monthly income vs. expense summaries, and category breakdowns powered by Vico.
+- **Bill Reminders**: Scheduled notifications at 09:00 local time on due dates to prompt manual entry; the app never logs transactions automatically.
+- **Data Portability**: Date-range CSV and JSON exports protected against spreadsheet formula injection, alongside atomic single-file backup and restore.
 
 ## Screenshots
 
@@ -63,12 +61,12 @@ Most budgeting apps require signing up, demand access to SMS or bank APIs, or sy
 
 ## Installation
 
-### Option 1: Download the pre-built APK (Recommended)
+### Download Pre-Built APK
 
 Download the latest release directly to your Android device:
 [FinanceTracker-v1.1.0.apk](https://github.com/afif25fradana/Finance-Tracker/releases/download/v1.1.0/FinanceTracker-v1.1.0.apk)
 
-#### Checksum verification
+#### Checksum Verification
 
 | File | SHA-256 Hash |
 | :--- | :--- |
@@ -84,21 +82,55 @@ To verify on macOS or Linux:
 sha256sum FinanceTracker-v1.1.0.apk
 ```
 
-### Option 2: Build from source
+## Quick Start (Developers)
 
-If you want to build the app yourself or inspect the code, see [TECHNICAL.md](TECHNICAL.md) for build instructions and prerequisites.
+### Prerequisites
+- **JDK**: Java Development Kit 21 or higher (bundled Android Studio JBR supported).
+- **Android SDK**: `compileSdk 36`, `minSdk 26`, `targetSdk 36`.
 
-## A few things to keep in mind
+### Building and Testing
 
-- All amounts are tracked in whole Indonesian Rupiah (`Rp`) without decimal subdivisions.
-- Reminders notify you at 09:00 on the due date without auto-logging charges. You decide when to log.
-- Restoring a backup replaces the current database rather than merging records.
-- All data stays on device; export a backup before wiping or switching phones.
+```bash
+# Clone the repository
+git clone https://github.com/afif25fradana/Finance-Tracker.git
+cd Finance-Tracker/Finance-Track
 
-## Technical documentation
+# Run unit and in-memory DAO test suite (144 tests)
+./gradlew :app:testDebugUnitTest       # macOS / Linux
+.\gradlew.bat :app:testDebugUnitTest   # Windows (PowerShell)
 
-For technical specifications, codebase architecture, building from source, running the test suite, and quality gates, please read [TECHNICAL.md](TECHNICAL.md).
+# Assemble debug APK
+./gradlew :app:assembleDebug           # macOS / Linux
+.\gradlew.bat :app:assembleDebug       # Windows (PowerShell)
+```
+
+## Verified Commands
+
+| Task | Command | Description |
+| :--- | :--- | :--- |
+| **Unit Tests** | `.\gradlew.bat :app:testDebugUnitTest` | Runs all 144 unit tests across 22 suites (Robolectric + Turbine) |
+| **Debug Build** | `.\gradlew.bat :app:assembleDebug` | Builds debug APK to `app/build/outputs/apk/debug/app-debug.apk` |
+| **Static Analysis** | `.\gradlew.bat :app:lintDebug` | Runs Android Lint (maintains a 0-error gate) |
+| **Connected Tests** | `.\gradlew.bat :app:connectedDebugAndroidTest` | Runs on-device Compose UI instrumentation tests |
+| **Install Debug** | `.\gradlew.bat :app:installDebug` | Deploys debug APK to connected device or active emulator |
+
+## Architecture Overview
+
+Finance Tracker follows a single-activity architecture built with Android Jetpack libraries:
+- **Presentation**: Jetpack Compose (Material 3) with unidirectional data flow (UDF) and type-safe Navigation Compose routes (`@Serializable`).
+- **Persistence**: Android Jetpack Room with Kotlin Coroutine `Flow` queries and atomic foreign-key transactions.
+- **Reminders**: Inexact `AlarmManager` scheduling at 09:00 daytime with a `BroadcastReceiver` restoring alarms on `BOOT_COMPLETED`.
+- **Integrity**: CSV formula injection protection (`'`) and centralized input length caps (`Format.kt`).
+
+For comprehensive architecture diagrams, database schemas, and toolchain configurations, see [TECHNICAL.md](TECHNICAL.md).
+
+## Usage Notes
+
+- All transactions are tracked in whole Indonesian Rupiah (`Rp`) without decimal subdivisions.
+- Reminders notify you at 09:00 on scheduled due dates without auto-logging charges.
+- Restoring a backup replaces the current database completely rather than merging records.
+- All data remains strictly on your device; export a backup before wiping or switching devices.
 
 ## License
 
-[MIT](LICENSE)
+This project is licensed under the [MIT License](LICENSE).

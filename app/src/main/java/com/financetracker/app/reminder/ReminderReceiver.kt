@@ -73,7 +73,7 @@ class ReminderReceiver @JvmOverloads constructor(
     }
   }
 
-  /** Post a notification only — never writes a Transaction — then advance to the next occurrence. */
+  /** Post a notification only (never writes a Transaction), then advance to the next occurrence. */
   @SuppressLint("MissingPermission")
   private suspend fun onReminderFired(context: Context, itemId: Long) {
     val db = dbProvider(context)
